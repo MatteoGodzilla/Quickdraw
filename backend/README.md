@@ -2,6 +2,7 @@
 # Dependencies
 - Node + NPM
 - Typescript
+- nodemon
 
 ## How to compile
 ```bash
