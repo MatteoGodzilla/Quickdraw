@@ -1,4 +1,4 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, foreignKey, int, varchar, binary } from "drizzle-orm/mysql-core"
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, foreignKey, int, tinyint, varchar, timestamp, binary, char } from "drizzle-orm/mysql-core"
 import { sql } from "drizzle-orm"
 
 export const activeContract = mysqlTable("ActiveContract", {
@@ -37,6 +37,14 @@ export const contract = mysqlTable("Contract", {
 	id: int().autoincrement().notNull(),
 });
 
+export const duel = mysqlTable("Duel", {
+	id: int().autoincrement().notNull(),
+	idPlayerA: int().notNull(),
+	idPlayerB: int().notNull(),
+	status: tinyint().default(0).notNull(),
+	timestamp: timestamp({ mode: 'string' }).default('current_timestamp()'),
+});
+
 export const employedMercenary = mysqlTable("EmployedMercenary", {
 	idPlayer: int().notNull().references(() => player.id, { onDelete: "restrict", onUpdate: "restrict" } ),
 	idMercenary: int().notNull().references(() => mercenary.id, { onDelete: "restrict", onUpdate: "restrict" } ),
@@ -52,6 +60,7 @@ export const login = mysqlTable("Login", {
 	email: varchar({ length: 254 }).notNull(),
 	password: binary({ length: 60 }).notNull(),
 	idPlayer: int().notNull().references(() => player.id, { onDelete: "restrict", onUpdate: "restrict" } ),
+	authToken: char({ length: 36 }).default('NULL'),
 });
 
 export const medikit = mysqlTable("Medikit", {
@@ -78,11 +87,11 @@ export const mercenary = mysqlTable("Mercenary", {
 
 export const player = mysqlTable("Player", {
 	id: int().autoincrement().notNull(),
-	health: int().notNull(),
-	maxHealth: int().notNull(),
-	exp: int().notNull(),
-	money: int().notNull(),
-	bounty: int().notNull(),
+	health: int().default(100).notNull(),
+	maxHealth: int().default(100).notNull(),
+	exp: int().default(0).notNull(),
+	money: int().default(0).notNull(),
+	bounty: int().default(0).notNull(),
 	username: varchar({ length: 128 }).notNull(),
 });
 
@@ -108,6 +117,16 @@ export const playerWeapon = mysqlTable("PlayerWeapon", {
 	idWeapon: int().notNull().references(() => weapon.id, { onDelete: "restrict", onUpdate: "restrict" } ),
 });
 
+export const round = mysqlTable("Round", {
+	idDuel: int().notNull(),
+	roundNumber: int().notNull(),
+	idPlayer: int().notNull(),
+	won: tinyint().notNull(),
+	idWeaponUsed: int().notNull(),
+	bulletsUsed: int().default(1).notNull(),
+	damage: int().notNull(),
+});
+
 export const upgradeShop = mysqlTable("UpgradeShop", {
 	idUpgrade: int().autoincrement().notNull(),
 	type: int().notNull(),
@@ -116,7 +135,7 @@ export const upgradeShop = mysqlTable("UpgradeShop", {
 });
 
 export const upgradeTypes = mysqlTable("UpgradeTypes", {
-	id: int().notNull(),
+	id: int().autoincrement().notNull(),
 	description: varchar("Description", { length: 100 }).notNull(),
 });
 
