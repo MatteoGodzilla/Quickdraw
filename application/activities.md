@@ -1,0 +1,3 @@
+- Login/Register
+- Duello
+- Tutto il resto
