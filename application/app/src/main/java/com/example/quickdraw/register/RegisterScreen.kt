@@ -123,7 +123,7 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = {},
+                    onClick = registerScreenVM::register,
                     colors = primaryButtonColors,
                     enabled = registerScreenVM.canRegister()
                 ) {

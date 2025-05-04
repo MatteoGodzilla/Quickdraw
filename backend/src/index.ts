@@ -1,4 +1,5 @@
 import Express from "express";
+import BodyParser from "body-parser";
 import dotenv from "dotenv";
 import { drizzle } from "drizzle-orm/mysql2"
 import { eq, desc } from "drizzle-orm";
@@ -6,8 +7,9 @@ import { upgradeTypes, login, player, friendship } from "./db/schema";
 import bcrypt from "bcrypt" // bcrypt for hashing passwords
 import { v7 as uuidv7 } from 'uuid'; // uuidv7 for generating unique tokens
 
-const app = Express();
 dotenv.config()
+const app = Express();
+app.use(BodyParser.json())
 const db = drizzle(process.env.DATABASE_URL!)
 const SALT_ROUNDS = 12
 
@@ -45,6 +47,8 @@ app.post("/auth/tokenLogin", (req, res) => {
 })
 
 app.post("/auth/login", (req, res) => {
+    console.log("RECEIVED LOGIN REQUEST")
+    console.log(req.body)
     let { email, password } = req.body
     if (!email || !password) {
         res.status(400).send()
