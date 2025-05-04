@@ -7,6 +7,7 @@ import bcrypt from "bcrypt" // bcrypt for hashing passwords
 import { v7 as uuidv7 } from 'uuid'; // uuidv7 for generating unique tokens
 
 const app = Express();
+dotenv.config()
 const db = drizzle(process.env.DATABASE_URL!)
 const SALT_ROUNDS = 12
 
@@ -205,7 +206,7 @@ app.get("/bounty/leaderboard", (req, res) => {
         })
 })
 
-
+app.listen(process.env.PORT)
 /*
 //dotenv.configDotenv()
 //const db = drizzle(process.env.DATABASE_URL!)
