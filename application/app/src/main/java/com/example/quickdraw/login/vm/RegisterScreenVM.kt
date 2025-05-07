@@ -1,12 +1,16 @@
-package com.example.quickdraw.register
+package com.example.quickdraw.login.vm
 
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.quickdraw.api.LoginResponse
-import com.example.quickdraw.api.REGISTER_ENDPOINT
-import com.example.quickdraw.api.RegisterRequest
+import com.example.quickdraw.common.PrefKeys
+import com.example.quickdraw.common.LoginResponse
+import com.example.quickdraw.common.REGISTER_ENDPOINT
+import com.example.quickdraw.common.RegisterRequest
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -14,7 +18,9 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.IOException
 
-class RegisterScreenVM : ViewModel() {
+class RegisterScreenVM(
+    private val dataStore: DataStore<Preferences>
+) : ViewModel() {
     val username = mutableStateOf("")
     val email = mutableStateOf("")
     val password = mutableStateOf("")
@@ -43,8 +49,10 @@ class RegisterScreenVM : ViewModel() {
                 Log.e("QUICKDRAW", response.code.toString())
             } else if(response.body != null){
                 val responseVal = Json.decodeFromString<LoginResponse>(response.body!!.string())
-                Log.i("QUICKDRAW", responseVal.idPlayer.toString())
-                Log.i("QUICKDRAW", responseVal.authToken)
+                dataStore.edit { preferences ->
+                    preferences[PrefKeys.playerId] = responseVal.idPlayer
+                    preferences[PrefKeys.authToken] = responseVal.authToken
+                }
             }
             response.close()
         } catch (e: IOException){
