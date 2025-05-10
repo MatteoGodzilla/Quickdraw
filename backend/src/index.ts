@@ -146,9 +146,10 @@ async function insertUser(email: string, password: string, username: string) {
     return { inserted: result, id: ids[0].id, token: token }
 }
 
-app.get("bounty/friends", (req, res) => {
+app.get("bounty/friends/:idPlayer/:token", (req, res) => {
     // Get the friends of the player from the database
-    const { idPlayer, token } = req.body
+    const idPlayer =  Number(req.params.idPlayer)
+    const token = req.params.token as string
     if (!idPlayer || !token) {
         res.status(400).send()
     } else {
@@ -210,14 +211,10 @@ app.get("/bounty/leaderboard", (req, res) => {
         })
 })
 
-app.listen(process.env.PORT)
-/*
-//dotenv.configDotenv()
-//const db = drizzle(process.env.DATABASE_URL!)
-async function getUpgradeTypes(){
-    const types = await db.select().from(upgradeTypes);
-    console.log(types)
-}
+app.get("/inventory/", (req, res) => {
+    // Get the inventory of the player from the database")
+    const idPlayer = Number(req.query.idPlayer)
 
-getUpgradeTypes()
-*/
+})
+
+app.listen(process.env.PORT)
