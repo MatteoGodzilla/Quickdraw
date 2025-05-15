@@ -11,6 +11,7 @@ private val LightColorScheme = lightColorScheme(
     surfaceContainer = Color(0xFFF4CB89),
     onSurface = Color(0xFF2F0E02),
     primary = Color(0xFF65D73C),
+    onSurfaceVariant = Color(0xFF2F0E02),
     secondary = Color(0XFFF2721A),
     tertiary = Color(0XFFBC5813),
     onErrorContainer = Color(0xFF9A9A9A) //used for disabled stuff

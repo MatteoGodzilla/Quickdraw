@@ -2,63 +2,57 @@ package com.example.quickdraw.main
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.GridView
-import android.widget.ImageButton
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Done
-import androidx.compose.material3.BottomAppBar
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
-import com.example.quickdraw.login.LoginActivity
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.navigation
+import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.common.PrefKeys
 import com.example.quickdraw.common.dataStore
+import com.example.quickdraw.login.LoginActivity
+import com.example.quickdraw.main.components.BasicTabLayout
 import com.example.quickdraw.main.components.BottomNavBar
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 
+
+class Navigation {
+    @Serializable
+    object YourPlace{
+        @Serializable
+        object Main
+        @Serializable
+        object Memories
+        @Serializable
+        object Inventory
+    }
+    @Serializable
+    object Map
+}
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         //check for stored login info
+
         lifecycleScope.launch(Dispatchers.Main) {
             val storedId = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.playerId] }.firstOrNull()
             val tokenId = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.authToken] }.firstOrNull()
@@ -70,9 +64,53 @@ class MainActivity : ComponentActivity() {
             }
         }
 
+
         setContent {
+            Graph()
+        }
+    }
+}
 
+@Preview
+@Composable
+fun Graph(){
+    val controller = rememberNavController()
+    NavHost(navController = controller, startDestination = Navigation.YourPlace) {
+        navigation<Navigation.YourPlace>(startDestination = Navigation.YourPlace.Inventory){
+            composable<Navigation.YourPlace.Main> {
+                BasicScreen("Your Place/Main")
+            }
+            composable<Navigation.YourPlace.Memories> {
+                BasicScreen("Your Place/Memories")
+            }
+            composable<Navigation.YourPlace.Inventory> {
+                BasicScreen("Your Place/Inventory")
+            }
+        }
+        composable<Navigation.Map> { MainScreen() }
+    }
+    controller.navigate(Navigation.YourPlace)
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+fun BasicScreen(name: String = "Title"){
+    QuickdrawTheme {
+        Scaffold (
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = { Text(name)},
+                    navigationIcon = {
+                        IconButton(onClick = {}) {
+                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
+                        }
+                    }
+                )
+            },
+            bottomBar = { BottomNavBar() }
+        ) { padding ->
+            BasicTabLayout(padding)
         }
     }
 }
