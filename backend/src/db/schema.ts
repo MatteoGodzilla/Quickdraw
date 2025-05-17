@@ -1,4 +1,4 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, foreignKey, int, tinyint, varchar, timestamp, binary, char } from "drizzle-orm/mysql-core"
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, foreignKey, int, varchar, timestamp, binary, char, tinyint } from "drizzle-orm/mysql-core"
 import { sql } from "drizzle-orm"
 
 export const activeContract = mysqlTable("ActiveContract", {
@@ -71,9 +71,9 @@ export const medikit = mysqlTable("Medikit", {
 });
 
 export const medikitShop = mysqlTable("MedikitShop", {
+	id: int().autoincrement().notNull(),
 	idMedikit: int().notNull().references(() => medikit.id, { onDelete: "restrict", onUpdate: "restrict" } ),
 	cost: int().notNull(),
-	id: int().autoincrement().notNull(),
 	quantity: int().notNull(),
 });
 
@@ -86,7 +86,7 @@ export const mercenary = mysqlTable("Mercenary", {
 });
 
 export const player = mysqlTable("Player", {
-	id: int().autoincrement().notNull().primaryKey(),
+	id: int().autoincrement().notNull(),
 	health: int().default(100).notNull(),
 	maxHealth: int().default(100).notNull(),
 	exp: int().default(0).notNull(),
@@ -118,7 +118,7 @@ export const playerWeapon = mysqlTable("PlayerWeapon", {
 });
 
 export const round = mysqlTable("Round", {
-	idDuel: int().notNull(),
+	idDuel: int().notNull().references(() => duel.id, { onDelete: "restrict", onUpdate: "restrict" } ),
 	roundNumber: int().notNull(),
 	idPlayer: int().notNull(),
 	won: tinyint().notNull(),
@@ -129,8 +129,8 @@ export const round = mysqlTable("Round", {
 
 export const upgradeShop = mysqlTable("UpgradeShop", {
 	idUpgrade: int().autoincrement().notNull(),
-	type: int().notNull(),
-	value: int().notNull(),
+	type: int().notNull().references(() => upgradeTypes.id, { onDelete: "restrict", onUpdate: "restrict" } ),
+	level: int().notNull(),
 	cost: int().notNull(),
 });
 
@@ -145,4 +145,5 @@ export const weapon = mysqlTable("Weapon", {
 	name: varchar({ length: 100 }).notNull(),
 	damage: int().notNull(),
 	cost: int().default(0).notNull(),
+	bulletsShot: int().default(1).notNull(),
 });

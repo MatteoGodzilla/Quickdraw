@@ -1,5 +1,5 @@
 import { relations } from "drizzle-orm/relations";
-import { contract, activeContract, assignedMercenary, employedMercenary, bullet, bulletShop, mercenary, player, friendship, login, medikit, medikitShop, playerBullet, playerMedikit, playerUpgrade, upgradeShop, playerWeapon, weapon } from "./schema";
+import { contract, activeContract, assignedMercenary, employedMercenary, bullet, bulletShop, mercenary, player, friendship, login, medikit, medikitShop, playerBullet, playerMedikit, playerUpgrade, upgradeShop, playerWeapon, weapon, duel, round, upgradeTypes } from "./schema";
 
 export const activeContractRelations = relations(activeContract, ({one, many}) => ({
 	contract: one(contract, {
@@ -133,8 +133,12 @@ export const playerUpgradeRelations = relations(playerUpgrade, ({one}) => ({
 	}),
 }));
 
-export const upgradeShopRelations = relations(upgradeShop, ({many}) => ({
+export const upgradeShopRelations = relations(upgradeShop, ({one, many}) => ({
 	playerUpgrades: many(playerUpgrade),
+	upgradeType: one(upgradeTypes, {
+		fields: [upgradeShop.type],
+		references: [upgradeTypes.id]
+	}),
 }));
 
 export const playerWeaponRelations = relations(playerWeapon, ({one}) => ({
@@ -154,4 +158,19 @@ export const weaponRelations = relations(weapon, ({one, many}) => ({
 		fields: [weapon.bulletType],
 		references: [bullet.type]
 	}),
+}));
+
+export const roundRelations = relations(round, ({one}) => ({
+	duel: one(duel, {
+		fields: [round.idDuel],
+		references: [duel.id]
+	}),
+}));
+
+export const duelRelations = relations(duel, ({many}) => ({
+	rounds: many(round),
+}));
+
+export const upgradeTypesRelations = relations(upgradeTypes, ({many}) => ({
+	upgradeShops: many(upgradeShop),
 }));

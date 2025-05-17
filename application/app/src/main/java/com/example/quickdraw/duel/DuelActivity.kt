@@ -149,6 +149,7 @@ class DuelActivity : ComponentActivity() {
                                     while(m != null){
                                         Log.i("QUICKDRAW", "<$m")
                                         clientOut.write(m)
+                                        clientOut.newLine()
                                         clientOut.flush()
                                         m = clientIn.readLine()
                                     }
