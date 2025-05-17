@@ -71,7 +71,10 @@ router.post("/upgrades/", (req, res) => {
             level: max(upgradeShop.level).as("maxLevel")
         })
         .from(playerUpgrade)
-        .innerJoin(upgradeShop, eq(upgradeShop.idUpgrade, playerUpgrade.idUpgrade))
+        .innerJoin(upgradeShop, and(
+            eq(upgradeShop.idUpgrade, playerUpgrade.idUpgrade),
+            eq(playerUpgrade.idPlayer, req.player!.idPlayer)
+        ))
         .groupBy(upgradeShop.type)
    );
 

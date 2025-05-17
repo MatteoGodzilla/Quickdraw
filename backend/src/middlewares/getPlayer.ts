@@ -1,5 +1,5 @@
 import { Response, NextFunction } from "express";
-import { eq, InferSelectModel } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { login } from "../db/schema"; 
 import dotenv from "dotenv";
