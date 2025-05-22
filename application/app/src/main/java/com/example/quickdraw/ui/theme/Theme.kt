@@ -27,6 +27,13 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+class progressBarColors() {
+    companion object {
+        val health = Color.Red
+        val experience = Color(0xFF65D73C)
+    }
+}
+
 val primaryButtonColors = ButtonColors(
     containerColor = LightColorScheme.primary,
     contentColor = LightColorScheme.onSurface,

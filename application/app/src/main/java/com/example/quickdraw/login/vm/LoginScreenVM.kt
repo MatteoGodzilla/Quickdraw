@@ -11,6 +11,7 @@ import com.example.quickdraw.common.PrefKeys
 import com.example.quickdraw.common.LOGIN_ENDPOINT
 import com.example.quickdraw.common.LoginRequest
 import com.example.quickdraw.common.LoginResponse
+import com.example.quickdraw.common.toRequestBody
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -24,7 +25,7 @@ class LoginScreenVM(
     val email = mutableStateOf("")
     val password = mutableStateOf("")
     val showPassword = mutableStateOf(false)
-    val showInvalidCombo = mutableStateOf(false)
+    private val showInvalidCombo = mutableStateOf(false)
 
     fun canSendLogin(): Boolean{
         return email.value != "" && password.value != ""

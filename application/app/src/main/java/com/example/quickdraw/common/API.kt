@@ -15,27 +15,19 @@ const val REGISTER_ENDPOINT = "$BASE_URL/auth/register"
 
 /* --------------REQUEST--------------*/
 
-@Serializable
-data class LoginRequest(val email: String, val password: String){
-    fun toRequestBody(): RequestBody {
-        return Json.encodeToString(this).toRequestBody("application/json".toMediaType())
-    }
+inline fun <reified T> T.toRequestBody(): RequestBody {
+    val jsonString = Json.encodeToString(this)
+    return jsonString.toRequestBody("application/json".toMediaType())
 }
 
 @Serializable
-data class TokenLoginRequest(val id: Int, val token: String){
-    fun toRequestBody(): RequestBody {
-        return Json.encodeToString(this).toRequestBody("application/json".toMediaType())
-    }
-}
-
+data class LoginRequest(val email: String, val password: String)
 
 @Serializable
-data class RegisterRequest(val email: String, val password:String, val username: String){
-    fun toRequestBody(): RequestBody {
-        return Json.encodeToString(this).toRequestBody("application/json".toMediaType())
-    }
-}
+data class TokenLoginRequest(val id: Int, val token: String)
+
+@Serializable
+data class RegisterRequest(val email: String, val password:String, val username: String)
 
 /* --------------RESPONSE-------------*/
 

@@ -31,6 +31,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.quickdraw.main.components.BottomNavBar
+import com.example.quickdraw.main.components.TopBar
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 
 @Preview
@@ -38,89 +39,7 @@ import com.example.quickdraw.ui.theme.QuickdrawTheme
 fun MainScreen(){
     QuickdrawTheme {
         Scaffold(
-            topBar = {
-                Surface(color = MaterialTheme.colorScheme.surfaceContainer){
-                    LazyVerticalGrid(
-                        columns = GridCells.Fixed(3),
-                        userScrollEnabled = false,
-
-                    ) {
-                        //TODO: get this value from the text size instead
-                        val rowHeight = 24.dp
-                        item (
-                            span = { GridItemSpan(2) }
-                        ) {
-                            Row(
-                                modifier = Modifier.heightIn(rowHeight).fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                LinearProgressIndicator(
-                                    progress = {0.5f},
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                        item {
-                            Text(
-                                "Health",
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                        item (
-                            span = { GridItemSpan(2) }
-                        ) {
-                            Row(
-                                modifier = Modifier.heightIn(rowHeight).fillMaxWidth(),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                LinearProgressIndicator(
-                                    progress = {0.5f},
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                        item {
-                            Text(
-                                "Player Level",
-                                textAlign = TextAlign.Center,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-                        }
-                        item{
-                            Row {
-                                Image(Icons.Default.Done, "")
-                                Text(
-                                    "##Money##",
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                        item{
-                            Row {
-                                Image(Icons.Default.Done, "")
-                                Text(
-                                    "##Bounty##",
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                        item{
-                            Row {
-                                Image(Icons.Default.Done, "")
-                                Text(
-                                    "##Bullets##",
-                                    textAlign = TextAlign.Center,
-                                    modifier = Modifier.fillMaxWidth()
-                                )
-                            }
-                        }
-                    }
-                }
-
-            },
+            topBar = { TopBar() },
             bottomBar = { BottomNavBar() }
         ) { padding ->
             Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End){

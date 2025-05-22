@@ -23,8 +23,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.common.PrefKeys
 import com.example.quickdraw.common.dataStore
 import com.example.quickdraw.login.LoginActivity
+import com.example.quickdraw.main.components.BasicScreen
 import com.example.quickdraw.main.components.BasicTabLayout
 import com.example.quickdraw.main.components.BottomNavBar
+import com.example.quickdraw.main.shop.ShopScreen
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -35,7 +37,7 @@ import kotlinx.serialization.Serializable
 
 class Navigation {
     @Serializable
-    object YourPlace{
+    object YourPlace {
         @Serializable
         object Main
         @Serializable
@@ -43,6 +45,8 @@ class Navigation {
         @Serializable
         object Inventory
     }
+    @Serializable
+    object Shop
     @Serializable
     object Map
 }
@@ -75,7 +79,8 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Graph(){
     val controller = rememberNavController()
-    NavHost(navController = controller, startDestination = Navigation.YourPlace) {
+    NavHost(navController = controller, startDestination = Navigation.Shop) {
+
         navigation<Navigation.YourPlace>(startDestination = Navigation.YourPlace.Inventory){
             composable<Navigation.YourPlace.Main> {
                 BasicScreen("Your Place/Main")
@@ -87,30 +92,8 @@ fun Graph(){
                 BasicScreen("Your Place/Inventory")
             }
         }
+        composable<Navigation.Shop> { ShopScreen() }
         composable<Navigation.Map> { MainScreen() }
     }
     controller.navigate(Navigation.YourPlace)
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-fun BasicScreen(name: String = "Title"){
-    QuickdrawTheme {
-        Scaffold (
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = { Text(name)},
-                    navigationIcon = {
-                        IconButton(onClick = {}) {
-                            Icon(Icons.AutoMirrored.Filled.ArrowBack, "Back")
-                        }
-                    }
-                )
-            },
-            bottomBar = { BottomNavBar() }
-        ) { padding ->
-            BasicTabLayout(padding)
-        }
-    }
 }

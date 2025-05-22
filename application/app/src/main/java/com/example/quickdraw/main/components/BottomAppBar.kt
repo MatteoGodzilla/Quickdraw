@@ -1,7 +1,9 @@
 package com.example.quickdraw.main.components
 
+import android.media.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
@@ -11,16 +13,20 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CheckCircle
 import androidx.compose.material3.BottomAppBar
+import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
 import com.example.quickdraw.ui.theme.bottomBarButtonColors
 
 @Preview
@@ -28,92 +34,101 @@ import com.example.quickdraw.ui.theme.bottomBarButtonColors
 fun BottomNavBar(height: Dp = 100.dp){
     BottomAppBar(
         modifier = Modifier.height(height),
-        contentPadding = PaddingValues(0.dp),
+        contentPadding = PaddingValues(0.dp)
     ) {
         LazyVerticalGrid(
             columns = GridCells.Fixed(5),
             verticalArrangement = Arrangement.Center,
-            userScrollEnabled = false,
-
+            userScrollEnabled = false
         ) {
             //TODO: change button color depending on navigation
             // -> bool active on bottomBarButtonColors
             item {
-                TextButton(onClick = {}, contentPadding = PaddingValues(0.dp), colors = bottomBarButtonColors(false)) {
-                    Column(
-                        modifier = Modifier.heightIn(height),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = "Your Place",
-                            modifier = Modifier.size(height/3,height/2)
+                BottomBarTextButton(
+                    function = {},
+                    height = height,
+                    color = bottomBarButtonColors(false),
+                    content = {
+                        BarIcon(
+                            icon=Icons.Default.CheckCircle,
+                            description="Your Place"
                         )
-                        Text("Your Place", textAlign = TextAlign.Center)
                     }
-                }
-
+                )
             }
             item {
-                TextButton(onClick = {}, contentPadding = PaddingValues(0.dp), colors = bottomBarButtonColors(false)) {
-                    Column(
-                        modifier = Modifier.heightIn(height),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = "Bounty Board",
-                            modifier = Modifier.size(height/3,height/2)
+                BottomBarTextButton(
+                    function = {},
+                    height = height,
+                    color = bottomBarButtonColors(false),
+                    content = {
+                        BarIcon(
+                            icon=Icons.Default.CheckCircle,
+                            description="Bounty Board"
                         )
-                        Text("Bounty Board", textAlign = TextAlign.Center)
                     }
-                }
+                )
             }
             item {
-                TextButton(onClick = {}, contentPadding = PaddingValues(0.dp), colors = bottomBarButtonColors(true)) {
-                    Column(
-                        modifier = Modifier.heightIn(height),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = "Map",
-                            modifier = Modifier.size(height/3,height/2)
+                BottomBarTextButton(
+                    function = {},
+                    height = height,
+                    color = bottomBarButtonColors(false),
+                    content = {
+                        BarIcon(
+                            icon=Icons.Default.CheckCircle,
+                            description="Map"
                         )
-                        Text("Map", textAlign = TextAlign.Center)
                     }
-                }
+                )
             }
             item {
-                TextButton(onClick = {}, contentPadding = PaddingValues(0.dp), colors = bottomBarButtonColors(false)){
-                    Column(
-                        modifier = Modifier.heightIn(height),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = "Shop",
-                            modifier = Modifier.size(height/3,height/2)
+                BottomBarTextButton(
+                    function = {},
+                    height = height,
+                    color = bottomBarButtonColors(false),
+                    content = {
+                        BarIcon(
+                            icon=Icons.Default.CheckCircle,
+                            description="Shop"
                         )
-                        Text("Shop", textAlign = TextAlign.Center)
                     }
-                }
+                )
             }
             item {
-                TextButton(onClick = {}, contentPadding = PaddingValues(0.dp), colors = bottomBarButtonColors(false)) {
-                    Column(
-                        modifier = Modifier.heightIn(height),
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                    ) {
-                        Icon(
-                            Icons.Default.CheckCircle,
-                            contentDescription = "Contracts",
-                            modifier = Modifier.size(height/3,height/2)
+                BottomBarTextButton(
+                    function = {},
+                    height = height,
+                    color = bottomBarButtonColors(false),
+                    content = {
+                        BarIcon(
+                            icon=Icons.Default.CheckCircle,
+                            description="Contracts"
                         )
-                        Text("Contracts", textAlign = TextAlign.Center)
                     }
-                }
+                )
             }
         }
+    }
+}
+
+@Composable
+fun BarIcon(icon: ImageVector, description: String) {
+    Icon (
+        imageVector = icon,
+        contentDescription = description
+    )
+    Text(text = description, textAlign = TextAlign.Center)
+}
+
+@Composable
+fun BottomBarTextButton(function: () -> Unit, height: Dp, color: ButtonColors, content: @Composable() (ColumnScope.() -> Unit)) {
+    TextButton(onClick = function, contentPadding = PaddingValues(0.dp), colors = color) {
+        Column(
+            modifier = Modifier.heightIn(height),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+            content = content
+        )
     }
 }
