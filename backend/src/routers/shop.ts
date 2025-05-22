@@ -1,7 +1,5 @@
 import Express from "express";
-import dotenv from "dotenv"; 
 import { eq, sql, and, max } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
 import { 
     medikitShop, medikit, playerMedikit, 
     bulletShop, bullet, playerBullet,
@@ -9,10 +7,8 @@ import {
     weapon, playerWeapon
 } from "../db/schema";
 
+import db from "../db/db";
 import { getPlayer } from "../middlewares/getPlayer";
-
-dotenv.config();
-const db = drizzle(process.env.DATABASE_URL!);
 
 const router = Express.Router();
 

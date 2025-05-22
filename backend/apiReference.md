@@ -78,24 +78,46 @@ tutti i dati vengono inviati in formato json
 - Richiesta POST
 - Request: { authToken: String }
   - In caso di dati mancanti -> HTTP 400
-- Response: [{name:string, cost:number, quantity:number, amount:number, capacity:number}]
+- Response: [{name:string
+     cost:number
+     quantity:number
+     amount:number
+     capacity:number}]
 
 ### /shop/upgrades/
 - Richiesta POST
 - Request: { authToken: String }
   - In caso di dati mancanti -> HTTP 400
-- Response: [{name:string, cost:number, value:number}] restituisce elenco upgrade del valore immediatamente successivo a quello già posseduto dal giocatore.
+- Response: [{
+    name:string,
+    cost:number, 
+    level:number
+}] restituisce elenco upgrade del valore immediatamente successivo a quello già posseduto dal giocatore.
 
-### /shop/medikit/
+### /shop/medikits/
 - Richiesta POST
 - Request: { authToken: String }
   - In caso di dati mancanti -> HTTP 400
-- Response: [{description:string, healthRecover:number, cost:number, quantity:number, capacity:number, amount:number}]
+- Response: [{
+    description:string,
+    healthRecover:number,
+    cost:number,
+    quantity:number,
+    capacity:number,
+    amount:number}]
 
 ## Duel
 ### /duel/
 
 ## Bounty board
 ### /bounty/friends/
+- Richiesta POST
+- Request: { authToken: String }
+  - In caso di dati mancanti -> HTTP 400
+- Response: [{username: string, bounty: number}]
+
 
 ### /bounty/leaderboard/
+- Richiesta GET
+- Response: [{username: string, bounty: number}]
+

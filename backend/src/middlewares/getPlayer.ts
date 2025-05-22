@@ -25,6 +25,8 @@ export function getPlayer(req: any, res: Response, next: NextFunction): void{
             if(player.length > 0){
                 req.player = player[0];
                 next();
+            } else {
+                req.status(401).send();
             }
         })
         .catch(err => {

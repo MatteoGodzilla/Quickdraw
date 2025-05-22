@@ -86,7 +86,7 @@ export const mercenary = mysqlTable("Mercenary", {
 });
 
 export const player = mysqlTable("Player", {
-	id: int().autoincrement().notNull(),
+	id: int().autoincrement().notNull().primaryKey(),
 	health: int().default(100).notNull(),
 	maxHealth: int().default(100).notNull(),
 	exp: int().default(0).notNull(),
