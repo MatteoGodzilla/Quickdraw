@@ -2,20 +2,20 @@
 tutti i dati vengono inviati in formato json
 
 ## Auth
-### /auth/login
+### /auth/login X
 - Richesta POST
 - Request: { email: String, password: String}
     - In caso di mancati email e password -> HTTP 400
 - Response: { authToken: String }
 
-### /auth/tokenLogin
+### /auth/tokenLogin X
 - Richesta POST
 - Request: { authToken: String }
     - In caso di idPlayer mancante -> HTTP 400
     - In caso di authToken scaduto -> HTTP 401
 - Response: { authToken: String }
 
-### /auth/register
+### /auth/register X
 - Richiesta POST
 - Request: {email: String, password: String, username: String}
   - In caso di dati mancanti -> HTTP 400
@@ -29,18 +29,6 @@ tutti i dati vengono inviati in formato json
 - Response: {bullets:{}, weapons:{}, medikits:{}, upgrades:{}}
 
 ## Contracts
-### /contracts/mercenaries/unassigned/
-- Richiesta POST
-- Request: { authToken: String }
-  - In caso di dati mancanti -> HTTP 400
-- Response: [{name:string, power:number}] Mercenari non ancora assegnati
-
-### /contracts/mercenaries/available/
-- Richiesta POST
-- Request: { authToken: String }
-  - In caso di dati mancanti -> HTTP 400
-- Response: [{name:string, power:number, cost:number}]
-
 ### /contracts/active/
 - Richiesta POST
 - Request: { authToken: String }
@@ -51,7 +39,13 @@ tutti i dati vengono inviati in formato json
 - Richiesta POST
 - Request: { authToken: String }
   - In caso di dati mancanti -> HTTP 400
-- Response: [{name:string, requiredTime:number, maxMercenaries:number, startCost:number, requiredPower:number}]
+- Response: [{
+     name:string
+     requiredTime:number
+     maxMercenaries:number
+     startCost:number
+     requiredPower:number
+ }]
 
 ### /contracts/redeem/
 - Richiesta POST
@@ -60,12 +54,24 @@ tutti i dati vengono inviati in formato json
   - In caso di contratto non ancora terminato -> HTTP 400
 - Response: {reward:number}
 
-### /contracts/mercenaries/employ/:idMercenary/:idPlayer/:token
+## Mercenaries
+### /mercenaries/unassigned/
+- Richiesta POST
+- Request: { authToken: String }
+  - In caso di dati mancanti -> HTTP 400
+- Response: [{name:string, power:number}] Mercenari non ancora assegnati
+
+### /mercenaries/available/
+- Richiesta POST
+- Request: { authToken: String }
+  - In caso di dati mancanti -> HTTP 400
+- Response: [{name:string, power:number, cost:number}]
+
+### /mercenaries/employ/
 - Richiesta POST
 - Request: { authToken: String, idMercenary:number }
   - In caso di dati mancanti -> HTTP 400
-  - In caso di contratto non ancora terminato -> HTTP 400
-- Response: 200 OK
+- Response: {idMercenary: number}
 
 ## Shop
 ### /shop/weapons/

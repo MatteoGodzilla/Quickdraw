@@ -1,10 +1,10 @@
-import { mysqlTable, mysqlSchema, AnyMySqlColumn, foreignKey, int, varchar, timestamp, binary, char, tinyint } from "drizzle-orm/mysql-core"
+import { mysqlTable, mysqlSchema, AnyMySqlColumn, foreignKey, int, timestamp, varchar, binary, char, tinyint } from "drizzle-orm/mysql-core"
 import { sql } from "drizzle-orm"
 
 export const activeContract = mysqlTable("ActiveContract", {
 	id: int().autoincrement().notNull(),
 	idContract: int().notNull().references(() => contract.id, { onDelete: "restrict", onUpdate: "restrict" } ),
-	startTime: int().notNull(),
+	startTime: timestamp({ mode: 'string' }).default('current_timestamp()').notNull(),
 	reward: int().notNull(),
 });
 
@@ -27,6 +27,7 @@ export const bulletShop = mysqlTable("BulletShop", {
 });
 
 export const contract = mysqlTable("Contract", {
+	id: int().autoincrement().notNull(),
 	name: varchar({ length: 100 }).notNull(),
 	requiredTime: int().notNull(),
 	requiredPower: int().default(0).notNull(),
@@ -34,7 +35,6 @@ export const contract = mysqlTable("Contract", {
 	minReward: int().notNull(),
 	maxReward: int().notNull(),
 	startCost: int().notNull(),
-	id: int().autoincrement().notNull(),
 });
 
 export const duel = mysqlTable("Duel", {
@@ -46,9 +46,9 @@ export const duel = mysqlTable("Duel", {
 });
 
 export const employedMercenary = mysqlTable("EmployedMercenary", {
+	id: int().autoincrement().notNull().primaryKey(),
 	idPlayer: int().notNull().references(() => player.id, { onDelete: "restrict", onUpdate: "restrict" } ),
 	idMercenary: int().notNull().references(() => mercenary.id, { onDelete: "restrict", onUpdate: "restrict" } ),
-	id: int().notNull(),
 });
 
 export const friendship = mysqlTable("Friendship", {
@@ -78,7 +78,7 @@ export const medikitShop = mysqlTable("MedikitShop", {
 });
 
 export const mercenary = mysqlTable("Mercenary", {
-	id: int().notNull(),
+	id: int().autoincrement().notNull(),
 	name: varchar({ length: 128 }).notNull(),
 	power: int().notNull(),
 	requiredLevel: int().notNull(),
