@@ -10,7 +10,7 @@ def create_db_connection():
     password = os.getenv("password")
     database_name = os.getenv("database")
     #create database
-    connection_url = f"postgresql://{username}:{password}@{hostname}:{3306}/{database_name}
+    connection_url = f"postgresql://{username}:{password}@{hostname}:{3306}/{database_name}"
     engine = create_engine(connection_url,echo=True)
     SQLModel.metadata.create_all(engine)
     return engine
