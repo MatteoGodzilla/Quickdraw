@@ -7,13 +7,13 @@ class Login(SQLModel, table=True):
     idPlayer : int = Field(index=True)
 
 class Player(SQLModel, table=True):
-    id : int = Field(primary_key=True)
-    health : int
-    maxHealth : int
-    exp: int
-    money: int
-    bounty: int
-    username: str
+    id : int = Field(primary_key=True,default=None)
+    health : int = Field(default=100)
+    maxHealth : int = Field(default=100)
+    exp: int = Field(default=0)
+    money: int = Field(default=0)
+    bounty: int = Field(default=0)
+    username: str 
 
 class Mercenary(SQLModel, table=True):
     id:int = Field(primary_key=True)
