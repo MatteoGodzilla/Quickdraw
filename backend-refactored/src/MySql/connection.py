@@ -13,5 +13,4 @@ def create_db_connection():
     #create database
     connection_url = f"mysql+pymysql://{username}:{password}@{hostname}/{database_name}"
     engine = create_engine(connection_url,echo=True)
-    SQLModel.metadata.create_all(engine)
     return engine

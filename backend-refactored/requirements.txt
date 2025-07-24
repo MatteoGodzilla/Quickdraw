@@ -3,3 +3,5 @@ bcrypt
 fastapi
 uvicorn
 pydantic
+pymysql
+uuid-v7
