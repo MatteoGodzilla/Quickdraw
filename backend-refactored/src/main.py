@@ -1,8 +1,21 @@
 from fastapi import FastAPI
-from routes import auth 
+from fastapi.exceptions import RequestValidationError
+from fastapi.responses import JSONResponse
+from starlette.status import *
+from routes import auth
 
 #this is the file to run for starting the backend service,it will incorporate all the routes defined in the route folder
 app = FastAPI()
 app.include_router(auth.router)
+
+#by default, fastApi returns code 422 for missing parameters,this overrides the default exception that returns error 422
+@app.exception_handler(RequestValidationError)
+async def missing_parameters_error(request, exc: RequestValidationError):
+        return JSONResponse(
+        status_code=HTTP_400_BAD_REQUEST,
+        content={
+            "error": "Missing or invalid fields."
+        }
+    )
 
 

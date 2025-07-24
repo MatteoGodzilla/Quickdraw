@@ -17,17 +17,6 @@ router = APIRouter(
 engine = connection.create_db_connection()
 session = Session(engine)
 
-#by default, fastApi returns code 422 for missing parameters,this overrides the default exception that returns error 422
-@router.exception_handler(RequestValidationError)
-async def missing_parameters_error(request, exc: RequestValidationError):
-        return JSONResponse(
-        status_code=HTTP_400_BAD_REQUEST,
-        content={
-            "error": "Missing or invalid fields."
-        }
-    )
-
-
 #routes
 @router.post("/register")
 async def register(request: RegisterRequest):

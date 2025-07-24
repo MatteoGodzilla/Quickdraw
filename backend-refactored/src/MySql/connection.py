@@ -6,11 +6,12 @@ def create_db_connection():
     #load .env file
     load_dotenv()
     hostname = os.getenv("hostname")
-    username = os.getenv("username")
+    username = os.getenv("db_username")
     password = os.getenv("password")
     database_name = os.getenv("database")
+    print(database_name,hostname,username,password)
     #create database
-    connection_url = f"postgresql://{username}:{password}@{hostname}:{3306}/{database_name}"
+    connection_url = f"mysql+pymysql://{username}:{password}@{hostname}/{database_name}"
     engine = create_engine(connection_url,echo=True)
     SQLModel.metadata.create_all(engine)
     return engine

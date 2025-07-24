@@ -37,34 +37,34 @@ class Contract(SQLModel,table = True):
     startCost: int
 
 class PlayerBullet(SQLModel, table=True):
-    idPlayer : int=Field(primary_key=True,foreign_key="Player.id")
-    idBullet : int=Field(primary_key=True,foreign_key="Bullet.id")
+    idPlayer : int=Field(primary_key=True,foreign_key="player.id")
+    idBullet : int=Field(primary_key=True,foreign_key="bullet.type")
     amount: int
 
 class BulletShop(SQLModel, table=True):
     id: int = Field(primary_key=True)
-    idBullet: int = Field(foreign_key="Bullet.id")
+    idBullet: int = Field(foreign_key="bullet.type")
     quantity: int
     cost: int
 
 class ActiveContract(SQLModel, table=True):
     id: int = Field(primary_key=True)
-    idContract: int = Field(foreign_key="Contract.id")
+    idContract: int = Field(foreign_key="contract.id")
     startTime: int
     reward: int
 
 class EmployedMercenary(SQLModel, table=True):
     id:int = Field(primary_key=True)
-    idPlayer = Field(foreign_key="Player.id")
-    idMercenary = Field(foreign_key="Mercenary.id")
+    idPlayer:int = Field(foreign_key="player.id")
+    idMercenary:int = Field(foreign_key="mercenary.id")
 
 class AssignedMercenary(SQLModel,table=True):
-    idActiveContract:int = Field(primary_key=True,foreign_key="ActiveContract.id")
-    idEmployedMercenary:int = Field(primary_key=True,foreign_key="EmployedMercenary.idMercenary")
+    idActiveContract:int = Field(primary_key=True,foreign_key="activecontract.id")
+    idEmployedMercenary:int = Field(primary_key=True,foreign_key="employedmercenary.idMercenary")
 
 class Friendship(SQLModel,table=True):
-    idPlayerFrom:int = Field(primary_key=True,foreign_key="Player.id")
-    idPlayerTo:int = Field(primary_key=True,foreign_key="Player.id")
+    idPlayerFrom:int = Field(primary_key=True,foreign_key="player.id")
+    idPlayerTo:int = Field(primary_key=True,foreign_key="player.id")
 
 class Medkit(SQLModel,table=True):
     id:int = Field(primary_key=True)
@@ -74,13 +74,13 @@ class Medkit(SQLModel,table=True):
 
 class MedkitShop(SQLModel,table=True):
     id: int = Field(primary_key=True)
-    idMedKit: int = Field(foreign_key="Medkit.id")
+    idMedKit: int = Field(foreign_key="medkit.id")
     quantity: int
     cost: int
 
 class PlayerMedkit(SQLModel,table=True):
-    idPlayer : int=Field(primary_key=True,foreign_key="Player.id")
-    idMedKit : int=Field(primary_key=True,foreign_key="Medkit,id")
+    idPlayer : int=Field(primary_key=True,foreign_key="player.id")
+    idMedKit : int=Field(primary_key=True,foreign_key="medkit.id")
     amount: int
 
 class UpgradeTypes(SQLModel,table=True):
@@ -88,11 +88,11 @@ class UpgradeTypes(SQLModel,table=True):
     description:int = Field(default=None)
 
 class PlayerUpgrade(SQLModel, table=True):
-    idPlayer : int=Field(primary_key=True,foreign_key="Player.id")
-    idUpgrade : int=Field(primary_key=True,foreign_key="UpgradeTypes.id")
+    idPlayer : int=Field(primary_key=True,foreign_key="player.id")
+    idUpgrade : int=Field(primary_key=True,foreign_key="upgradetypes.id")
 
 class UpgradeShop(SQLModel,table=True):
-    idUpgrade: int = Field(primary_key=True,foreign_key="UpgradeTypes.id")
+    idUpgrade: int = Field(primary_key=True,foreign_key="upgradetypes.id")
     value: int
     cost: int
     type: int
@@ -102,8 +102,8 @@ class Weapon(SQLModel,table=True):
     name:str
     damage:int
     cost:int = Field(default=0)
-    bulletType: int = Field(foreign_key="Bullet.id")
+    bulletType: int = Field(foreign_key="bullet.type")
 
 class PlayerWeapon(SQLModel,table=True):
-    idPlayer:int = Field(primary_key=True,foreign_key="Player.id")
-    idWeapon:int = Field(primary_key=True,foreign_key="Weapon.id")
+    idPlayer:int = Field(primary_key=True,foreign_key="player.id")
+    idWeapon:int = Field(primary_key=True,foreign_key="weapon.id")
