@@ -5,13 +5,11 @@ from fastapi.responses import JSONResponse
 from sqlmodel import Session
 from starlette.status import *
 from bcrypt import *
-import uuid_v7.base
-import uuid_v7.cli
+from  uuid_v7.base import *
 
 from MySql import connection,tables
 from Models.auth import *
 import json
-import uuid_v7
 
 router = APIRouter(
     prefix="/auth",
@@ -24,20 +22,26 @@ session = Session(engine)
 #routes
 @router.post("/register")
 async def register(request: RegisterRequest):
-    new_player = tables.Player(username=request.username)
-    session.add(new_player)
-    session.flush()
+    try:
+        new_player = tables.Player(username=request.username)
+        session.add(new_player)
+        session.flush()
 
-    #hash password
-    salted_password=hashpw(request.password.encode(),gensalt())
-    new_login_info = tables.Login(email=request.email,username = request.username,idPlayer=new_player.id,password=salted_password)
-    session.add(new_login_info)
-    session.commit()
+        #hash password
+        salted_password=hashpw(request.password.encode(),gensalt())
+        auth_token = uuid7().hex
+        new_login_info = tables.Login(email=request.email,username = request.username,idPlayer=new_player.id,password=salted_password,authToken = auth_token)
 
+        session.add(new_login_info)
+        session.commit()
+    except:
+        session.rollback()
+        return JSONResponse(
+            status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+            content = {"error":"Something went wrong"}
+        )
     #create response
-    auth_token = uuid_v7.base.uuid7().hex
     response = RegisterResponse(idPlayer = new_player.id, authToken = auth_token)
-
     return JSONResponse(
          status_code = HTTP_200_OK,
          content = json.dumps(response.model_dump())

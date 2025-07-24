@@ -3,10 +3,13 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.status import *
 from routes import auth
+from MySql import connection
 
 #this is the file to run for starting the backend service,it will incorporate all the routes defined in the route folder
 app = FastAPI()
 app.include_router(auth.router)
+connection.rebuild_tables()
+
 
 #by default, fastApi returns code 422 for missing parameters,this overrides the default exception that returns error 422
 @app.exception_handler(RequestValidationError)

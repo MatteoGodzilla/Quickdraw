@@ -6,6 +6,7 @@ class Login(SQLModel, table=True):
     email : str = Field(primary_key=True)
     password : bytes = Field(sa_column=Column(LargeBinary))
     idPlayer : int = Field(index=True)
+    authToken: str | None = None
 
 class Player(SQLModel, table=True):
     __tablename__  = "Player"
