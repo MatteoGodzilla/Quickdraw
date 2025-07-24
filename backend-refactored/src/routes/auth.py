@@ -1,13 +1,15 @@
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from sqlmodel import Session
+from sqlmodel import Session,select
 from starlette.status import *
 from bcrypt import *
 from  uuid_v7.base import *
 
-from MySql import connection,tables
+from MySql import connection
+from MySql.tables import *
 from Models.auth import *
 import json
 
@@ -18,19 +20,20 @@ router = APIRouter(
 
 engine = connection.create_db_connection()
 session = Session(engine)
+TOKEN_PERIOD_OF_VALIDITY = timedelta(hours=48)
 
 #routes
 @router.post("/register")
 async def register(request: RegisterRequest):
     try:
-        new_player = tables.Player(username=request.username)
+        new_player = Player(username=request.username)
         session.add(new_player)
         session.flush()
 
         #hash password
         salted_password=hashpw(request.password.encode(),gensalt())
         auth_token = uuid7().hex
-        new_login_info = tables.Login(email=request.email,username = request.username,idPlayer=new_player.id,password=salted_password,authToken = auth_token)
+        new_login_info = Login(email=request.email,username = request.username,idPlayer=new_player.id,password=salted_password,authToken = auth_token)
 
         session.add(new_login_info)
         session.commit()
@@ -38,7 +41,7 @@ async def register(request: RegisterRequest):
         session.rollback()
         return JSONResponse(
             status_code = HTTP_500_INTERNAL_SERVER_ERROR,
-            content = {"error":"Something went wrong"}
+            content = {"message":"Something went wrong"}
         )
     #create response
     response = RegisterResponse(idPlayer = new_player.id, authToken = auth_token)
@@ -49,8 +52,73 @@ async def register(request: RegisterRequest):
 
 @router.post("/login")
 async def login(request: AuthRequest):
-    return 0
+    #check user exists
+    login_query = select(Login).where(Login.email == request.email)
+    results = session.exec(login_query)
+    user = results.first()
+    if user==None:
+        return JSONResponse(
+            status_code = HTTP_200_OK,
+            content = {"message":"Wrong email or password"}
+        )
+    if hashpw(request.password.encode(),user.password) == user.password:
+        try:
+            auth_token = uuid7().hex
+            user.authToken = auth_token
+            session.commit()
+            response = AuthResponse(authToken=auth_token)
+            return JSONResponse(
+                status_code = HTTP_200_OK,
+                content = json.dumps(response.model_dump())
+            )
+        except:
+            return JSONResponse(
+                status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+                content = {"message":"Something went wrong"}
+            )
+    #wrong password
+    return JSONResponse(
+        status_code = HTTP_200_OK,
+        content = {"message":"Wrong email or password"}
+    )
+
+
 
 @router.post("/tokenLogin")
 async def tokenLogin(request: AuthRequestWithToken):
-    return 0
+    login_query = select(Login).where(Login.idPlayer == request.idPlayer)
+    results = session.exec(login_query)
+    user = results.first()
+    if user==None:
+        return JSONResponse(
+            status_code = HTTP_400_BAD_REQUEST,
+            content = {"message":"Player with given id does not exists"}
+        )
+
+    if user.authToken!=request.authToken:
+        return JSONResponse(
+            status_code = HTTP_401_UNAUTHORIZED,
+            content = {"message":"Authentication token does not match"}
+        )
+    uuid7Token = UUID(user.authToken)
+    if uuid7Token == 0: #TODO: check token expired
+        return JSONResponse(
+            status_code = HTTP_401_UNAUTHORIZED,
+            content = {"message":"Authentication token is expired"}
+        )
+
+    #everything is correct,return new authToken
+    try:
+        auth_token = uuid7().hex
+        user.authToken = auth_token
+        session.commit()
+        response = AuthResponse(authToken=auth_token)
+        return JSONResponse(
+            status_code = HTTP_200_OK,
+            content = json.dumps(response.model_dump())
+        )
+    except:
+        return JSONResponse(
+            status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+            content = {"message":"Something went wrong"}
+        )
