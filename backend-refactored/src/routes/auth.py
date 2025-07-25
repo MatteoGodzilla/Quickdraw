@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+import time
 from fastapi import APIRouter
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
@@ -6,7 +6,7 @@ from fastapi.responses import JSONResponse
 from sqlmodel import Session,select
 from starlette.status import *
 from bcrypt import *
-from  uuid_v7.base import *
+from uuid_utils import *
 
 from MySql import connection
 from MySql.tables import *
@@ -20,7 +20,7 @@ router = APIRouter(
 
 engine = connection.create_db_connection()
 session = Session(engine)
-TOKEN_PERIOD_OF_VALIDITY = timedelta(hours=48)
+TOKEN_PERIOD_OF_VALIDITY = 3600 * 24 * 1000 * 2 #48 hours
 
 #routes
 @router.post("/register")
@@ -32,7 +32,7 @@ async def register(request: RegisterRequest):
 
         #hash password
         salted_password=hashpw(request.password.encode(),gensalt())
-        auth_token = uuid7().hex
+        auth_token = uuid7().urn.replace("urn:uuid:","")
         new_login_info = Login(email=request.email,username = request.username,idPlayer=new_player.id,password=salted_password,authToken = auth_token)
 
         session.add(new_login_info)
@@ -63,7 +63,7 @@ async def login(request: AuthRequest):
         )
     if hashpw(request.password.encode(),user.password) == user.password:
         try:
-            auth_token = uuid7().hex
+            auth_token = uuid7().urn.replace("urn:uuid:","")
             user.authToken = auth_token
             session.commit()
             response = AuthResponse(authToken=auth_token)
@@ -97,19 +97,21 @@ async def tokenLogin(request: AuthRequestWithToken):
 
     if user.authToken!=request.authToken:
         return JSONResponse(
-            status_code = HTTP_401_UNAUTHORIZED,
+            status_code = HTTP_400_BAD_REQUEST,
             content = {"message":"Authentication token does not match"}
         )
-    uuid7Token = UUID(user.authToken)
-    if uuid7Token == 0: #TODO: check token expired
-        return JSONResponse(
+    token_parts = user.authToken.replace("urn:uuid:","").split("-")
+    millis_timestamp = int(token_parts[0]+token_parts[1],16)
+    treshold = round(time.time() * 1000) + (TOKEN_PERIOD_OF_VALIDITY)
+    if millis_timestamp > treshold:
+        return JSONResponse( 
             status_code = HTTP_401_UNAUTHORIZED,
-            content = {"message":"Authentication token is expired"}
+            content = {"message":f"Token expired,{millis_timestamp},{treshold}"}
         )
 
     #everything is correct,return new authToken
     try:
-        auth_token = uuid7().hex
+        auth_token = uuid7().urn.replace("urn:uuid:","")
         user.authToken = auth_token
         session.commit()
         response = AuthResponse(authToken=auth_token)

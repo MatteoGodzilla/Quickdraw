@@ -4,4 +4,4 @@ fastapi
 uvicorn
 pydantic
 pymysql
-uuid-v7
+uuid-utils
