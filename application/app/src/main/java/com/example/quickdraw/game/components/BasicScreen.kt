@@ -1,6 +1,5 @@
-package com.example.quickdraw.main.components
+package com.example.quickdraw.game.components
 
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -10,11 +9,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.tooling.preview.Preview
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 
+@Preview
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BasicScreen(name: String = "Title", tabs: List<String>, selectedIndex:Int, callback: (Int) -> Unit){
+fun BasicScreen(name: String = "Title"){
     QuickdrawTheme {
         Scaffold (
             topBar = {
@@ -29,7 +30,7 @@ fun BasicScreen(name: String = "Title", tabs: List<String>, selectedIndex:Int, c
             },
             bottomBar = { BottomNavBar() }
         ) { padding ->
-            BasicTabLayout(paddingValues = padding, selectedIndex = selectedIndex, tabs = tabs, callback)
+            BasicTabLayout(paddingValues = padding, selectedIndex = 0, tabs = listOf()){}
         }
     }
 }

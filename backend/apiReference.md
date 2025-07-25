@@ -2,20 +2,20 @@
 tutti i dati vengono inviati in formato json
 
 ## Auth
-### /auth/login X
+### /auth/login
 - Richesta POST
 - Request: { email: String, password: String}
     - In caso di mancati email e password -> HTTP 400
 - Response: { authToken: String }
 
-### /auth/tokenLogin X
+### /auth/tokenLogin
 - Richesta POST
 - Request: { authToken: String }
     - In caso di idPlayer mancante -> HTTP 400
     - In caso di authToken scaduto -> HTTP 401
 - Response: { authToken: String }
 
-### /auth/register X
+### /auth/register
 - Richiesta POST
 - Request: {email: String, password: String, username: String}
   - In caso di dati mancanti -> HTTP 400

@@ -20,4 +20,4 @@ app.use("/api/inventory/", inventoryRouter);
 app.use("/api/mercenary/", mercenaryRouter);
 app.use("/api/shop/", shopRouter);
 
-app.listen(process.env.PORT)
+app.listen(process.env.PORT, ()=>console.log(`Listening on port ${process.env.PORT}` ))

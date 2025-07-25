@@ -20,4 +20,4 @@ app.use("/api/contracts/", contracts_1.default);
 app.use("/api/inventory/", inventory_1.default);
 app.use("/api/mercenary/", mercenary_1.default);
 app.use("/api/shop/", shop_1.default);
-app.listen(process.env.PORT);
+app.listen(process.env.PORT, () => console.log(`Listening on port ${process.env.PORT}`));

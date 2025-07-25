@@ -1,4 +1,4 @@
-package com.example.quickdraw.main.components
+package com.example.quickdraw.game.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.ui.graphics.Color
@@ -21,7 +21,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.quickdraw.ui.theme.progressBarColors
+import com.example.quickdraw.ui.theme.ProgressBarColors
 
 @Composable
 fun TopBar() {
@@ -33,11 +33,11 @@ fun TopBar() {
             //TODO: get this value from the text size instead
             val rowHeight = 24.dp
             item ( span = { GridItemSpan(2) } ) {
-                RowWithProgressBar(rowHeight, progressBarColors.health)
+                RowWithProgressBar(rowHeight, ProgressBarColors.health)
             }
             item { CenteredText("Health") }
             item ( span = { GridItemSpan(2) } ) {
-                RowWithProgressBar(rowHeight, progressBarColors.experience)
+                RowWithProgressBar(rowHeight, ProgressBarColors.experience)
             }
             item { CenteredText("Player Level") }
             item { TopBarRow(image = Icons.Default.Done, text = "##Money##") }

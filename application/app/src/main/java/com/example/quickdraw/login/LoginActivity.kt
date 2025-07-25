@@ -1,6 +1,8 @@
 package com.example.quickdraw.login
 
+import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -9,7 +11,9 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.quickdraw.common.TAG
 import com.example.quickdraw.common.dataStore
+import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.login.screen.LoginScreen
 import com.example.quickdraw.login.screen.RegisterScreen
 import com.example.quickdraw.login.vm.LoginScreenVM
@@ -26,7 +30,11 @@ class LoginActivity : ComponentActivity() {
 
             NavHost(navController = navigation, startDestination = NavDestination.Login){
                 composable<NavDestination.Login> {
-                    val vm = viewModel { LoginScreenVM(this@LoginActivity.dataStore) }
+                    val vm = viewModel { LoginScreenVM(this@LoginActivity.dataStore, {
+                        val intent = Intent(this@LoginActivity, GameActivity::class.java)
+                        startActivity(intent)
+                        Log.i(TAG, "Sending from Login to Game activity")
+                    }) }
                     LoginScreen(vm, navigation)
                 }
                 composable<NavDestination.Register> { backstackEntry ->

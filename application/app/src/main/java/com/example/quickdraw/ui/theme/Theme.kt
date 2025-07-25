@@ -27,7 +27,7 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
-class progressBarColors() {
+class ProgressBarColors() {
     companion object {
         val health = Color.Red
         val experience = Color(0xFF65D73C)
