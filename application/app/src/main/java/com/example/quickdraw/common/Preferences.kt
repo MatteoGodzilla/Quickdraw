@@ -7,11 +7,10 @@ import androidx.datastore.preferences.preferencesDataStore
 
 val Context.dataStore by preferencesDataStore("login")
 
-val TAG = "QUICKDRAW"
+const val TAG = "QUICKDRAW"
 
 class PrefKeys{
     companion object{
-        val playerId = intPreferencesKey("id")
         val authToken = stringPreferencesKey("token")
     }
 }

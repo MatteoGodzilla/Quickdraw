@@ -4,11 +4,12 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
 import com.example.quickdraw.common.PrefKeys
+import com.example.quickdraw.common.TAG
 import com.example.quickdraw.common.dataStore
+import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.login.LoginActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -21,20 +22,20 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
 
         lifecycleScope.launch(Dispatchers.Main) {
-            val storedId = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.playerId] }.firstOrNull()
-            val tokenId = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.authToken] }.firstOrNull()
-            Log.i("QUICKDRAW", storedId.toString())
-            Log.i("QUICKDRAW", tokenId.toString())
-            if(storedId == null || tokenId == null){
+            val tokenId = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.authToken] }
+                .firstOrNull()
+            Log.i(TAG, tokenId.toString())
+            if (tokenId == null) {
                 //send request to tokenLogin
 
-                Log.i("QUICKDRAW", "Sending from Main to Login Activity")
+                Log.i(TAG, "Sending from Main to Login Activity")
                 val intent = Intent(this@MainActivity, LoginActivity::class.java)
                 startActivity(intent)
+            } else {
+                Log.i(TAG, "Sending from Main to Game Activity")
+                val intent = Intent(this@MainActivity, GameActivity::class.java)
+                startActivity(intent)
             }
-        }
-        setContent {
-
         }
     }
 }
