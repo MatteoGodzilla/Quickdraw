@@ -21,4 +21,4 @@ def getPlayer(authToken:str,session:Session):
     if user == None:
         return {SUCCESS:False,ERROR:"Provided authentication token is not associated with any Player",HTTP_CODE:HTTP_400_BAD_REQUEST}
 
-    return {SUCCESS:True,"PlayerId":user.idPlayer}
+    return {SUCCESS:True,PLAYER:user}

@@ -2,6 +2,7 @@ import time
 from fastapi import APIRouter
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from fastapi.encoders import jsonable_encoder
 
 from sqlmodel import Session,select
 from starlette.status import *
@@ -48,7 +49,7 @@ async def register(request: RegisterRequest):
     response = RegisterResponse(idPlayer = new_player.id, authToken = auth_token)
     return JSONResponse(
          status_code = HTTP_200_OK,
-         content = json.dumps(response.model_dump())
+         content = jsonable_encoder(response)
     )
 
 @router.post("/login")
@@ -70,7 +71,7 @@ async def login(request: AuthRequest):
             response = AuthResponse(authToken=auth_token)
             return JSONResponse(
                 status_code = HTTP_200_OK,
-                content = { "authToken": response.authToken} 
+                content = jsonable_encoder(response)
             )
         except:
             return JSONResponse(
@@ -117,7 +118,7 @@ async def tokenLogin(request: AuthRequestWithToken):
         response = AuthResponse(authToken=auth_token)
         return JSONResponse(
             status_code = HTTP_200_OK,
-            content = json.dumps(response.model_dump())
+            content = jsonable_encoder(response)
         )
     except:
         return JSONResponse(
