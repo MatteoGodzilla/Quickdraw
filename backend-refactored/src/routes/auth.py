@@ -12,6 +12,8 @@ from MySql import connection
 from MySql.tables import *
 from Models.auth import *
 import json
+from routes.middlewares.key_names import *
+from routes.middlewares.checkAuthTokenExpiration import *
 
 router = APIRouter(
     prefix="/auth",
@@ -20,7 +22,6 @@ router = APIRouter(
 
 engine = connection.create_db_connection()
 session = Session(engine)
-TOKEN_PERIOD_OF_VALIDITY = 3600 * 24 * 1000 * 2 #48 hours
 
 #routes
 @router.post("/register")
@@ -100,13 +101,12 @@ async def tokenLogin(request: AuthRequestWithToken):
             status_code = HTTP_400_BAD_REQUEST,
             content = {"message":"Authentication token does not match"}
         )
-    token_parts = user.authToken.replace("urn:uuid:","").split("-")
-    millis_timestamp = int(token_parts[0]+token_parts[1],16)
-    treshold = round(time.time() * 1000) + (TOKEN_PERIOD_OF_VALIDITY)
-    if millis_timestamp > treshold:
-        return JSONResponse( 
-            status_code = HTTP_401_UNAUTHORIZED,
-            content = {"message":f"Token expired,{millis_timestamp},{treshold}"}
+    
+    validate_token = checkAuthTokenValidity(user.authToken)
+    if validate_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = validate_token[HTTP_CODE],
+            content = {"message":validate_token[ERROR]}
         )
 
     #everything is correct,return new authToken
