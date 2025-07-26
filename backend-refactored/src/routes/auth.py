@@ -69,7 +69,7 @@ async def login(request: AuthRequest):
             response = AuthResponse(authToken=auth_token)
             return JSONResponse(
                 status_code = HTTP_200_OK,
-                content = { authToken: response.authToken} 
+                content = { "authToken": response.authToken} 
             )
         except:
             return JSONResponse(
