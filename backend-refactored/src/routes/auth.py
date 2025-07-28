@@ -9,7 +9,7 @@ from starlette.status import *
 from bcrypt import *
 from uuid_utils import *
 
-from MySql import connection
+from MySql import SessionManager, connection
 from MySql.tables import *
 from Models.auth import *
 import json
@@ -21,26 +21,23 @@ router = APIRouter(
     tags=["auth"]
 )
 
-engine = connection.create_db_connection()
-session = Session(engine)
-
 #routes
 @router.post("/register")
 async def register(request: RegisterRequest):
     try:
         new_player = Player(username=request.username)
-        session.add(new_player)
-        session.flush()
+        SessionManager.global_session.add(new_player)
+        SessionManager.global_session.flush()
 
         #hash password
         salted_password=hashpw(request.password.encode(),gensalt())
         auth_token = uuid7().urn.replace("urn:uuid:","")
         new_login_info = Login(email=request.email,username = request.username,idPlayer=new_player.id,password=salted_password,authToken = auth_token)
 
-        session.add(new_login_info)
-        session.commit()
+        SessionManager.global_session.add(new_login_info)
+        SessionManager.global_session.commit()
     except:
-        session.rollback()
+        SessionManager.global_session.rollback()
         return JSONResponse(
             status_code = HTTP_500_INTERNAL_SERVER_ERROR,
             content = {"message":"Something went wrong"}
@@ -56,7 +53,7 @@ async def register(request: RegisterRequest):
 async def login(request: AuthRequest):
     #check user exists
     login_query = select(Login).where(Login.email == request.email)
-    results = session.exec(login_query)
+    results = SessionManager.global_session.exec(login_query)
     user = results.first()
     if user==None:
         return JSONResponse(
@@ -67,7 +64,7 @@ async def login(request: AuthRequest):
         try:
             auth_token = uuid7().urn.replace("urn:uuid:","")
             user.authToken = auth_token
-            session.commit()
+            SessionManager.global_session.commit()
             response = AuthResponse(authToken=auth_token)
             return JSONResponse(
                 status_code = HTTP_200_OK,
@@ -89,7 +86,7 @@ async def login(request: AuthRequest):
 @router.post("/tokenLogin")
 async def tokenLogin(request: AuthRequestWithToken):
     login_query = select(Login).where(Login.authToken == request.authToken)
-    results = session.exec(login_query)
+    results = SessionManager.global_session.exec(login_query)
     user = results.first()
     if user==None:
         return JSONResponse(
@@ -114,7 +111,7 @@ async def tokenLogin(request: AuthRequestWithToken):
     try:
         auth_token = uuid7().urn.replace("urn:uuid:","")
         user.authToken = auth_token
-        session.commit()
+        SessionManager.global_session.commit()
         response = AuthResponse(authToken=auth_token)
         return JSONResponse(
             status_code = HTTP_200_OK,

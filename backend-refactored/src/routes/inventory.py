@@ -9,7 +9,7 @@ from starlette.status import *
 from bcrypt import *
 from uuid_utils import *
 
-from MySql import connection
+from MySql import SessionManager, connection
 from MySql.tables import *
 from Models.inventory import *
 from routes.middlewares.key_names import *
@@ -22,9 +22,6 @@ router = APIRouter(
     tags=["inventory"]
 )
 
-engine = connection.create_db_connection()
-session = Session(engine)
-
 #routes
 @router.post("")
 async def get_inventory(request: InventoryRequest):
@@ -35,7 +32,7 @@ async def get_inventory(request: InventoryRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken,SessionManager.global_session)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -49,7 +46,7 @@ async def get_inventory(request: InventoryRequest):
                                     UpgradeShop.idUpgrade == UpgradeTypes.id,
                                     PlayerUpgrade.idPlayer == player.idPlayer))
     response_upgrades = []
-    result = session.exec(upgrades_query)
+    result = SessionManager.global_session.exec(upgrades_query)
     upgrades = result.fetchall()
     for playerUpgrade,upgradeShop,upgradeType in upgrades:
         response_object = InventoryResponseUpgrade(
@@ -57,7 +54,7 @@ async def get_inventory(request: InventoryRequest):
         response_upgrades.append(response_object)
     #obtain weapons
     weapon_query = select (PlayerWeapon,Weapon).where(and_(PlayerWeapon.idPlayer == player.idPlayer,PlayerWeapon.idWeapon == Weapon.id))
-    result = session.exec(weapon_query)
+    result = SessionManager.global_session.exec(weapon_query)
     weapons = result.fetchall()
     response_weapons = []
     for playerWeapon,weapon in weapons:
@@ -65,7 +62,7 @@ async def get_inventory(request: InventoryRequest):
         response_weapons.append(response_object)
     #obtain medkits
     medkit_query  = select (PlayerMedikit,Medikit).where(and_(PlayerMedikit.idPlayer == player.idPlayer , Medikit.id == PlayerMedikit.idMediKit))
-    result = session.exec(medkit_query)
+    result = SessionManager.global_session.exec(medkit_query)
     medkits = result.fetchall()
     response_medkits = []
     for playerMedkit,medkit in medkits:
@@ -73,7 +70,7 @@ async def get_inventory(request: InventoryRequest):
         response_medkits.append(response_object)
     #obtain bullets
     bullets_query  = select (PlayerBullet,Bullet).where(and_(PlayerBullet.idPlayer == player.idPlayer , Bullet.type == PlayerBullet.idBullet))
-    result = session.exec(bullets_query)
+    result = SessionManager.global_session.exec(bullets_query)
     bullets = result.fetchall()
     response_bullets = []
     for playerBullet,bullet in bullets:
