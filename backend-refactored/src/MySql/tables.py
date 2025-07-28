@@ -78,24 +78,24 @@ class Friendship(SQLModel,table=True):
     idPlayerFrom:int = Field(primary_key=True,foreign_key="Player.id")
     idPlayerTo:int = Field(primary_key=True,foreign_key="Player.id")
 
-class Medkit(SQLModel,table=True):
-    __tablename__  = "Medkit"
+class Medikit(SQLModel,table=True):
+    __tablename__  = "Medikit"
     id:int = Field(primary_key=True)
     healthRecover:int
     description:str = Field(default=None)
     capacity:int
 
-class MedkitShop(SQLModel,table=True):
-    __tablename__  = "MedkitShop"
+class MedikitShop(SQLModel,table=True):
+    __tablename__  = "MedikitShop"
     id: int = Field(primary_key=True)
-    idMedKit: int = Field(foreign_key="Medkit.id")
+    idMediKit: int = Field(foreign_key="Medikit.id")
     quantity: int
     cost: int
 
-class PlayerMedkit(SQLModel,table=True):
-    __tablename__  = "PlayerMedkit"
+class PlayerMedikit(SQLModel,table=True):
+    __tablename__  = "PlayerMedikit"
     idPlayer : int=Field(primary_key=True,foreign_key="Player.id")
-    idMedKit : int=Field(primary_key=True,foreign_key="Medkit.id")
+    idMediKit : int=Field(primary_key=True,foreign_key="Medikit.id")
     amount: int
 
 class UpgradeTypes(SQLModel,table=True):
@@ -111,7 +111,7 @@ class PlayerUpgrade(SQLModel, table=True):
 class UpgradeShop(SQLModel,table=True):
     __tablename__  = "UpgradeShop"
     idUpgrade: int = Field(primary_key=True,foreign_key="UpgradeTypes.id")
-    value: int
+    level: int
     cost: int
     type: int
 

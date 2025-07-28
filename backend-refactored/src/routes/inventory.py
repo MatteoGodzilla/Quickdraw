@@ -4,7 +4,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
-from sqlmodel import Session,select
+from sqlmodel import Session, and_,select
 from starlette.status import *
 from bcrypt import *
 from uuid_utils import *
@@ -26,37 +26,37 @@ engine = connection.create_db_connection()
 session = Session(engine)
 
 #routes
-@router.post("/inventory")
+@router.post("")
 async def get_inventory(request: InventoryRequest):
     check_token = checkAuthTokenValidity(request.authToken)
     if check_token[SUCCESS] == False:
         return JSONResponse(
-            code = check_token[HTTP_CODE],
+            status_code = check_token[HTTP_CODE],
             content={"message":check_token[ERROR]}
         )
 
     obtain_player = getPlayer(request.authToken,session)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
-            code = obtain_player[HTTP_CODE],
+            status_code = obtain_player[HTTP_CODE],
             content={"message":obtain_player[ERROR]}
         )
 
-    player:Player = obtain_player[PLAYER]
+    player:Login = obtain_player[PLAYER]
     #obtain upgrades
     upgrades_query = select(PlayerUpgrade,UpgradeShop,UpgradeTypes
-                            ).where(PlayerUpgrade.idUpgrade == UpgradeShop.idUpgrade and
-                                    UpgradeShop.type == UpgradeTypes.id and
-                                    PlayerUpgrade.idPlayer == player.id)
+                            ).where(and_(PlayerUpgrade.idUpgrade == UpgradeShop.idUpgrade,
+                                    UpgradeShop.idUpgrade == UpgradeTypes.id,
+                                    PlayerUpgrade.idPlayer == player.idPlayer))
     response_upgrades = []
     result = session.exec(upgrades_query)
     upgrades = result.fetchall()
     for playerUpgrade,upgradeShop,upgradeType in upgrades:
         response_object = InventoryResponseUpgrade(
-             idUpgrade = playerUpgrade.idUpgrade,description = upgradeType.description, value = upgradeShop.value,type= upgradeShop.type)
+             idUpgrade = playerUpgrade.idUpgrade,description = upgradeType.description, type= upgradeShop.type, level = upgradeShop.level)
         response_upgrades.append(response_object)
     #obtain weapons
-    weapon_query = select (PlayerWeapon,Weapon).where(PlayerWeapon.idPlayer == player.id and PlayerWeapon.idWeapon == Weapon.id)
+    weapon_query = select (PlayerWeapon,Weapon).where(and_(PlayerWeapon.idPlayer == player.idPlayer,PlayerWeapon.idWeapon == Weapon.id))
     result = session.exec(weapon_query)
     weapons = result.fetchall()
     response_weapons = []
@@ -64,11 +64,29 @@ async def get_inventory(request: InventoryRequest):
         response_object = InventoryResponseWeapon(name=weapon.name, damage=weapon.damage, cost = weapon.cost, bulletType=weapon.bulletType)
         response_weapons.append(response_object)
     #obtain medkits
+    medkit_query  = select (PlayerMedikit,Medikit).where(and_(PlayerMedikit.idPlayer == player.idPlayer , Medikit.id == PlayerMedikit.idMediKit))
+    result = session.exec(medkit_query)
+    medkits = result.fetchall()
+    response_medkits = []
+    for playerMedkit,medkit in medkits:
+        response_object = InventoryResponseMedkit(healthRecover=medkit.healthRecover, capacity=medkit.capacity, description = medkit.description)
+        response_medkits.append(response_object)
     #obtain bullets
+    bullets_query  = select (PlayerBullet,Bullet).where(and_(PlayerBullet.idPlayer == player.idPlayer , Bullet.type == PlayerBullet.idBullet))
+    result = session.exec(bullets_query)
+    bullets = result.fetchall()
+    response_bullets = []
+    for playerBullet,bullet in bullets:
+        response_object = InventoryResponseBullet(type=playerBullet.idBullet, capacity=bullet.capacity, description = bullet.description)
+        response_bullets.append(response_object)
+
+    #response
     return JSONResponse(
-         code = HTTP_200_OK,
+         status_code = HTTP_200_OK,
          content={
               "upgrades":jsonable_encoder(response_upgrades),
-              "weapons":jsonable_encoder(response_weapons)
+              "weapons":jsonable_encoder(response_weapons),
+              "bullets":jsonable_encoder(response_bullets),
+              "medikits":jsonable_encoder(response_medkits)
          }
     )

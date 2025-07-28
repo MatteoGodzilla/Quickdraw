@@ -1,23 +1,23 @@
 from pydantic import BaseModel
 
 #objects
-class InventoryResponseBullet:
+class InventoryResponseBullet(BaseModel):
     type:int
     description:str
     capacity:int
 
-class InventoryResponseMedkit:
+class InventoryResponseMedkit(BaseModel):
     healthRecover:int
     description:str
     capacity:int
 
-class InventoryResponseUpgrade:
+class InventoryResponseUpgrade(BaseModel):
     idUpgrade:int
     description:str
-    value: int
     type: int
+    level:int
 
-class InventoryResponseWeapon:
+class InventoryResponseWeapon(BaseModel):
     name:str
     damage:int
     cost:int

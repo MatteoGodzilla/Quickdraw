@@ -10,7 +10,7 @@ from routes.middlewares.key_names import *
 
 #returns a dictonary with a success value,if success is false a error message is added
 def getPlayer(authToken:str,session:Session):
-    player_query = select(Login).where(Login.authToken == authToken).limit(1)
+    player_query = select(Login).where(Login.authToken == authToken)
     results = session.exec(player_query)
     user = results.first()
 
