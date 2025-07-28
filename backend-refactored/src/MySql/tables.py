@@ -41,6 +41,7 @@ class Contract(SQLModel,table = True):
     minReward: int
     maxReward: int
     startCost: int
+    name:str
 
 class PlayerBullet(SQLModel, table=True):
     __tablename__  = "PlayerBullet"
