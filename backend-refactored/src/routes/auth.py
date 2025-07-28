@@ -88,20 +88,20 @@ async def login(request: AuthRequest):
 
 @router.post("/tokenLogin")
 async def tokenLogin(request: AuthRequestWithToken):
-    login_query = select(Login).where(Login.idPlayer == request.idPlayer)
+    login_query = select(Login).where(Login.authToken == request.authToken)
     results = session.exec(login_query)
     user = results.first()
     if user==None:
         return JSONResponse(
             status_code = HTTP_400_BAD_REQUEST,
-            content = {"message":"Player with given id does not exists"}
+            content = {"message":"Player with given auth token does not exists"}
         )
 
-    if user.authToken!=request.authToken:
-        return JSONResponse(
-            status_code = HTTP_400_BAD_REQUEST,
-            content = {"message":"Authentication token does not match"}
-        )
+    #if user.authToken!=request.authToken:
+    #    return JSONResponse(
+    #        status_code = HTTP_400_BAD_REQUEST,
+    #        content = {"message":"Authentication token does not match"}
+    #    )
     
     validate_token = checkAuthTokenValidity(user.authToken)
     if validate_token[SUCCESS] == False:

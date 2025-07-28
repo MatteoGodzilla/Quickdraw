@@ -12,7 +12,7 @@ class AuthRequest(BaseModel):
 
 class AuthRequestWithToken(BaseModel):
     authToken : str
-    idPlayer : int
+    #idPlayer : int
 
 #responses
 class RegisterResponse(BaseModel):
