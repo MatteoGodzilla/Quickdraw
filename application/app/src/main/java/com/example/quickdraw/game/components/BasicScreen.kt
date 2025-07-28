@@ -15,15 +15,16 @@ import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.ui.theme.QuickdrawTheme
+import kotlinx.coroutines.selects.select
 
-@Preview
+data class ContentTab(val tabName: String, val content: @Composable (padding: PaddingValues)->Unit)
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BasicScreen(
     name: String = "Title",
     controller: NavHostController? = null,
-    destinations: List<String> = listOf(),
-    content: @Composable (Int, PaddingValues) -> Unit = { i, paddingValues -> }
+    tabs: List<ContentTab>
 ){
     val selectedTab = remember { mutableIntStateOf(0) }
     QuickdrawTheme {
@@ -36,7 +37,7 @@ fun BasicScreen(
             },
             bottomBar = { BottomNavBar(navigation = controller) },
         ) { padding ->
-            BasicTabLayout(paddingValues = padding, selectedIndex = selectedTab.intValue, tabs = destinations){
+            BasicTabLayout(paddingValues = padding, selectedIndex = selectedTab.intValue, tabs = tabs.map { it.tabName }){
                 selectedTab.intValue = it
             }
             val newPadding = PaddingValues(
@@ -46,7 +47,7 @@ fun BasicScreen(
                 bottom = padding.calculateBottomPadding()
             )
 
-            content(selectedTab.intValue, newPadding)
+            tabs[selectedTab.intValue].content(newPadding)
         }
     }
 }

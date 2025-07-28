@@ -32,6 +32,7 @@ class LoginActivity : ComponentActivity() {
                 composable<NavDestination.Login> {
                     val vm = viewModel {
                         LoginScreenVM(this@LoginActivity.dataStore) {
+                            //On Login success
                             val intent = Intent(this@LoginActivity, GameActivity::class.java)
                             startActivity(intent)
                             Log.i(TAG, "Sending from Login to Game activity")
@@ -41,7 +42,15 @@ class LoginActivity : ComponentActivity() {
                 }
                 composable<NavDestination.Register> { backstackEntry ->
                     val initialValues = backstackEntry.toRoute<NavDestination.Register>()
-                    val vm = viewModel { RegisterScreenVM(this@LoginActivity.dataStore) }
+                    val vm = viewModel {
+                        RegisterScreenVM(this@LoginActivity.dataStore){
+                            //On Register success
+                            val intent = Intent(this@LoginActivity, GameActivity::class.java)
+                            startActivity(intent)
+                            Log.i(TAG, "Sending from Register to Game activity")
+                        }
+                    }
+
                     vm.email.value = initialValues.initialEmail
                     vm.password.value = initialValues.initialPassword
                     RegisterScreen(vm, navigation)

@@ -37,7 +37,6 @@ class LoginScreenVM(
     }
 
     fun sendLogin() = viewModelScope.launch(Dispatchers.IO) {
-        //TODO: should refactor into a suspend method that returns Optional<LoginResponse> so it is separated from gui
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(LOGIN_ENDPOINT)
@@ -58,7 +57,7 @@ class LoginScreenVM(
                 onSuccessfulLogin()
             }
         } catch (e: IOException){
-            Log.e("QUICKDRAW", "there was an exception getting the url")
+            Log.e("QUICKDRAW", "there was an exception with login")
             Log.e("QUICKDRAW", e.toString())
         }
     }

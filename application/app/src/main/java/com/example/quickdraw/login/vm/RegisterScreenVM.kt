@@ -20,7 +20,8 @@ import okhttp3.Request
 import java.io.IOException
 
 class RegisterScreenVM(
-    private val dataStore: DataStore<Preferences>
+    private val dataStore: DataStore<Preferences>,
+    private val onRegisterSuccess: ()->Unit
 ) : ViewModel() {
     val username = mutableStateOf("")
     val email = mutableStateOf("")
@@ -37,7 +38,6 @@ class RegisterScreenVM(
     }
 
     fun register() = viewModelScope.launch(Dispatchers.IO){
-        //TODO: should refactor into a suspend method that returns Optional<RegisterResponse> so it is separated from gui
         val client = OkHttpClient()
         val request = Request.Builder()
             .url(REGISTER_ENDPOINT)
@@ -55,8 +55,9 @@ class RegisterScreenVM(
                 }
             }
             response.close()
+            onRegisterSuccess()
         } catch (e: IOException){
-            Log.e("QUICKDRAW", "there was an exception getting the url")
+            Log.e("QUICKDRAW", "there was an exception with registration")
             Log.e("QUICKDRAW", e.toString())
         }
     }
