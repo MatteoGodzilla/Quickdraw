@@ -101,7 +101,7 @@ class PlayerMedkit(SQLModel,table=True):
 class UpgradeTypes(SQLModel,table=True):
     __tablename__  = "UpgradeTypes"
     id:int = Field(primary_key=True)
-    description:int = Field(default=None)
+    description:str = Field(default=None)
 
 class PlayerUpgrade(SQLModel, table=True):
     __tablename__  = "PlayerUpgrade"

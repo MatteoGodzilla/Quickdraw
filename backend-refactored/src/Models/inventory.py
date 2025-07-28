@@ -2,16 +2,26 @@ from pydantic import BaseModel
 
 #objects
 class InventoryResponseBullet:
-    idBullet:int
+    type:int
+    description:str
+    capacity:int
 
 class InventoryResponseMedkit:
-    idMedkit:int
+    healthRecover:int
+    description:str
+    capacity:int
 
 class InventoryResponseUpgrade:
-    upgradeType:int
+    idUpgrade:int
+    description:str
+    value: int
+    type: int
 
 class InventoryResponseWeapon:
-    idWeapon:int
+    name:str
+    damage:int
+    cost:int
+    bulletType:int
 
 #requests
 class InventoryRequest(BaseModel):
