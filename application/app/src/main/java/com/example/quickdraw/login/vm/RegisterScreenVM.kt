@@ -51,7 +51,6 @@ class RegisterScreenVM(
             } else if(response.body != null){
                 val responseVal = Json.decodeFromString<LoginResponse>(response.body!!.string())
                 dataStore.edit { preferences ->
-                    preferences[PrefKeys.playerId] = responseVal.idPlayer
                     preferences[PrefKeys.authToken] = responseVal.authToken
                 }
             }

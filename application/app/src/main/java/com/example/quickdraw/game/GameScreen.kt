@@ -2,9 +2,12 @@ package com.example.quickdraw.game
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
@@ -21,19 +24,26 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
 import com.example.quickdraw.game.components.BottomNavBar
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 
 @Preview
 @Composable
-fun MainScreen(){
+fun MainScreen(controller: NavHostController? = null){
     QuickdrawTheme {
         Scaffold(
             topBar = { TopBar() },
-            bottomBar = { BottomNavBar() }
+            bottomBar = { BottomNavBar(controller) },
+            modifier = Modifier.padding(
+                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+            )
         ) { padding ->
-            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End){
+            Row (
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.End
+            ){
                 IconButton(onClick = {}, modifier = Modifier.padding(padding)){
                     Icon(Icons.Default.Settings, "Settings")
                 }

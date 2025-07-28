@@ -23,11 +23,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavHostController
+import com.example.quickdraw.game.Navigation
 import com.example.quickdraw.ui.theme.bottomBarButtonColors
 
 @Preview
 @Composable
-fun BottomNavBar(height: Dp = 100.dp){
+fun BottomNavBar(navigation: NavHostController? = null, height: Dp = 100.dp){
     BottomAppBar(
         modifier = Modifier.height(height),
         contentPadding = PaddingValues(0.dp)
@@ -41,7 +43,7 @@ fun BottomNavBar(height: Dp = 100.dp){
             // -> bool active on bottomBarButtonColors
             item {
                 BottomBarTextButton(
-                    function = {},
+                    function = { navigation?.navigate(Navigation.YourPlace) },
                     height = height,
                     color = bottomBarButtonColors(false),
                     content = {
@@ -54,7 +56,7 @@ fun BottomNavBar(height: Dp = 100.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {},
+                    function = {navigation?.navigate(Navigation.BountyBoard)},
                     height = height,
                     color = bottomBarButtonColors(false),
                     content = {
@@ -67,7 +69,7 @@ fun BottomNavBar(height: Dp = 100.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {},
+                    function = {navigation?.navigate(Navigation.Map)},
                     height = height,
                     color = bottomBarButtonColors(false),
                     content = {
@@ -80,7 +82,7 @@ fun BottomNavBar(height: Dp = 100.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {},
+                    function = {navigation?.navigate(Navigation.Shop)},
                     height = height,
                     color = bottomBarButtonColors(false),
                     content = {
@@ -93,7 +95,7 @@ fun BottomNavBar(height: Dp = 100.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {},
+                    function = {navigation?.navigate(Navigation.Contracts)},
                     height = height,
                     color = bottomBarButtonColors(false),
                     content = {

@@ -30,11 +30,13 @@ class LoginActivity : ComponentActivity() {
 
             NavHost(navController = navigation, startDestination = NavDestination.Login){
                 composable<NavDestination.Login> {
-                    val vm = viewModel { LoginScreenVM(this@LoginActivity.dataStore, {
-                        val intent = Intent(this@LoginActivity, GameActivity::class.java)
-                        startActivity(intent)
-                        Log.i(TAG, "Sending from Login to Game activity")
-                    }) }
+                    val vm = viewModel {
+                        LoginScreenVM(this@LoginActivity.dataStore) {
+                            val intent = Intent(this@LoginActivity, GameActivity::class.java)
+                            startActivity(intent)
+                            Log.i(TAG, "Sending from Login to Game activity")
+                        }
+                    }
                     LoginScreen(vm, navigation)
                 }
                 composable<NavDestination.Register> { backstackEntry ->

@@ -32,4 +32,4 @@ data class RegisterRequest(val email: String, val password:String, val username:
 /* --------------RESPONSE-------------*/
 
 @Serializable
-data class LoginResponse(val idPlayer: Int, val authToken: String)
+data class LoginResponse(val authToken: String)
