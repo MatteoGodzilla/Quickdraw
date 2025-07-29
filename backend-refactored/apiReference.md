@@ -222,6 +222,23 @@ restituisce elenco upgrade del valore immediatamente successivo a quello già po
     - Se il giocatore non ha abbastanza denaro, HTTP 402 (si accettano opinioni)
     - Se il giocatore ha abbastanza denaro, HTTP 200 + body con lo stesso oggetto di /shop/medikits
 
+## Status
+### /status/
+- Richiesta POST
+- Request: {
+    authToken: string
+}
+    - In caso di dati mancanti -> HTTP 400
+- Response: {
+    health: number,
+    maxHealth: number,
+    exp: number,
+    money: number,
+    bounty: number
+}
+
+
+
 ## Duel
 ### /duel/
 TODO: finish this
