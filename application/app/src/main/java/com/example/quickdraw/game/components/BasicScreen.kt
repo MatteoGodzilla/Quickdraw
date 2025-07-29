@@ -23,7 +23,7 @@ data class ContentTab(val tabName: String, val content: @Composable (padding: Pa
 @Composable
 fun BasicScreen(
     name: String = "Title",
-    controller: NavHostController? = null,
+    controller: NavHostController,
     tabs: List<ContentTab>
 ){
     val selectedTab = remember { mutableIntStateOf(0) }
@@ -32,7 +32,6 @@ fun BasicScreen(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text(name) },
-
                 )
             },
             bottomBar = { BottomNavBar(navigation = controller) },
@@ -44,7 +43,7 @@ fun BasicScreen(
                 top = padding.calculateTopPadding().plus(48.dp),
                 start = padding.calculateStartPadding(LayoutDirection.Ltr),
                 end = padding.calculateEndPadding(LayoutDirection.Ltr),
-                bottom = padding.calculateBottomPadding()
+                bottom = 0.dp
             )
 
             tabs[selectedTab.intValue].content(newPadding)

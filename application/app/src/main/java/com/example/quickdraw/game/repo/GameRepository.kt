@@ -17,6 +17,8 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 
 const val INVENTORY_ENDPOINT = "$BASE_URL/inventory"
+const val CONTRACTS_ACTIVE_ENDPOINT = "$BASE_URL/contracts/active"
+const val CONTRACTS_AVAILABLE_ENDPOINT = "$BASE_URL/contracts/available"
 
 class GameRepository(
     private val dataStore: DataStore<Preferences>
@@ -28,6 +30,10 @@ class GameRepository(
     var medikits: List<InventoryMedikit>? = null
         private set
     var upgrades: List<InventoryUpgrade>? = null
+        private set
+    var activeContracts: List<Contract>? = null
+        private set
+    var availableContracts: List<Contract>? = null
         private set
 
     suspend fun getInventory() = withContext(Dispatchers.IO) {
@@ -60,4 +66,64 @@ class GameRepository(
         }
     }
 
+    suspend fun getContracts() = withContext(Dispatchers.IO){
+        getActiveContracts()
+        getAvailableContracts()
+    }
+
+    private suspend fun getActiveContracts(){
+        val authToken = dataStore.data.map { pref -> pref[PrefKeys.authToken] }.firstOrNull()
+        if(authToken == null){
+            //Somehow go back to login screen? instead of failing silently
+            Log.i(TAG, "Game Repository failed to get active contracts")
+            return;
+        }
+        Log.i(TAG, "Repository auth token: $authToken")
+
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(CONTRACTS_AVAILABLE_ENDPOINT)
+            .post(TokenRequest(authToken).toRequestBody())
+            .build()
+
+        val response = client.newCall(request).execute()
+        Log.i(TAG, response.code.toString())
+        if(response.code == 200){
+            //it should always be 200, otherwise there is a problem with the auth token
+            val result = response.body!!.string()
+            Log.i(TAG, result)
+            val value = Json.decodeFromString<ContractResponse>(result)
+            activeContracts = value.contracts
+        }
+    }
+
+    private suspend fun getAvailableContracts(){
+        val authToken = dataStore.data.map { pref -> pref[PrefKeys.authToken] }.firstOrNull()
+        if(authToken == null){
+            //Somehow go back to login screen? instead of failing silently
+            Log.i(TAG, "Game Repository failed to get available contracts")
+            return;
+        }
+        Log.i(TAG, "Repository auth token: $authToken")
+
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(CONTRACTS_AVAILABLE_ENDPOINT)
+            .post(TokenRequest(authToken).toRequestBody())
+            .build()
+
+        val response = client.newCall(request).execute()
+        Log.i(TAG, response.code.toString())
+        if(response.code == 200){
+            //it should always be 200, otherwise there is a problem with the auth token
+            val result = response.body!!.string()
+            Log.i(TAG, result)
+            val value = Json.decodeFromString<ContractResponse>(result)
+            availableContracts = value.contracts
+        }
+    }
+
+    private fun getAuthToken(){
+
+    }
 }

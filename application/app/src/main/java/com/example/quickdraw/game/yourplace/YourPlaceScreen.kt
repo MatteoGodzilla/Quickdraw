@@ -19,16 +19,11 @@ import com.example.quickdraw.ui.theme.Typography
 @Composable
 fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
     BasicScreen("Your Place", controller, listOf(
-        ContentTab("Main") {
-            Surface(
-                modifier = Modifier.fillMaxSize().padding(it),
-                color = Color(255, 0, 0, 255)
-            ) {
-                Text("Main")
-            }
+        ContentTab("Stats") {
+            Text("Main", modifier = Modifier.padding(it))
         },
         ContentTab("Memories") {
-            Text("Mamories", modifier = Modifier.padding(it))
+            Text("Memories", modifier = Modifier.padding(it))
         },
         ContentTab("Inventory") {
             Column(
@@ -65,5 +60,8 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                 }
             }
         },
+        ContentTab("Settings") {
+
+        }
     ))
 }

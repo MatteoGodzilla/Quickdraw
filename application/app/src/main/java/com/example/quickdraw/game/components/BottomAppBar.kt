@@ -1,11 +1,23 @@
 package com.example.quickdraw.game.components
 
+import android.view.Window
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.safeGesturesPadding
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
@@ -16,39 +28,45 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.quickdraw.R
 import com.example.quickdraw.game.Navigation
+import com.example.quickdraw.game.Navigation.*
 import com.example.quickdraw.ui.theme.bottomBarButtonColors
 
-@Preview
 @Composable
-fun BottomNavBar(navigation: NavHostController? = null, height: Dp = 100.dp){
+fun BottomNavBar(navigation: NavHostController, height: Dp = 96.dp){
     BottomAppBar(
-        modifier = Modifier.height(height),
-        contentPadding = PaddingValues(0.dp)
+        modifier = Modifier
+            .windowInsetsPadding(WindowInsets.navigationBars)
+            .height(height)
     ) {
+        val navBackStackEntry by navigation.currentBackStackEntryAsState()
+        val currentDestination = navBackStackEntry?.destination
         LazyVerticalGrid(
             columns = GridCells.Fixed(5),
             verticalArrangement = Arrangement.Center,
             userScrollEnabled = false
         ) {
-            //TODO: change button color depending on navigation
-            // -> bool active on bottomBarButtonColors
             item {
                 BottomBarTextButton(
-                    function = { navigation?.navigate(Navigation.YourPlace) },
+                    function = { navigation.navigate(YourPlace) },
                     height = height,
-                    color = bottomBarButtonColors(false),
+                    color = bottomBarButtonColors(currentDestination?.hasRoute<YourPlace>() == true),
                     content = {
                         BarIcon(
-                            icon=Icons.Default.CheckCircle,
+                            icon=R.drawable.home_24px,
                             description="Your Place"
                         )
                     }
@@ -56,25 +74,25 @@ fun BottomNavBar(navigation: NavHostController? = null, height: Dp = 100.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {navigation?.navigate(Navigation.BountyBoard)},
+                    function = {navigation.navigate(BountyBoard)},
                     height = height,
-                    color = bottomBarButtonColors(false),
+                    color = bottomBarButtonColors(currentDestination?.hasRoute<BountyBoard>() == true),
                     content = {
                         BarIcon(
-                            icon=Icons.Default.CheckCircle,
-                            description="Bounty Board"
+                            icon=R.drawable.leaderboard_24px,
+                            description="Bounty board"
                         )
                     }
                 )
             }
             item {
                 BottomBarTextButton(
-                    function = {navigation?.navigate(Navigation.Map)},
+                    function = {navigation.navigate(Map)},
                     height = height,
-                    color = bottomBarButtonColors(false),
+                    color = bottomBarButtonColors(currentDestination?.hasRoute<Navigation.Map>() == true),
                     content = {
                         BarIcon(
-                            icon=Icons.Default.CheckCircle,
+                            icon=R.drawable.baseline_map_24,
                             description="Map"
                         )
                     }
@@ -82,12 +100,12 @@ fun BottomNavBar(navigation: NavHostController? = null, height: Dp = 100.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {navigation?.navigate(Navigation.Shop)},
+                    function = {navigation.navigate(Shop)},
                     height = height,
-                    color = bottomBarButtonColors(false),
+                    color = bottomBarButtonColors(currentDestination?.hasRoute<Shop>() == true),
                     content = {
                         BarIcon(
-                            icon=Icons.Default.CheckCircle,
+                            icon=R.drawable.shopping_bag_24px,
                             description="Shop"
                         )
                     }
@@ -95,12 +113,12 @@ fun BottomNavBar(navigation: NavHostController? = null, height: Dp = 100.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {navigation?.navigate(Navigation.Contracts)},
+                    function = {navigation.navigate(Contracts)},
                     height = height,
-                    color = bottomBarButtonColors(false),
+                    color = bottomBarButtonColors(currentDestination?.hasRoute<Contracts>() == true),
                     content = {
                         BarIcon(
-                            icon=Icons.Default.CheckCircle,
+                            icon=R.drawable.contract_24px,
                             description="Contracts"
                         )
                     }
@@ -111,10 +129,10 @@ fun BottomNavBar(navigation: NavHostController? = null, height: Dp = 100.dp){
 }
 
 @Composable
-fun BarIcon(icon: ImageVector, description: String) {
-    Icon (
-        imageVector = icon,
-        contentDescription = description
+fun BarIcon(@DrawableRes icon: Int, description: String) {
+    Icon(
+        imageVector = ImageVector.vectorResource(icon),
+        description
     )
     Text(text = description, textAlign = TextAlign.Center)
 }

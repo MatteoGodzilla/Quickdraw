@@ -29,9 +29,8 @@ import com.example.quickdraw.game.components.BottomNavBar
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 
-@Preview
 @Composable
-fun MainScreen(controller: NavHostController? = null){
+fun MainScreen(controller: NavHostController){
     QuickdrawTheme {
         Scaffold(
             topBar = { TopBar() },
@@ -40,14 +39,6 @@ fun MainScreen(controller: NavHostController? = null){
                 top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
             )
         ) { padding ->
-            Row (
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.End
-            ){
-                IconButton(onClick = {}, modifier = Modifier.padding(padding)){
-                    Icon(Icons.Default.Settings, "Settings")
-                }
-            }
             LazyVerticalGrid(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier.padding(padding).fillMaxHeight(),

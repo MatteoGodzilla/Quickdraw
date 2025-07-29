@@ -11,6 +11,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.common.dataStore
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
+import com.example.quickdraw.game.contracts.ContractsScreen
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.yourplace.YourPlaceScreen
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ class GameActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             repository.getInventory()
+            repository.getContracts()
         }
         setContent {
             val controller = rememberNavController()
@@ -51,22 +53,14 @@ class GameActivity : ComponentActivity() {
                         ContentTab("Upgrades"){}
                     ))
                 }
-                composable<Navigation.Map> {
-                    MainScreen(controller)
-                }
+                composable<Navigation.Map> { MainScreen(controller) }
                 composable<Navigation.BountyBoard> {
                     BasicScreen("BountyBoard", controller, listOf(
                         ContentTab("Friends"){},
                         ContentTab("Leaderboard"){}
                     ))
                 }
-                composable<Navigation.Contracts> {
-                    BasicScreen("Contracts", controller, listOf(
-                        ContentTab("Active"){},
-                        ContentTab("Available"){},
-                        ContentTab("Mercenaries"){}
-                    ))
-                }
+                composable<Navigation.Contracts> { ContractsScreen(controller, repository) }
             }
         }
     }

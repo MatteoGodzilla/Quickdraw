@@ -2,8 +2,6 @@ package com.example.quickdraw.game.repo
 
 import kotlinx.serialization.Serializable
 
-
-/* --------------RESPONSE-------------- */
 @Serializable
 data class InventoryBullet(
     val type: Int,
