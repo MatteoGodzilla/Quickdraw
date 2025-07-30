@@ -13,7 +13,7 @@ class AvailableContractResponseElement(BaseModel):
     startCost:int
 
 class ActiveContractResponseElement(BaseModel):
-    id:int
+    activeId:int
     name:str
     requiredTime:int
     startTime:int

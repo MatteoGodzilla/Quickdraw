@@ -54,7 +54,7 @@ async def get_actives(request:BasicAuthTokenRequest):
     contracts = result.fetchall()
     response = []
     for active,contract in contracts:
-        response.append(ActiveContractResponseElement(id=contract.id,name=contract.name,
+        response.append(ActiveContractResponseElement(activeId=active.id,name=contract.name,
                                                       requiredTime=contract.requiredTime,startTime=active.startTime))
     return JSONResponse(
         status_code = HTTP_200_OK,
