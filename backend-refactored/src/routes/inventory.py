@@ -17,7 +17,7 @@ from routes.middlewares.checkAuthTokenExpiration import *
 from routes.middlewares.getPlayer import *
 import json
 
-from Models.commons import basicAuthTokenRequest
+from Models.commons import BasicAuthTokenRequest
 
 router = APIRouter(
     prefix="/inventory",
@@ -26,7 +26,7 @@ router = APIRouter(
 
 #routes
 @router.post("")
-async def get_inventory(request: basicAuthTokenRequest):
+async def get_inventory(request: BasicAuthTokenRequest):
     check_token = checkAuthTokenValidity(request.authToken)
     if check_token[SUCCESS] == False:
         return JSONResponse(

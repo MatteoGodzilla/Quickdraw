@@ -27,7 +27,7 @@ session = SessionManager.global_session
 
 #routes
 @router.post("/active")
-async def get_actives(request:basicAuthTokenRequest):
+async def get_actives(request:BasicAuthTokenRequest):
     check_token = checkAuthTokenValidity(request.authToken)
     if check_token[SUCCESS] == False:
         return JSONResponse(
@@ -245,7 +245,7 @@ async def start_contract(request:StartContractRequest):
 
 
 @router.post("/available")
-async def get_availables(request:basicAuthTokenRequest):
+async def get_availables(request:BasicAuthTokenRequest):
     check_token = checkAuthTokenValidity(request.authToken)
     if check_token[SUCCESS] == False:
         return JSONResponse(
