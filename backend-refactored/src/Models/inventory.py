@@ -5,11 +5,13 @@ class InventoryResponseBullet(BaseModel):
     type:int
     description:str
     capacity:int
+    amount:int
 
 class InventoryResponseMedkit(BaseModel):
     healthRecover:int
     description:str
     capacity:int
+    amount:int
 
 class InventoryResponseUpgrade(BaseModel):
     idUpgrade:int

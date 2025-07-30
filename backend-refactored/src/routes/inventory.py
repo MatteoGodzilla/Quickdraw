@@ -68,7 +68,7 @@ async def get_inventory(request: BasicAuthTokenRequest):
     medkits = result.fetchall()
     response_medkits = []
     for playerMedkit,medkit in medkits:
-        response_object = InventoryResponseMedkit(healthRecover=medkit.healthRecover, capacity=medkit.capacity, description = medkit.description)
+        response_object = InventoryResponseMedkit(healthRecover=medkit.healthRecover, capacity=medkit.capacity, description = medkit.description,amount=playerMedkit.amount)
         response_medkits.append(response_object)
     #obtain bullets
     bullets_query  = select (PlayerBullet,Bullet).where(and_(PlayerBullet.idPlayer == player.idPlayer , Bullet.type == PlayerBullet.idBullet))
@@ -76,7 +76,7 @@ async def get_inventory(request: BasicAuthTokenRequest):
     bullets = result.fetchall()
     response_bullets = []
     for playerBullet,bullet in bullets:
-        response_object = InventoryResponseBullet(type=playerBullet.idBullet, capacity=bullet.capacity, description = bullet.description)
+        response_object = InventoryResponseBullet(type=playerBullet.idBullet, capacity=bullet.capacity, description = bullet.description,amount=playerBullet.amount)
         response_bullets.append(response_object)
 
     #response
