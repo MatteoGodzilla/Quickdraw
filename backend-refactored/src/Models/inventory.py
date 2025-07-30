@@ -23,10 +23,6 @@ class InventoryResponseWeapon(BaseModel):
     cost:int
     bulletType:int
 
-#requests
-class InventoryRequest(BaseModel):
-    authToken:str
-
 #responses
 class InventoryResponse(BaseModel):
     bullets:list

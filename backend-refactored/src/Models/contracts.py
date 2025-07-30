@@ -1,4 +1,7 @@
 from pydantic import BaseModel
+from typing import List
+
+from Models.commons import basicAuthTokenRequest
 
 #objects
 class AvailableContractResponseElement(BaseModel):
@@ -14,4 +17,19 @@ class ActiveContractResponseElement(BaseModel):
     name:str
     requiredTime:int
     startTime:int
+
+#requests
+class RedeemContractRequest(basicAuthTokenRequest):
+    idContract:int
+
+class StartContractRequest(basicAuthTokenRequest):
+    contract:int
+    mercenaries: list[int]
+
 #responses
+class ContractRedeemedResponse(BaseModel):
+    success:bool
+    reward:int
+
+class ContractStartResponse(BaseModel):
+    success:bool

@@ -22,3 +22,13 @@ def getPlayer(authToken:str,session:Session):
         return {SUCCESS:False,ERROR:"Provided authentication token is not associated with any Player",HTTP_CODE:HTTP_400_BAD_REQUEST}
 
     return {SUCCESS:True,PLAYER:user}
+
+
+def getPlayerData(player:Login,session:Session):
+    player_query = select(Player).where(Player.id == player.idPlayer)
+    results = session.exec(player_query)
+    user = results.first()
+    if user == None:
+        return {SUCCESS:False,ERROR:"Player data not found",HTTP_CODE:HTTP_400_BAD_REQUEST}
+
+    return {SUCCESS:True,PLAYER:user}

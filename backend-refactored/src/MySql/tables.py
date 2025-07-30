@@ -17,9 +17,6 @@ class Player(SQLModel, table=True):
     money: int = Field(default=0)
     bounty: int = Field(default=0)
     username: str 
-    inJail: bool = Field(default=False)
-    jailStartTime: int
-    jailEndTime: int
 
 class Mercenary(SQLModel, table=True):
     __tablename__  = "Mercenary"
@@ -64,7 +61,6 @@ class ActiveContract(SQLModel, table=True):
     id: int = Field(primary_key=True)
     idContract: int = Field(foreign_key="Contract.id")
     startTime: int
-    reward: int
 
 class EmployedMercenary(SQLModel, table=True):
     __tablename__  = "EmployedMercenary"

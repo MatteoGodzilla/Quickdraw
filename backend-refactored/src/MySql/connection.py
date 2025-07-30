@@ -14,7 +14,6 @@ def create_db_connection():
     engine = create_engine(connection_url,echo=True,query_cache_size=0)
     return engine
 
-#WARNING DO THIS ONLY IN TEST DATABASE: THIS WILL DROP ALL TABLES AND CREATE THEM AGAIN WITH NO DATA
 def rebuild_tables():
     #load .env file
     load_dotenv()
