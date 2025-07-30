@@ -43,7 +43,7 @@ async def get_actives(request:basicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    active_contracts = select(ActiveContract,Contract).where(
+    active_contracts = select(ActiveContract,Contract).distinct().where(
          and_(ActiveContract.idContract == Contract.id,
               ActiveContract.id==AssignedMercenary.idActiveContract,
               AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
@@ -79,11 +79,12 @@ async def redeem(request:RedeemContractRequest):
 
     player:Login = obtain_player[PLAYER]
     active_contract = select(ActiveContract,Contract).where(
-         and_(ActiveContract.id==AssignedMercenary.idActiveContract,
-              AssignedMercenary.idEmployedMercenary==EmployedMercenary.idMercenary,
+         and_(ActiveContract.idContract == Contract.id,
+              ActiveContract.id==AssignedMercenary.idActiveContract,
+              AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
+              EmployedMercenary.idMercenary == Mercenary.id,
               EmployedMercenary.idPlayer==player.idPlayer,
-              ActiveContract.idContract==request.idContract,
-            ))
+              ActiveContract.id == request.idContract))
 
     result = session.exec(active_contract)
     contract = result.first()
