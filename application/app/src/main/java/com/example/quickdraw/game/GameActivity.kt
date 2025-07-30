@@ -11,7 +11,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.common.dataStore
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
+import com.example.quickdraw.game.contracts.ContractsCallbacks
 import com.example.quickdraw.game.contracts.ContractsScreen
+import com.example.quickdraw.game.repo.ActiveContract
+import com.example.quickdraw.game.repo.AvailableContract
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.yourplace.YourPlaceScreen
 import kotlinx.coroutines.launch
@@ -60,7 +63,16 @@ class GameActivity : ComponentActivity() {
                         ContentTab("Leaderboard"){}
                     ))
                 }
-                composable<Navigation.Contracts> { ContractsScreen(controller, repository) }
+                composable<Navigation.Contracts> { ContractsScreen(controller, repository, object : ContractsCallbacks {
+                    override fun onRedeemContract(activeContract: ActiveContract) {
+                        lifecycleScope.launch { repository.redeemContract(activeContract) }
+                    }
+
+                    override fun onStartContract(availableContract: AvailableContract) {
+                        lifecycleScope.launch { repository.startContract(availableContract) }
+                    }
+
+                }) }
             }
         }
     }

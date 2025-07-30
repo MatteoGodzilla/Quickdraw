@@ -53,7 +53,9 @@ fun TopBar() {
 
 @Composable
 fun TopBarRow(image: ImageVector, text: String) {
-    Row {
+    Row (
+        verticalAlignment = Alignment.CenterVertically
+    ){
         Image(image, "")
         CenteredText(text)
     }

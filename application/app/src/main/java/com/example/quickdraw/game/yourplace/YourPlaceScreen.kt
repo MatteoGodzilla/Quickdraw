@@ -64,7 +64,7 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                             horizontalArrangement = Arrangement.SpaceBetween
                         ){
                             Text(bullet.description)
-                            Text("Capacity: ${bullet.capacity}")
+                            Text("${bullet.amount}/${bullet.capacity}")
                         }
                     }
                 }
@@ -81,7 +81,7 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                             modifier = Modifier.fillMaxWidth().padding(start = 8.dp, end = 8.dp)
                         ){
                             Text("Health recover:${medikit.healthRecover}")
-                            Text("Capacity:${medikit.capacity}")
+                            Text("${medikit.amount}/${medikit.capacity}")
                         }
                     }
                 }

@@ -6,6 +6,7 @@ import kotlinx.serialization.Serializable
 data class InventoryBullet(
     val type: Int,
     val description: String,
+    val amount: Int,
     val capacity: Int
 )
 @Serializable
@@ -19,6 +20,7 @@ data class InventoryWeapon(
 data class InventoryMedikit(
     val healthRecover: Int,
     val description: String,
+    val amount: Int,
     val capacity: Int
 )
 @Serializable

@@ -3,7 +3,15 @@ package com.example.quickdraw.game.repo
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Contract(
+data class ActiveContract(
+    val activeId: Int,
+    val name: String,
+    val requiredTime: Long,
+    val startTime: Long
+)
+
+@Serializable
+data class AvailableContract(
     val id: Int,
     val name: String,
     val requiredTime: Long,
@@ -13,6 +21,34 @@ data class Contract(
 )
 
 @Serializable
-data class ContractResponse(
-    val contracts: List<Contract>
+data class Mercenary(val id: Int)
+
+/* --- Request --- */
+@Serializable
+data class ContractStartRequest(
+    val authToken: String,
+    val contract: Int,
+    val mercenaries: List<Int>
+)
+
+@Serializable
+data class ContractRedeemRequest(
+    val authToken: String,
+    val idContract: Int
+)
+
+/* --- Response --- */
+@Serializable
+data class ActiveContractResponse(
+    val contracts: List<ActiveContract>
+)
+@Serializable
+data class AvailableContractResponse(
+    val contracts: List<AvailableContract>
+)
+
+@Serializable
+data class ContractRedeemResponse(
+    val success: Boolean,
+    val reward: Int
 )

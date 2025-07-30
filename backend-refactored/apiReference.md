@@ -78,6 +78,17 @@ tutti i dati vengono inviati in formato json
      requiredPower:number
  }]
 
+### /contracts/start
+- Richiesta POST
+- Request: {
+    authToken: String,
+    mercenaries: [number]
+}
+    - In caso di dati mancanti -> HTTP 400
+    - In caso di soldi non sufficienti del giocatore -> HTTP 402
+    - In caso di dati non validi -> HTTP 400
+- Response: HTTP 200 Ok 
+
 ### /contracts/redeem/
 - Richiesta POST
 - Request: { 
@@ -222,7 +233,7 @@ restituisce elenco upgrade del valore immediatamente successivo a quello già po
     - Se il giocatore non ha abbastanza denaro, HTTP 402 (si accettano opinioni)
     - Se il giocatore ha abbastanza denaro, HTTP 200 + body con lo stesso oggetto di /shop/medikits
 
-## Status
+## Player
 ### /status/
 - Richiesta POST
 - Request: {
@@ -237,11 +248,33 @@ restituisce elenco upgrade del valore immediatamente successivo a quello già po
     bounty: number
 }
 
-
+### /updatePic/
+- Richiesta POST
+- Request: {
+    authToken: string,
+    image: (base64 o blob?)
+}
+    - In caso di dati mancanti -> HTTP 400
+- Response: {
+    uri: string
+}
 
 ## Duel
 ### /duel/
-TODO: finish this
+TODO: da migliorare una volta implementato il loop vero di gioco
+- Richiesta POST 
+- Request: {
+    authToken: string,
+    rounds:[{
+        won: boolean,
+        idWeaponUsed: number,
+        bulletsUsed: number,
+        damage: number
+    }]
+}
+    - In caso di dati mancanti -> HTTP 400
+- Response: HTTP 200 Ok
+
 
 ## Bounty board
 ### /bounty/friends/
