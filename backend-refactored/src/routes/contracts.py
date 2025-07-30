@@ -104,24 +104,24 @@ async def redeem(request:RedeemContractRequest):
     mercenaryPower = select(func.sum(Mercenary.power)).where(
          and_(
               ActiveContract.id==AssignedMercenary.idActiveContract,
-              AssignedMercenary.idEmployedMercenary==EmployedMercenary.idMercenary,
+              AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
               EmployedMercenary.idMercenary == Mercenary.id,
               EmployedMercenary.idPlayer==player.idPlayer,
-              ActiveContract.idContract == request.idContract
+              ActiveContract.id == request.idContract
          )
     )
 
     result = session.exec(mercenaryPower)
     power = result.first()
 
-    ratio = float(power)/float(contract[1].requiredPower)
+    ratio = float(power)/float(max(1,contract[1].requiredPower))
     success = (random.random() <= min(1.0,ratio))
     reward = int(success)*(random.randint(contract[1].minReward,contract[1].maxReward))
     response = ContractRedeemedResponse(success = success,reward=reward)
 
     #update player balance and remove column
     try:
-        playerData : Player = getPlayerData(player)[PLAYER]
+        playerData : Player = getPlayerData(player,session)[PLAYER]
         playerData.money += reward*int(success)
         session.exec(delete(ActiveContract).where(ActiveContract.id == contract[0].id))
         session.commit()
@@ -262,7 +262,7 @@ async def get_availables(request:basicAuthTokenRequest):
 
     player:Login = obtain_player[PLAYER]
     active_contracts_id = select(ActiveContract.idContract).where(
-         and_(ActiveContract.id == Contract.id,
+         and_(ActiveContract.idContract == Contract.id,
               ActiveContract.id==AssignedMercenary.idActiveContract,
               AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
               EmployedMercenary.idMercenary == Mercenary.id,
