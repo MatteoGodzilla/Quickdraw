@@ -1,5 +1,6 @@
 package com.example.quickdraw.game
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.common.dataStore
+import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.contracts.ContractsCallbacks
@@ -56,23 +58,28 @@ class GameActivity : ComponentActivity() {
                         ContentTab("Upgrades"){}
                     ))
                 }
-                composable<Navigation.Map> { MainScreen(controller) }
+                composable<Navigation.Map> {
+                    MainScreen(controller){
+                        val intent = Intent(this@GameActivity, DuelActivity::class.java)
+                        startActivity(intent)
+                    }
+                }
                 composable<Navigation.BountyBoard> {
                     BasicScreen("BountyBoard", controller, listOf(
                         ContentTab("Friends"){},
                         ContentTab("Leaderboard"){}
                     ))
                 }
-                composable<Navigation.Contracts> { ContractsScreen(controller, repository, object : ContractsCallbacks {
-                    override fun onRedeemContract(activeContract: ActiveContract) {
-                        lifecycleScope.launch { repository.redeemContract(activeContract) }
-                    }
-
-                    override fun onStartContract(availableContract: AvailableContract) {
-                        lifecycleScope.launch { repository.startContract(availableContract) }
-                    }
-
-                }) }
+                composable<Navigation.Contracts> {
+                    ContractsScreen(controller, repository, object : ContractsCallbacks {
+                        override fun onRedeemContract(activeContract: ActiveContract) {
+                            lifecycleScope.launch { repository.redeemContract(activeContract) }
+                        }
+                        override fun onStartContract(availableContract: AvailableContract) {
+                            lifecycleScope.launch { repository.startContract(availableContract) }
+                        }
+                    })
+                }
             }
         }
     }
