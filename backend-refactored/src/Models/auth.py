@@ -15,8 +15,8 @@ class AuthRequestWithToken(BaseModel):
     #idPlayer : int
 
 #responses
+# Maybe merge these into a single class for multiple purposes?
 class RegisterResponse(BaseModel):
-    idPlayer : int
     authToken:str
 
 class AuthResponse(BaseModel):

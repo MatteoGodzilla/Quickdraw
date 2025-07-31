@@ -43,7 +43,7 @@ async def register(request: RegisterRequest):
             content = {"message":"Something went wrong"}
         )
     #create response
-    response = RegisterResponse(idPlayer = new_player.id, authToken = auth_token)
+    response = RegisterResponse(authToken = auth_token)
     return JSONResponse(
          status_code = HTTP_200_OK,
          content = jsonable_encoder(response)
