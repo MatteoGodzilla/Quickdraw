@@ -43,6 +43,7 @@ class GameActivity : ComponentActivity() {
 
         lifecycleScope.launch {
             repository.getStatus()
+            repository.getLevels()
             repository.getInventory()
             repository.getContracts()
         }

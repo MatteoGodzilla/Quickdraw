@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -48,9 +49,17 @@ fun TopBar(repository: GameRepository) {
             item { CenteredText("${repository.player?.health}/${repository.player?.maxHealth} HP", rowHeight ) }
             item ( span = { GridItemSpan(2) } ) {
                 //TODO: use levels for this
-                ProgressBar(0f, ProgressBarColors.experience, rowHeight, ImageVector.vectorResource(R.drawable.stars_2_24px), "Experience")
+                val playerLevel = repository.playerLevel.collectAsState().value
+                var progress = 0f
+                val levelIndex = playerLevel - 1
+                if(levelIndex < repository.levels!!.size){
+                    //playerLevel -1 is a vaild index
+                    progress = (repository.player!!.exp - repository.levels!![levelIndex]).toFloat() /
+                            (repository.levels!![levelIndex + 1] - repository.levels!![levelIndex])
+                }
+                ProgressBar(progress, ProgressBarColors.experience, rowHeight, ImageVector.vectorResource(R.drawable.stars_2_24px), "Experience")
             }
-            item { CenteredText("${repository.player?.exp} EXP", rowHeight) }
+            item { CenteredText("Lv. ${repository.playerLevel.collectAsState().value}", rowHeight) }
             item { TopBarRow(image = ImageVector.vectorResource(R.drawable.money_bag_24px_1_), rowHeight, text = "${repository.player?.money}") }
             item { TopBarRow(image = ImageVector.vectorResource(R.drawable.local_police_24px), rowHeight, text = "${repository.player?.bounty}") }
             item { TopBarRow(image = Icons.Default.Done, rowHeight, text = "##BULLETS##") }

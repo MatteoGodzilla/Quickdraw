@@ -7,7 +7,6 @@ import com.example.quickdraw.network.ActiveContract
 import com.example.quickdraw.network.ActiveContractResponse
 import com.example.quickdraw.network.AvailableContract
 import com.example.quickdraw.network.AvailableContractResponse
-import com.example.quickdraw.network.BASE_URL
 import com.example.quickdraw.network.CONTRACTS_ACTIVE_ENDPOINT
 import com.example.quickdraw.network.CONTRACTS_AVAILABLE_ENDPOINT
 import com.example.quickdraw.network.CONTRACTS_REDEEM
@@ -21,6 +20,7 @@ import com.example.quickdraw.network.InventoryMedikit
 import com.example.quickdraw.network.InventoryResponse
 import com.example.quickdraw.network.InventoryUpgrade
 import com.example.quickdraw.network.InventoryWeapon
+import com.example.quickdraw.network.LEVELS_ENDPOINT
 import com.example.quickdraw.network.PlayerStatus
 import com.example.quickdraw.network.PrefKeys
 import com.example.quickdraw.network.STATUS_ENDPOINT
@@ -28,6 +28,7 @@ import com.example.quickdraw.network.TAG
 import com.example.quickdraw.network.TokenRequest
 import com.example.quickdraw.network.toRequestBody
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
@@ -39,6 +40,10 @@ class GameRepository(
     private val dataStore: DataStore<Preferences>
 ) {
     var player: PlayerStatus? = null
+        private set
+    var levels: List<Int>? = null
+        private set
+    var playerLevel: MutableStateFlow<Int> = MutableStateFlow(-3)
         private set
     var bullets: List<InventoryBullet>? = null
         private set
@@ -75,9 +80,39 @@ class GameRepository(
             val result = response.body!!.string()
             Log.i(TAG, result)
             val value = Json.decodeFromString<PlayerStatus>(result)
-            Log.i(TAG, value.toString())
             player = value
         }
+    }
+
+    suspend fun getLevels() = withContext(Dispatchers.IO) {
+        val client = OkHttpClient()
+        val request = Request.Builder()
+            .url(LEVELS_ENDPOINT)
+            .build()
+
+        val response = client.newCall(request).execute()
+        Log.i(TAG, response.code.toString())
+        if(response.code == 200){
+            //it should always be 200, otherwise there is a problem with the auth token
+            val result = response.body!!.string()
+            Log.i(TAG, result)
+            val value = Json.decodeFromString<List<Int>>(result)
+            levels = value
+            playerLevel.value = getPlayerLevel()
+        }
+    }
+
+    private fun getPlayerLevel(): Int {
+        if(player == null || levels == null) {
+            return -2;
+        }
+        var level = -1
+        for(i in 0..<levels!!.size){
+            if(player!!.exp >= levels!![i]){
+                level = i + 1
+            }
+        }
+        return level
     }
 
     suspend fun getInventory() = withContext(Dispatchers.IO) {

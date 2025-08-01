@@ -14,6 +14,7 @@ const val REGISTER_ENDPOINT = "$BASE_URL/auth/register"
 
 const val INVENTORY_ENDPOINT = "$BASE_URL/inventory"
 const val STATUS_ENDPOINT = "$BASE_URL/status"
+const val LEVELS_ENDPOINT = "$BASE_URL/status/levels"
 
 const val CONTRACTS_ACTIVE_ENDPOINT = "$BASE_URL/contracts/active"
 const val CONTRACTS_AVAILABLE_ENDPOINT = "$BASE_URL/contracts/available"

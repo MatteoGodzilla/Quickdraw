@@ -57,3 +57,17 @@ async def status(request: BasicAuthTokenRequest):
          status_code = HTTP_200_OK,
          content = jsonable_encoder(playerData[PLAYER])
     )
+
+@router.get("/levels")
+async def levels():
+    level_query = select(Level) # order by Level.level
+    result = session.execute(level_query).all()
+
+    #print(type(result))
+    #print(type(result[0]))
+    #print(type(result[0][0]))
+
+    return JSONResponse(
+        status_code = HTTP_200_OK,
+        content=[ item[0].expRequired for item in result]
+    )
