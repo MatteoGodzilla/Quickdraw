@@ -1,17 +1,19 @@
 package com.example.quickdraw.game.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,55 +22,61 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.example.quickdraw.R
+import com.example.quickdraw.game.GameRepository
 import com.example.quickdraw.ui.theme.ProgressBarColors
+import com.example.quickdraw.ui.theme.Typography
 
-@Preview
 @Composable
-fun TopBar() {
+fun TopBar(repository: GameRepository) {
     Surface(color = MaterialTheme.colorScheme.surfaceContainer){
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
+            verticalArrangement = Arrangement.Bottom,
             userScrollEnabled = false
-            ) {
-            //TODO: get this value from the text size instead
-            val rowHeight = 24.dp
+        ) {
+            val rowHeight = Typography.bodyLarge.lineHeight.value.dp
             item ( span = { GridItemSpan(2) } ) {
-                RowWithProgressBar(rowHeight, ProgressBarColors.health)
+                val ratio = if(repository.player != null) repository.player!!.health.toFloat() / repository.player!!.maxHealth else 0.0f
+                ProgressBar(ratio, ProgressBarColors.health, rowHeight, ImageVector.vectorResource(R.drawable.favorite_24px), "Health")
             }
-            item { CenteredText("Health") }
+            item { CenteredText("${repository.player?.health}/${repository.player?.maxHealth} HP", rowHeight ) }
             item ( span = { GridItemSpan(2) } ) {
-                RowWithProgressBar(rowHeight, ProgressBarColors.experience)
+                //TODO: use levels for this
+                ProgressBar(0f, ProgressBarColors.experience, rowHeight, ImageVector.vectorResource(R.drawable.stars_2_24px), "Experience")
             }
-            item { CenteredText("Player Level") }
-            item { TopBarRow(image = Icons.Default.Done, text = "##Money##") }
-            item { TopBarRow(image = Icons.Default.Done, text = "##Bounty##") }
-            item { TopBarRow(image = Icons.Default.Done, text = "##Bullets##") }
+            item { CenteredText("${repository.player?.exp} EXP", rowHeight) }
+            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.money_bag_24px_1_), rowHeight, text = "${repository.player?.money}") }
+            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.local_police_24px), rowHeight, text = "${repository.player?.bounty}") }
+            item { TopBarRow(image = Icons.Default.Done, rowHeight, text = "##BULLETS##") }
         }
     }
 }
 
 @Composable
-fun TopBarRow(image: ImageVector, text: String) {
+fun TopBarRow(image: ImageVector, height: Dp,  text: String) {
     Row (
         verticalAlignment = Alignment.CenterVertically
     ){
         Image(image, "")
-        CenteredText(text)
+        CenteredText(text, height)
     }
 }
 
 @Composable
-fun RowWithProgressBar(height: Dp, color: Color) {
+fun ProgressBar(progress: Float, color: Color, height: Dp, image: ImageVector, imageDescription: String) {
     Row(
         modifier = Modifier.heightIn(height).fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
     ) {
+        Icon(image, imageDescription)
         LinearProgressIndicator(
-            progress = {0.5f},
+            progress = {progress},
             color = color,
             modifier = Modifier.fillMaxWidth()
         )
@@ -76,10 +84,11 @@ fun RowWithProgressBar(height: Dp, color: Color) {
 }
 
 @Composable
-fun CenteredText(text: String) {
+fun CenteredText(text: String, height: Dp) {
     Text(
         text,
         textAlign = TextAlign.Center,
-        modifier = Modifier.fillMaxWidth()
+        modifier = Modifier.fillMaxWidth().height(height)
+            .wrapContentHeight(Alignment.CenterVertically)
     )
 }

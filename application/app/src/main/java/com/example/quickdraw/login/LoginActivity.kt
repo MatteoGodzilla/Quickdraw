@@ -11,13 +11,21 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.example.quickdraw.common.TAG
-import com.example.quickdraw.common.dataStore
+import com.example.quickdraw.network.TAG
+import com.example.quickdraw.network.dataStore
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.login.screen.LoginScreen
 import com.example.quickdraw.login.screen.RegisterScreen
 import com.example.quickdraw.login.vm.LoginScreenVM
 import com.example.quickdraw.login.vm.RegisterScreenVM
+import kotlinx.serialization.Serializable
+
+class LoginNavigation{
+    @Serializable
+    object Login
+    @Serializable
+    data class Register(val initialEmail: String, val initialPassword: String)
+}
 
 class LoginActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -28,8 +36,8 @@ class LoginActivity : ComponentActivity() {
         setContent {
             val navigation = rememberNavController()
 
-            NavHost(navController = navigation, startDestination = NavDestination.Login){
-                composable<NavDestination.Login> {
+            NavHost(navController = navigation, startDestination = LoginNavigation.Login){
+                composable<LoginNavigation.Login> {
                     val vm = viewModel {
                         LoginScreenVM(this@LoginActivity.dataStore) {
                             //On Login success
@@ -40,8 +48,8 @@ class LoginActivity : ComponentActivity() {
                     }
                     LoginScreen(vm, navigation)
                 }
-                composable<NavDestination.Register> { backstackEntry ->
-                    val initialValues = backstackEntry.toRoute<NavDestination.Register>()
+                composable<LoginNavigation.Register> { backstackEntry ->
+                    val initialValues = backstackEntry.toRoute<LoginNavigation.Register>()
                     val vm = viewModel {
                         RegisterScreenVM(this@LoginActivity.dataStore){
                             //On Register success

@@ -1,11 +1,9 @@
-package com.example.quickdraw.game.yourplace
+package com.example.quickdraw.game.screen
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -26,13 +24,12 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
-import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.game.GameRepository
 import com.example.quickdraw.ui.theme.Typography
 
 
 @Composable
 fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
-    // booleans for the collapsable categories
     BasicScreen("Your Place", controller, listOf(
         ContentTab("Stats") {
             Text("Main", modifier = Modifier.padding(it))

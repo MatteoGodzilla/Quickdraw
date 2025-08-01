@@ -1,4 +1,4 @@
-package com.example.quickdraw.game.repo
+package com.example.quickdraw.network
 
 import kotlinx.serialization.Serializable
 
@@ -19,9 +19,6 @@ data class AvailableContract(
     val maxMercenaries: Int,
     val startCost: Int,
 )
-
-@Serializable
-data class Mercenary(val id: Int)
 
 /* --- Request --- */
 @Serializable

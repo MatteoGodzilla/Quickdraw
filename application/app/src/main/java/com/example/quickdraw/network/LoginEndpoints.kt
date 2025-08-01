@@ -1,11 +1,7 @@
-package com.example.quickdraw.common
+package com.example.quickdraw.network
 
 import kotlinx.serialization.Serializable
 
-//API ENDPOINTS
-const val LOGIN_ENDPOINT = "$BASE_URL/auth/login"
-const val TOKEN_LOGIN_ENDPOINT = "$BASE_URL/auth/tokenLogin"
-const val REGISTER_ENDPOINT = "$BASE_URL/auth/register"
 
 /* --------------REQUEST-------------- */
 @Serializable
