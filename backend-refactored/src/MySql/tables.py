@@ -88,7 +88,7 @@ class Medikit(SQLModel,table=True):
 class MedikitShop(SQLModel,table=True):
     __tablename__  = "MedikitShop"
     id: int = Field(primary_key=True)
-    idMediKit: int = Field(foreign_key="Medikit.id")
+    idMedikit: int = Field(foreign_key="Medikit.id")
     quantity: int
     cost: int
 

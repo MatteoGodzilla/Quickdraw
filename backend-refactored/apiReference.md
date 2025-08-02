@@ -139,8 +139,8 @@ tutti i dati vengono inviati in formato json
     name:string,
     damage:number,
     cost:number,
-    owned:boolean
 }]
+Il risultato è filtrato per gli oggetti che il giocatore non possiede
 
 ### /shop/weapons/buy
 - Richiesta POST
@@ -160,13 +160,13 @@ tutti i dati vengono inviati in formato json
 }
   - In caso di dati mancanti -> HTTP 400
 - Response: [{
-    id:number
-    name:string
-    cost:number
-    quantity:number
-    amount:number
+    id:number,
+    name:string,
+    cost:number,
+    quantity:number,
     capacity:number
 }]
+Per quelli posseduti dal giocatore, si fa riferimento alla quantità in inventory
 
 ### /shop/bullets/buy
 - Richiesta POST
@@ -218,9 +218,8 @@ restituisce elenco upgrade del valore immediatamente successivo a quello già po
     cost:number,
     quantity:number,
     capacity:number,
-    amount:number
 }]
-
+Per la quantità dei medikit, fare riferimento all'inventario
 
 ### /shop/medikits/buy
 - Richiesta POST

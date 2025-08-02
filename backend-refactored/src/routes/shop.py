@@ -1,0 +1,200 @@
+from fastapi import APIRouter
+from fastapi.responses import JSONResponse
+from MySql import SessionManager
+from MySql.tables import Weapon, PlayerWeapon, BulletShop, Bullet, MedikitShop, Medikit, UpgradeShop, PlayerUpgrade, UpgradeTypes
+from Models.commons import BasicAuthTokenRequest
+from routes.middlewares.checkAuthTokenExpiration import checkAuthTokenValidity 
+from routes.middlewares.key_names import SUCCESS, ERROR, HTTP_CODE, PLAYER
+from routes.middlewares.getPlayer import getPlayer
+from sqlalchemy import and_, or_, func, join
+from sqlmodel import Session, select
+from starlette.status import HTTP_200_OK
+
+session = SessionManager.global_session
+
+router = APIRouter(
+    prefix="/shop",
+    tags=["shop"]
+)
+
+@router.post("/weapons")
+async def weapons(request: BasicAuthTokenRequest):
+    # Copy-pasted from contracts/active
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken,session)
+    if obtain_player[SUCCESS] == False:
+            return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+   
+    available_weapons = select(Weapon).where(Weapon.id.not_in(
+        select(PlayerWeapon.idWeapon).where(PlayerWeapon.idPlayer == player.idPlayer)
+    ))
+
+    result = session.exec(available_weapons) 
+    response_weapons = []
+    for w in result.fetchall():
+        response_weapons.append({
+            "id": w.id,
+            "name" : w.name,
+            "damage" : w.damage,
+            "cost" : w.cost
+            # bullet type
+        })
+
+    return JSONResponse(
+        status_code = HTTP_200_OK,
+        content=response_weapons
+    )
+
+@router.post("/bullets")
+async def bullets(request: BasicAuthTokenRequest):
+    # Copy-pasted from above 
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken,session)
+    if obtain_player[SUCCESS] == False:
+            return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+   
+    available_bullets = select(BulletShop,Bullet).where(BulletShop.idBullet == Bullet.type)
+
+    result = session.exec(available_bullets) 
+    response_bullets = []
+    for bulletShop, bullet in result.fetchall():
+        response_bullets.append({
+            "id": bulletShop.id,
+            "type": bullet.type, 
+            "name" : bullet.description,
+            "cost" : bulletShop.cost,
+            "quantity" : bulletShop.quantity,
+            "capacity" : bullet.capacity,
+        })
+
+    return JSONResponse(
+        status_code = HTTP_200_OK,
+        content=response_bullets
+    )
+
+@router.post("/medikits")
+async def bullets(request: BasicAuthTokenRequest):
+    # Copy-pasted from above 
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken,session)
+    if obtain_player[SUCCESS] == False:
+            return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+   
+    available_medikits = select(MedikitShop,Medikit).where(MedikitShop.idMedikit == Medikit.id)
+
+    result = session.exec(available_medikits) 
+    response_medikits = []
+    for medikitShop, medikit in result.fetchall():
+        response_medikits.append({
+            "id": medikitShop.id,
+            "idMedikit": medikit.id,
+            "description" : medikit.description,
+            "healthRecover": medikit.healthRecover,
+            "cost" : medikitShop.cost,
+            "quantity" : medikitShop.quantity,
+            "capacity" : medikit.capacity,
+        })
+
+    return JSONResponse(
+        status_code = HTTP_200_OK,
+        content=response_medikits
+    )
+
+@router.post("/upgrades")
+async def bullets(request: BasicAuthTokenRequest):
+    # Copy-pasted from above 
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken,session)
+    if obtain_player[SUCCESS] == False:
+            return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+  
+    #SELECT us.idUpgrade, us.type, min(us.level), us.cost FROM UpgradeShop us 
+    #LEFT JOIN (
+    #	SELECT type as t, max(level) as maxLevel FROM PlayerUpgrade pu
+	#    JOIN UpgradeShop us ON pu.idUpgrade = us.idUpgrade
+	#    WHERE pu.idPlayer = 1
+	#    GROUP BY type
+    #) as pml ON us.type = pml.t
+    #WHERE pml.maxLevel IS NULL OR us.level = pml.maxLevel + 1
+    #GROUP BY us.type
+
+    player_max_upgrades = select(UpgradeShop.type.label("type"), func.max(UpgradeShop.level).label("maxLevel")).where(and_(
+            PlayerUpgrade.idPlayer == player.idPlayer,
+            PlayerUpgrade.idUpgrade == UpgradeShop.idUpgrade
+        )).group_by(UpgradeShop.type).subquery()
+
+    available_upgrades = select(
+            UpgradeShop.idUpgrade,
+            UpgradeShop.type,
+            func.min(UpgradeShop.level),
+            UpgradeShop.cost,
+            UpgradeTypes.description
+        ).select_from(
+            join(UpgradeShop, player_max_upgrades, UpgradeShop.type == player_max_upgrades.c.type, isouter = True)
+        ).where(or_(
+            player_max_upgrades.c.maxLevel == None,
+            UpgradeShop.level == player_max_upgrades.c.maxLevel + 1,
+        )).where(
+            UpgradeTypes.id == UpgradeShop.type
+        ).group_by(UpgradeShop.type)
+
+    result = session.exec(available_upgrades)
+    response_upgrades = []
+    for upgrade_id, upgrade_type, level, cost, description in result.fetchall():
+        response_upgrades.append({
+            "id": upgrade_id,
+            "type": upgrade_type,
+            "description": description,
+            "level": level,
+            "cost": cost,
+        })
+
+    return JSONResponse(
+        status_code = HTTP_200_OK,
+        content=response_upgrades
+    )
+

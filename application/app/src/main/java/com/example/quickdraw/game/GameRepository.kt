@@ -9,6 +9,10 @@ import com.example.quickdraw.network.api.getActiveContractsAPI
 import com.example.quickdraw.network.api.getAvailableContractsAPI
 import com.example.quickdraw.network.api.getInventoryAPI
 import com.example.quickdraw.network.api.getLevelsAPI
+import com.example.quickdraw.network.api.getShopBulletsAPI
+import com.example.quickdraw.network.api.getShopMedikitsAPI
+import com.example.quickdraw.network.api.getShopUpgradesAPI
+import com.example.quickdraw.network.api.getShopWeaponsAPI
 import com.example.quickdraw.network.api.getStatusAPI
 import com.example.quickdraw.network.api.redeemContractAPI
 import com.example.quickdraw.network.api.startContractAPI
@@ -19,6 +23,10 @@ import com.example.quickdraw.network.data.InventoryMedikit
 import com.example.quickdraw.network.data.InventoryUpgrade
 import com.example.quickdraw.network.data.InventoryWeapon
 import com.example.quickdraw.network.data.PlayerStatus
+import com.example.quickdraw.network.data.ShopBullet
+import com.example.quickdraw.network.data.ShopMedikit
+import com.example.quickdraw.network.data.ShopUpgrade
+import com.example.quickdraw.network.data.ShopWeapon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -32,12 +40,15 @@ class GameRepository(
     //Because of coroutines, there is no guarantee that the ui has the data when it needs it
     //If it's a list, it should be non-null with an empty constructor
     //If it's a single object, it should be nullable with default as null
+
+    //Status
     var player: PlayerStatus? = null
         private set
     var levels: List<Int> = listOf()
         private set
-    var playerLevel: MutableStateFlow<Int> = MutableStateFlow(-3)
+    var playerLevel: MutableStateFlow<Int> = MutableStateFlow(-1)
         private set
+    //Inventory
     var bullets: List<InventoryBullet> = listOf()
         private set
     var weapons: List<InventoryWeapon> = listOf()
@@ -46,9 +57,19 @@ class GameRepository(
         private set
     var upgrades: List<InventoryUpgrade> = listOf()
         private set
+    //Contracts
     var activeContracts: List<ActiveContract> = listOf()
         private set
     var availableContracts: List<AvailableContract> = listOf()
+        private set
+    //Shop
+    var shopWeapons: List<ShopWeapon> = listOf()
+        private set
+    var shopBullets: List<ShopBullet> = listOf()
+        private set
+    var shopMedikits: List<ShopMedikit> = listOf()
+        private set
+    var shopUpgrades: List<ShopUpgrade> = listOf()
         private set
 
     suspend fun getStatus() = runIfAuthenticated { auth ->
@@ -103,6 +124,22 @@ class GameRepository(
         if(success){
            activeContracts.filter { c -> c.activeId != contract.activeId }
         }
+    }
+
+    suspend fun getShopWeapons() = runIfAuthenticated { auth ->
+        shopWeapons = getShopWeaponsAPI(auth)
+    }
+
+    suspend fun getShopBullets() = runIfAuthenticated { auth ->
+        shopBullets = getShopBulletsAPI(auth)
+    }
+
+    suspend fun getShopMedikits() = runIfAuthenticated { auth ->
+        shopMedikits = getShopMedikitsAPI(auth)
+    }
+
+    suspend fun getShopUpgrades() = runIfAuthenticated { auth ->
+        shopUpgrades = getShopUpgradesAPI(auth)
     }
 
     private suspend fun runIfAuthenticated(block: (authToken: String)->Unit) = withContext(Dispatchers.IO) {

@@ -18,7 +18,6 @@ from routes.middlewares.checkAuthTokenExpiration import *
 from Models.commons import BasicAuthTokenRequest
 from routes.middlewares.getPlayer import *
 from routes.middlewares.key_names import *
-from routes.middlewares.checkAuthTokenExpiration import *
 
 router = APIRouter(
     prefix="/status",

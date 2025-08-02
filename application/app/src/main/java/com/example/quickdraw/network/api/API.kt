@@ -21,6 +21,10 @@ const val CONTRACTS_AVAILABLE_ENDPOINT = "$BASE_URL/contracts/available"
 const val CONTRACTS_START = "$BASE_URL/contracts/start"
 const val CONTRACTS_REDEEM = "$BASE_URL/contracts/redeem"
 
+const val SHOP_WEAPONS = "$BASE_URL/shop/weapons"
+const val SHOP_BULLETS = "$BASE_URL/shop/bullets"
+const val SHOP_MEDIKITS = "$BASE_URL/shop/medikits"
+const val SHOP_UPGRADES = "$BASE_URL/shop/upgrades"
 
 inline fun <reified T> T.toRequestBody(): RequestBody {
     val jsonString = Json.encodeToString(this)

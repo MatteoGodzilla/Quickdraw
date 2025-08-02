@@ -5,6 +5,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -48,7 +53,12 @@ class GameActivity : ComponentActivity() {
             repository.getLevels()
             repository.getInventory()
             repository.getContracts()
+            repository.getShopWeapons()
+            repository.getShopBullets()
+            repository.getShopMedikits()
+            repository.getShopUpgrades()
         }
+
         setContent {
             val controller = rememberNavController()
 
@@ -56,10 +66,42 @@ class GameActivity : ComponentActivity() {
                 composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository) }
                 composable<GameNavigation.Shop> {
                     BasicScreen("Shop", controller, listOf(
-                        ContentTab("Weapons"){},
-                        ContentTab("Bullets"){},
-                        ContentTab("Medikits"){},
-                        ContentTab("Upgrades"){}
+                        ContentTab("Weapons"){
+                            if(repository.shopWeapons.isNotEmpty()){
+                                Column (modifier = Modifier.padding(it)){
+                                    for (w in repository.shopWeapons){
+                                        Text(w.toString())
+                                    }
+                                }
+                            }
+                        },
+                        ContentTab("Bullets"){
+                            if(repository.shopBullets.isNotEmpty()){
+                                Column (modifier = Modifier.padding(it)){
+                                    for (w in repository.shopBullets){
+                                        Text(w.toString())
+                                    }
+                                }
+                            }
+                        },
+                        ContentTab("Medikits"){
+                            if(repository.shopMedikits.isNotEmpty()){
+                                Column (modifier = Modifier.padding(it)){
+                                    for (w in repository.shopMedikits){
+                                        Text(w.toString())
+                                    }
+                                }
+                            }
+                        },
+                        ContentTab("Upgrades"){
+                            if(repository.shopUpgrades.isNotEmpty()){
+                                Column (modifier = Modifier.padding(it)){
+                                    for (w in repository.shopUpgrades){
+                                        Text(w.toString())
+                                    }
+                                }
+                            }
+                        }
                     ))
                 }
                 composable<GameNavigation.Map> {
