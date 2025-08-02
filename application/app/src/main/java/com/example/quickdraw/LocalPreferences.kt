@@ -1,4 +1,4 @@
-package com.example.quickdraw.network
+package com.example.quickdraw
 
 import android.content.Context
 import androidx.datastore.preferences.core.stringPreferencesKey

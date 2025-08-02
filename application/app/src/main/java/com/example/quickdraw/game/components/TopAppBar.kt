@@ -49,13 +49,15 @@ fun TopBar(repository: GameRepository) {
             item { CenteredText("${repository.player?.health}/${repository.player?.maxHealth} HP", rowHeight ) }
             item ( span = { GridItemSpan(2) } ) {
                 //TODO: use levels for this
-                val playerLevel = repository.playerLevel.collectAsState().value
                 var progress = 0f
-                val levelIndex = playerLevel - 1
-                if(levelIndex < repository.levels!!.size){
-                    //playerLevel -1 is a vaild index
-                    progress = (repository.player!!.exp - repository.levels!![levelIndex]).toFloat() /
-                            (repository.levels!![levelIndex + 1] - repository.levels!![levelIndex])
+                if(repository.levels != null){
+                    val playerLevel = repository.playerLevel.collectAsState().value
+                    val levelIndex = playerLevel - 1
+                    if(levelIndex < repository.levels!!.size){
+                        //playerLevel -1 is a vaild index
+                        progress = (repository.player!!.exp - repository.levels!![levelIndex]).toFloat() /
+                                (repository.levels!![levelIndex + 1] - repository.levels!![levelIndex])
+                    }
                 }
                 ProgressBar(progress, ProgressBarColors.experience, rowHeight, ImageVector.vectorResource(R.drawable.stars_2_24px), "Experience")
             }

@@ -7,13 +7,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.enableEdgeToEdge
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.lifecycleScope
-import com.example.quickdraw.network.LoginResponse
-import com.example.quickdraw.network.PrefKeys
-import com.example.quickdraw.network.TAG
-import com.example.quickdraw.network.TOKEN_LOGIN_ENDPOINT
-import com.example.quickdraw.network.TokenRequest
-import com.example.quickdraw.network.dataStore
-import com.example.quickdraw.network.toRequestBody
+import com.example.quickdraw.network.data.LoginResponse
+import com.example.quickdraw.network.api.TOKEN_LOGIN_ENDPOINT
+import com.example.quickdraw.network.data.TokenRequest
+import com.example.quickdraw.network.api.toRequestBody
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.login.LoginActivity
 import kotlinx.coroutines.Dispatchers

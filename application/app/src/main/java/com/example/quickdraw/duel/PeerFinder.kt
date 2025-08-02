@@ -28,7 +28,7 @@ import android.provider.Settings
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.quickdraw.network.TAG
+import com.example.quickdraw.TAG
 
 
 data class Peer(

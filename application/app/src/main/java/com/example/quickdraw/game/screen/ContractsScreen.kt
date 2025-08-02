@@ -28,8 +28,8 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
-import com.example.quickdraw.network.ActiveContract
-import com.example.quickdraw.network.AvailableContract
+import com.example.quickdraw.network.data.ActiveContract
+import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.GameRepository
 import com.example.quickdraw.ui.theme.Typography
 import kotlinx.coroutines.delay

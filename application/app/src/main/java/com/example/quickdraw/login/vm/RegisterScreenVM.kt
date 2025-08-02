@@ -7,11 +7,11 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.quickdraw.network.PrefKeys
-import com.example.quickdraw.network.LoginResponse
-import com.example.quickdraw.network.REGISTER_ENDPOINT
-import com.example.quickdraw.network.RegisterRequest
-import com.example.quickdraw.network.toRequestBody
+import com.example.quickdraw.PrefKeys
+import com.example.quickdraw.network.data.LoginResponse
+import com.example.quickdraw.network.api.REGISTER_ENDPOINT
+import com.example.quickdraw.network.data.RegisterRequest
+import com.example.quickdraw.network.api.toRequestBody
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json

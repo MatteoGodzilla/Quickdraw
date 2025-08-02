@@ -248,6 +248,11 @@ restituisce elenco upgrade del valore immediatamente successivo a quello già po
     bounty: number
 }
 
+### /status/levels
+- Richiesta GET
+- Response: [number]
+Lista di punti exp richiesti, in ordine crescente, dal livello 1 in poi
+
 ### /updatePic/
 - Richiesta POST
 - Request: {

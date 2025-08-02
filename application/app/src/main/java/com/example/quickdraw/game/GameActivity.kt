@@ -9,14 +9,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.quickdraw.network.dataStore
+import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.screen.ContractsCallbacks
 import com.example.quickdraw.game.screen.ContractsScreen
-import com.example.quickdraw.network.ActiveContract
-import com.example.quickdraw.network.AvailableContract
+import com.example.quickdraw.network.data.ActiveContract
+import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
 import kotlinx.coroutines.launch
@@ -40,6 +40,8 @@ class GameActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val repository = GameRepository(dataStore)
+
+        //TODO: run repository fetch every time it changes screen
 
         lifecycleScope.launch {
             repository.getStatus()
