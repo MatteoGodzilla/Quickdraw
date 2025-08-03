@@ -7,6 +7,8 @@ import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.TAG
 import com.example.quickdraw.network.api.getActiveContractsAPI
 import com.example.quickdraw.network.api.getAvailableContractsAPI
+import com.example.quickdraw.network.api.getFriendLeaderboardAPI
+import com.example.quickdraw.network.api.getGlobalLeaderboardAPI
 import com.example.quickdraw.network.api.getInventoryAPI
 import com.example.quickdraw.network.api.getLevelsAPI
 import com.example.quickdraw.network.api.getShopBulletsAPI
@@ -22,6 +24,7 @@ import com.example.quickdraw.network.data.InventoryBullet
 import com.example.quickdraw.network.data.InventoryMedikit
 import com.example.quickdraw.network.data.InventoryUpgrade
 import com.example.quickdraw.network.data.InventoryWeapon
+import com.example.quickdraw.network.data.LeaderboardEntry
 import com.example.quickdraw.network.data.PlayerStatus
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
@@ -70,6 +73,11 @@ class GameRepository(
     var shopMedikits: List<ShopMedikit> = listOf()
         private set
     var shopUpgrades: List<ShopUpgrade> = listOf()
+        private set
+    //Bounty board
+    var friendLeaderboard: List<LeaderboardEntry> = listOf()
+        private set
+    var globalLeaderboard: List<LeaderboardEntry> = listOf()
         private set
 
     suspend fun getStatus() = runIfAuthenticated { auth ->
@@ -140,6 +148,14 @@ class GameRepository(
 
     suspend fun getShopUpgrades() = runIfAuthenticated { auth ->
         shopUpgrades = getShopUpgradesAPI(auth)
+    }
+
+    suspend fun getFriendLeaderboard() = runIfAuthenticated { auth ->
+        friendLeaderboard = getFriendLeaderboardAPI(auth)
+    }
+
+    suspend fun getGlobalLeaderboard() = withContext(Dispatchers.IO) {
+        globalLeaderboard = getGlobalLeaderboardAPI()
     }
 
     private suspend fun runIfAuthenticated(block: (authToken: String)->Unit) = withContext(Dispatchers.IO) {

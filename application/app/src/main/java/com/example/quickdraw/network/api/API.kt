@@ -26,6 +26,9 @@ const val SHOP_BULLETS = "$BASE_URL/shop/bullets"
 const val SHOP_MEDIKITS = "$BASE_URL/shop/medikits"
 const val SHOP_UPGRADES = "$BASE_URL/shop/upgrades"
 
+const val BOUNTY_FRIENDS = "$BASE_URL/bounty/friends"
+const val BOUNTY_LEADERBOARD = "$BASE_URL/bounty/leaderboard"
+
 inline fun <reified T> T.toRequestBody(): RequestBody {
     val jsonString = Json.encodeToString(this)
     return jsonString.toRequestBody("application/json".toMediaType())

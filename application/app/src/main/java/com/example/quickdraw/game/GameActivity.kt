@@ -24,6 +24,7 @@ import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
+import com.example.quickdraw.network.api.toRequestBody
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -46,7 +47,7 @@ class GameActivity : ComponentActivity() {
         enableEdgeToEdge()
         val repository = GameRepository(dataStore)
 
-        //TODO: run repository fetch every time it changes screen
+        //TODO: run repository fetch when it changes screen, not just at start
 
         lifecycleScope.launch {
             repository.getStatus()
@@ -57,6 +58,8 @@ class GameActivity : ComponentActivity() {
             repository.getShopBullets()
             repository.getShopMedikits()
             repository.getShopUpgrades()
+            repository.getFriendLeaderboard()
+            repository.getGlobalLeaderboard()
         }
 
         setContent {
@@ -112,8 +115,24 @@ class GameActivity : ComponentActivity() {
                 }
                 composable<GameNavigation.BountyBoard> {
                     BasicScreen("Bounty Board", controller, listOf(
-                        ContentTab("Friends"){},
-                        ContentTab("Leaderboard"){}
+                        ContentTab("Friends"){
+                            if(repository.friendLeaderboard.isNotEmpty()){
+                                Column (modifier = Modifier.padding(it)){
+                                    for(entry in repository.friendLeaderboard) {
+                                        Text(entry.toString())
+                                    }
+                                }
+                            }
+                        },
+                        ContentTab("Leaderboard"){
+                            if(repository.globalLeaderboard.isNotEmpty()){
+                                Column (modifier = Modifier.padding(it)){
+                                    for(entry in repository.globalLeaderboard) {
+                                        Text(entry.toString())
+                                    }
+                                }
+                            }
+                        }
                     ))
                 }
                 composable<GameNavigation.Contracts> {
