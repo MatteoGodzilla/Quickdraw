@@ -29,13 +29,13 @@ const val SHOP_UPGRADES = "$BASE_URL/shop/upgrades"
 const val BOUNTY_FRIENDS = "$BASE_URL/bounty/friends"
 const val BOUNTY_LEADERBOARD = "$BASE_URL/bounty/leaderboard"
 
-const val MERCENARY_HIREABLE = "$BASE_URL/hireable"
+const val MERCENARY_HIREABLE = "$BASE_URL/mercenaries/hireable"
 
-const val MERCENARY_EMPLOY = "$BASE_URL/employ"
+const val MERCENARY_EMPLOY = "$BASE_URL/mercenaries/employ"
 
-const val MERCENARY_PLAYER_ALL = "$BASE_URL/player/all"
-
-const val MERCENARY_PLAYER_UNASSIGNED = "$BASE_URL/player/unassigned"
+const val MERCENARY_PLAYER_ALL = "$BASE_URL/mercenaries/player/all"
+const val MERCENARY_PLAYER_UNASSIGNED = "$BASE_URL/mercenaries/player/unassigned"
+const val MERCENAR_NEXT_UNLOCKABLE = "$BASE_URL/mercenaries/nextUnlockables"
 
 inline fun <reified T> T.toRequestBody(): RequestBody {
     val jsonString = Json.encodeToString(this)

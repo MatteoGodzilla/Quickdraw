@@ -6,17 +6,25 @@ import kotlinx.serialization.Serializable
 /* --- OBJECTS --- */
 @Serializable
 data class EmployedMercenary(
-    val id: Int,
+    val idEmployment: Int,
     val name: String,
     val power: Int
 )
 
 @Serializable
 data class HireableMercenary(
-    val idEmployed: Int,
+    val id: Int,
     val name: String,
     val power: Int,
     val cost: Int
+)
+
+@Serializable
+data class LockedMercenary(
+    val idMercenary: Int,
+    val name: String,
+    val power: Int,
+    val levelRequired: Int
 )
 
 /* --- REQUEST --- */
@@ -46,3 +54,6 @@ data class MercenaryEmployedResponse(val mercenaries: List<EmployedMercenary>)
 
 @Serializable
 data class UnassignedMercenaryResponse(val mercenaries: List<EmployedMercenary>)
+
+@Serializable
+data class NextToUnlockMercenaryResponse(val mercenaries: List<LockedMercenary>)

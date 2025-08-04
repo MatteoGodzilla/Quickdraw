@@ -207,3 +207,43 @@ async def get_available(request:BasicAuthTokenRequest):
          status_code= HTTP_200_OK,
          content=jsonable_encoder(response)
     )
+
+
+@router.post("/nextUnlockables")
+async def get_next_unlock(request:BasicAuthTokenRequest):
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken,session)
+    if obtain_player[SUCCESS] == False:
+            return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+    playerInfo:Player = getPlayerData(player,session)[PLAYER]
+    playerLevel = getLevel(playerInfo.exp,session)
+    next_unlock_level = getNextUnlockableMercenariesLevel(playerLevel)
+
+    if next_unlock_level == None:
+         return JSONResponse(
+              status_code=HTTP_200_OK,
+              content=jsonable_encoder(NextUnlockRespone(mercenaries=[]))
+         )
+    
+    #TODO: this is technically incomplete,in case of patches where mercenaries will get required level increased,
+    # a player with such purchased mercenary will have it still appear on the to be unlocked array if new level has not been reached
+    mercenaries_query = select(Mercenary).where(Mercenary.requiredLevel == next_unlock_level)
+    result = session.exec(mercenaries_query)
+    mercs = result.fetchall()
+    return JSONResponse(
+        status_code=HTTP_200_OK,
+        content=jsonable_encoder(NextUnlockRespone(
+             mercenaries=[LockedMercenary(power=x.power,id=x.id,levelRequired=x.requiredLevel,name=x.name) for x in mercs])
+        )
+    )

@@ -127,6 +127,14 @@ tutti i dati vengono inviati in formato json
   - In caso di dati mancanti -> HTTP 400
 - Response: [{name:string, power:number, cost:number}] Mercenari non posseduti dal player e che sono comprabili (livello dispondibile)
 
+### /mercenaries/nextUnlockables
+- Richiesta POST
+- Request: { 
+    authToken: String
+}
+  - In caso di dati mancanti -> HTTP 400
+- Response: [{name:string, power:number, levelRequired:number}] Mercenari più vicini ad essere sbloccati,l'array può essere vuoto
+
 ### /mercenaries/employ/
 - Richiesta POST
 - Request: { 

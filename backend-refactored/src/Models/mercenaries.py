@@ -15,6 +15,10 @@ class BuyableMercenary(BaseMercenaryInfo):
     cost:int
     id: int
 
+class LockedMercenary(BaseMercenaryInfo):
+    levelRequired:int
+    id:int
+
 class EmployedMercenary(BaseMercenaryInfo):
     idEmployment:int
 
@@ -30,3 +34,6 @@ class PlayerAllResponse(BaseModel):
 
 class UnassignedResponse(BaseModel):
     mercenaries:List[EmployedMercenary]
+
+class NextUnlockRespone(BaseModel):
+    mercenaries:List[LockedMercenary]

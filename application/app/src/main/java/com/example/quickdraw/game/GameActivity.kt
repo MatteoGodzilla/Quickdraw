@@ -25,6 +25,8 @@ import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
 import com.example.quickdraw.network.api.toRequestBody
+import com.example.quickdraw.network.data.HireableMercenary
+import com.example.quickdraw.network.data.MercenaryHireable
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -60,6 +62,9 @@ class GameActivity : ComponentActivity() {
             repository.getShopUpgrades()
             repository.getFriendLeaderboard()
             repository.getGlobalLeaderboard()
+            repository.getHireableMercenaries()
+            repository.getNextToUnlockMercenaries()
+            repository.getPlayerEmployedMercenaries()
         }
 
         setContent {
@@ -142,6 +147,10 @@ class GameActivity : ComponentActivity() {
                         }
                         override fun onStartContract(availableContract: AvailableContract) {
                             lifecycleScope.launch { repository.startContract(availableContract) }
+                        }
+
+                        override fun onShowHireables(hireable: HireableMercenary) {
+                            lifecycleScope.launch { repository.getHireableMercenaries() }
                         }
                     })
                 }

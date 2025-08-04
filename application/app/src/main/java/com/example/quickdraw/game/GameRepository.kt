@@ -6,11 +6,14 @@ import androidx.datastore.preferences.core.Preferences
 import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.TAG
 import com.example.quickdraw.network.api.getActiveContractsAPI
+import com.example.quickdraw.network.api.getAllPlayerMercenariesAPI
 import com.example.quickdraw.network.api.getAvailableContractsAPI
 import com.example.quickdraw.network.api.getFriendLeaderboardAPI
 import com.example.quickdraw.network.api.getGlobalLeaderboardAPI
+import com.example.quickdraw.network.api.getHirableAPI
 import com.example.quickdraw.network.api.getInventoryAPI
 import com.example.quickdraw.network.api.getLevelsAPI
+import com.example.quickdraw.network.api.getNextUnlockableMercenariesAPI
 import com.example.quickdraw.network.api.getShopBulletsAPI
 import com.example.quickdraw.network.api.getShopMedikitsAPI
 import com.example.quickdraw.network.api.getShopUpgradesAPI
@@ -20,11 +23,14 @@ import com.example.quickdraw.network.api.redeemContractAPI
 import com.example.quickdraw.network.api.startContractAPI
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
+import com.example.quickdraw.network.data.EmployedMercenary
+import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.InventoryBullet
 import com.example.quickdraw.network.data.InventoryMedikit
 import com.example.quickdraw.network.data.InventoryUpgrade
 import com.example.quickdraw.network.data.InventoryWeapon
 import com.example.quickdraw.network.data.LeaderboardEntry
+import com.example.quickdraw.network.data.LockedMercenary
 import com.example.quickdraw.network.data.PlayerStatus
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
@@ -79,6 +85,15 @@ class GameRepository(
         private set
     var globalLeaderboard: List<LeaderboardEntry> = listOf()
         private set
+
+    //Mercenaries
+    var hireableMercenaries: List<HireableMercenary> = listOf()
+        private set
+    var nextUnlockablesMercenaries: List<LockedMercenary> = listOf()
+        private set
+    var playerEmployedMercenaries: List<EmployedMercenary> = listOf()
+        private set
+
 
     suspend fun getStatus() = runIfAuthenticated { auth ->
         player = getStatusAPI(auth)
@@ -156,6 +171,21 @@ class GameRepository(
 
     suspend fun getGlobalLeaderboard() = withContext(Dispatchers.IO) {
         globalLeaderboard = getGlobalLeaderboardAPI()
+    }
+
+    suspend fun getHireableMercenaries() = runIfAuthenticated { auth ->
+        val response = getHirableAPI(auth)
+        hireableMercenaries = response.mercenaries
+    }
+
+    suspend fun getPlayerEmployedMercenaries() = runIfAuthenticated { auth ->
+        val response = getAllPlayerMercenariesAPI(auth)
+        playerEmployedMercenaries = response.mercenaries
+    }
+
+    suspend fun getNextToUnlockMercenaries() = runIfAuthenticated { auth ->
+        val response = getNextUnlockableMercenariesAPI(auth)
+        nextUnlockablesMercenaries = response.mercenaries
     }
 
     private suspend fun runIfAuthenticated(block: (authToken: String)->Unit) = withContext(Dispatchers.IO) {
