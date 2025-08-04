@@ -1,4 +1,4 @@
-package com.example.quickdraw.game
+package com.example.quickdraw.game.screen
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
@@ -20,15 +20,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
+import com.example.quickdraw.game.GameRepository
 import com.example.quickdraw.game.components.BottomNavBar
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.ui.theme.QuickdrawTheme
+import com.example.quickdraw.ui.theme.Typography
 
 @Composable
-fun MainScreen(controller: NavHostController, onScan: ()->Unit){
+fun MainScreen(controller: NavHostController, repository: GameRepository ,onScan: ()->Unit){
     QuickdrawTheme {
         Scaffold(
-            topBar = { TopBar() },
+            topBar = { TopBar(repository) },
             bottomBar = { BottomNavBar(controller) },
             modifier = Modifier.padding(
                 top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
@@ -49,7 +51,7 @@ fun MainScreen(controller: NavHostController, onScan: ()->Unit){
                     modifier = Modifier.fillMaxWidth().padding(padding)
                 ) {
                     Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
-                    Text("Start scouting")
+                    Text("Start scouting", fontSize = Typography.titleLarge.fontSize)
                 }
             }
         }

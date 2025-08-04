@@ -88,7 +88,7 @@ class Medikit(SQLModel,table=True):
 class MedikitShop(SQLModel,table=True):
     __tablename__  = "MedikitShop"
     id: int = Field(primary_key=True)
-    idMediKit: int = Field(foreign_key="Medikit.id")
+    idMedikit: int = Field(foreign_key="Medikit.id")
     quantity: int
     cost: int
 
@@ -127,3 +127,9 @@ class PlayerWeapon(SQLModel,table=True):
     __tablename__  = "PlayerWeapon"
     idPlayer:int = Field(primary_key=True,foreign_key="Player.id")
     idWeapon:int = Field(primary_key=True,foreign_key="Weapon.id")
+
+class Level(SQLModel, table=True):
+    __tablename__ = "Level"
+    level:int = Field(primary_key=True)
+    expRequired: int
+

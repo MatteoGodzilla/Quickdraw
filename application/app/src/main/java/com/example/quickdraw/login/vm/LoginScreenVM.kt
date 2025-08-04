@@ -1,7 +1,5 @@
 package com.example.quickdraw.login.vm
 
-import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.core.DataStore
@@ -9,13 +7,12 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.quickdraw.common.PrefKeys
-import com.example.quickdraw.common.LOGIN_ENDPOINT
-import com.example.quickdraw.common.LoginRequest
-import com.example.quickdraw.common.LoginResponse
-import com.example.quickdraw.common.TAG
-import com.example.quickdraw.common.toRequestBody
-import com.example.quickdraw.game.GameActivity
+import com.example.quickdraw.PrefKeys
+import com.example.quickdraw.network.api.LOGIN_ENDPOINT
+import com.example.quickdraw.network.data.LoginRequest
+import com.example.quickdraw.network.data.LoginResponse
+import com.example.quickdraw.TAG
+import com.example.quickdraw.network.api.toRequestBody
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json

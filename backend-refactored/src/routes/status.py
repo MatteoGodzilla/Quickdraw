@@ -18,7 +18,6 @@ from routes.middlewares.checkAuthTokenExpiration import *
 from Models.commons import BasicAuthTokenRequest
 from routes.middlewares.getPlayer import *
 from routes.middlewares.key_names import *
-from routes.middlewares.checkAuthTokenExpiration import *
 
 router = APIRouter(
     prefix="/status",
@@ -56,4 +55,18 @@ async def status(request: BasicAuthTokenRequest):
     return JSONResponse(
          status_code = HTTP_200_OK,
          content = jsonable_encoder(playerData[PLAYER])
+    )
+
+@router.get("/levels")
+async def levels():
+    level_query = select(Level) # order by Level.level
+    result = session.execute(level_query).all()
+
+    #print(type(result))
+    #print(type(result[0]))
+    #print(type(result[0][0]))
+
+    return JSONResponse(
+        status_code = HTTP_200_OK,
+        content=[ item[0].expRequired for item in result]
     )

@@ -28,7 +28,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.quickdraw.login.NavDestination
+import com.example.quickdraw.login.LoginNavigation
 import com.example.quickdraw.R
 import com.example.quickdraw.login.vm.LoginScreenVM
 import com.example.quickdraw.ui.theme.QuickdrawTheme
@@ -125,7 +125,7 @@ fun LoginScreen(
                         append(clickableString)
                     }
                     addLink(LinkAnnotation.Clickable(tag = "Go to Register"){
-                        navHost.navigate(NavDestination.Register(loginScreenVM.email.value, loginScreenVM.password.value))
+                        navHost.navigate(LoginNavigation.Register(loginScreenVM.email.value, loginScreenVM.password.value))
                     }, start = 0, end = clickableString.length)
                 })
 

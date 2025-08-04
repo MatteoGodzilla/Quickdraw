@@ -1,4 +1,4 @@
-package com.example.quickdraw.game.repo
+package com.example.quickdraw.network.data
 
 import kotlinx.serialization.Serializable
 
