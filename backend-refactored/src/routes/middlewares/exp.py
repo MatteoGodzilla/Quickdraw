@@ -10,7 +10,7 @@ from routes.middlewares.key_names import *
 
 #returns a dictonary with a success value,if success is false a error message is added
 def getLevel(exp:int,session:Session):
-    level_query = select(Level).where(Level.expRequired >= exp).order_by(desc(Level.id))
+    level_query = select(Level).where(Level.expRequired >= exp).order_by(desc(Level.level))
     result = session.exec(level_query)
     level = result.first()
     return level.level

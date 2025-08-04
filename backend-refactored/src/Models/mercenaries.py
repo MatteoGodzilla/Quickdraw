@@ -21,5 +21,8 @@ class EmployResponse(BaseModel):
 class AvaliableResponse(BaseModel):
     mercenaries:List[BuyableMercenary]
 
+class PlayerAllResponse(BaseModel):
+    mercenaries:List[BaseMercenaryInfo]
+
 class UnassignedResponse(BaseModel):
     mercenaries:List[BaseMercenaryInfo]

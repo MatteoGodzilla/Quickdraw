@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.status import *
-from routes import auth, contracts, inventory, status, shop, bountyboard
+from routes import auth, contracts, inventory, status, shop, bountyboard,mercenaries
 from MySql import connection
 
 #this is the file to run for starting the backend service,it will incorporate all the routes defined in the route folder
@@ -11,6 +11,7 @@ app.include_router(auth.router)
 app.include_router(contracts.router)
 app.include_router(inventory.router)
 app.include_router(status.router)
+app.include_router(mercenaries.router)
 app.include_router(shop.router)
 app.include_router(bountyboard.router)
 connection.rebuild_tables()

@@ -1,1 +1,1 @@
-python -m uvicorn main:app --host 0.0.0.0 --reload
+python -m uvicorn main:app --host 0.0.0.0 
