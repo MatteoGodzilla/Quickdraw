@@ -13,6 +13,10 @@ class BaseMercenaryInfo(BaseModel):
 
 class BuyableMercenary(BaseMercenaryInfo):
     cost:int
+    id: int
+
+class EmployedMercenary(BaseMercenaryInfo):
+    idEmployment:int
 
 #responses
 class EmployResponse(BaseModel):
@@ -22,7 +26,7 @@ class AvaliableResponse(BaseModel):
     mercenaries:List[BuyableMercenary]
 
 class PlayerAllResponse(BaseModel):
-    mercenaries:List[BaseMercenaryInfo]
+    mercenaries:List[EmployedMercenary]
 
 class UnassignedResponse(BaseModel):
-    mercenaries:List[BaseMercenaryInfo]
+    mercenaries:List[EmployedMercenary]

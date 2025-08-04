@@ -62,7 +62,7 @@ async def get_available(request:BasicAuthTokenRequest):
     result = session.exec(availables)
     mercenaries = result.fetchall()
 
-    response = AvaliableResponse(mercenaries=[BuyableMercenary(cost=x.employmentCost,name=x.name,power=x.power) for x in mercenaries])
+    response = AvaliableResponse(mercenaries=[BuyableMercenary(cost=x.employmentCost,name=x.name,power=x.power,id=x.id) for x in mercenaries])
 
     return JSONResponse(
          status_code= HTTP_200_OK,
@@ -118,13 +118,14 @@ async def employ(request:EmployRequest):
     try:
         employment = EmployedMercenary(id=None,idPlayer=player.idPlayer,idMercenary=mercenary.id)
         session.add(employment)
+        session.flush()
         playerInfo.money-=mercenary.employmentCost
         session.commit()
     except:
         session.rollback()
         return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR,content={"message":"Error occured while trying to buy this element"})
     
-    response = EmployResponse(idMercenary=mercenary.id)
+    response = EmployResponse(idMercenary=employment.id)
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))
 
 
@@ -157,7 +158,7 @@ async def get_available(request:BasicAuthTokenRequest):
     result = session.exec(employed_mercenaries)
     mercenaries = result.fetchall()
 
-    response = PlayerAllResponse(mercenaries=[BaseMercenaryInfo(name=x.name,power=x.power) for x,y in mercenaries])
+    response = PlayerAllResponse(mercenaries=[EmployedMercenary(name=x.name,power=x.power,idMercenary=y.id) for x,y in mercenaries])
 
     return JSONResponse(
          status_code= HTTP_200_OK,
@@ -200,7 +201,7 @@ async def get_available(request:BasicAuthTokenRequest):
     result = session.exec(unassigned_mercenaries)
     mercenaries = result.fetchall()
 
-    response = UnassignedResponse(mercenaries=[BaseMercenaryInfo(name=x.name,power=x.power) for x,y in mercenaries])
+    response = UnassignedResponse(mercenaries=[EmployedMercenary(name=x.name,power=x.power,id=y.id) for x,y in mercenaries])
 
     return JSONResponse(
          status_code= HTTP_200_OK,

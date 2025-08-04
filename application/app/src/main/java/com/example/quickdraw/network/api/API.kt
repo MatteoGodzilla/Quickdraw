@@ -6,7 +6,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-private const val BASE_URL = "http://10.10.10.130:8000"
+private const val BASE_URL = "http://192.168.1.63:8000"
 
 const val LOGIN_ENDPOINT = "$BASE_URL/auth/login"
 const val TOKEN_LOGIN_ENDPOINT = "$BASE_URL/auth/tokenLogin"
@@ -28,6 +28,14 @@ const val SHOP_UPGRADES = "$BASE_URL/shop/upgrades"
 
 const val BOUNTY_FRIENDS = "$BASE_URL/bounty/friends"
 const val BOUNTY_LEADERBOARD = "$BASE_URL/bounty/leaderboard"
+
+const val MERCENARY_HIREABLE = "$BASE_URL/hireable"
+
+const val MERCENARY_EMPLOY = "$BASE_URL/employ"
+
+const val MERCENARY_PLAYER_ALL = "$BASE_URL/player/all"
+
+const val MERCENARY_PLAYER_UNASSIGNED = "$BASE_URL/player/unassigned"
 
 inline fun <reified T> T.toRequestBody(): RequestBody {
     val jsonString = Json.encodeToString(this)
