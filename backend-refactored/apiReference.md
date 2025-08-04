@@ -102,21 +102,30 @@ tutti i dati vengono inviati in formato json
 }
 
 ## Mercenaries
-### /mercenaries/unassigned/
+### /mercenaries/player/all
 - Richiesta POST
 - Request: { 
     authToken: String
 }
   - In caso di dati mancanti -> HTTP 400
-- Response: [{name:string, power:number}] Mercenari non ancora assegnati
+- Response: [{name:string, power:number}] Mercenari posseduti dal player
 
-### /mercenaries/available/
+### /mercenaries/player/unassigned
 - Richiesta POST
 - Request: { 
     authToken: String
 }
   - In caso di dati mancanti -> HTTP 400
-- Response: [{name:string, power:number, cost:number}]
+- Response: [{name:string, power:number}] Mercenari posseduti dal player che non sono assegnati a contratto
+
+
+### /mercenaries/hirable/
+- Richiesta POST
+- Request: { 
+    authToken: String
+}
+  - In caso di dati mancanti -> HTTP 400
+- Response: [{name:string, power:number, cost:number}] Mercenari non posseduti dal player e che sono comprabili (livello dispondibile)
 
 ### /mercenaries/employ/
 - Richiesta POST

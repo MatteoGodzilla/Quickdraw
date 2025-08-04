@@ -19,4 +19,7 @@ class EmployResponse(BaseModel):
     idMercenary:int
 
 class AvaliableResponse(BaseModel):
+    mercenaries:List[BuyableMercenary]
+
+class UnassignedResponse(BaseModel):
     mercenaries:List[BaseMercenaryInfo]
