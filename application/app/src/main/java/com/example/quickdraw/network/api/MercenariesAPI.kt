@@ -11,6 +11,7 @@ import com.example.quickdraw.network.data.MercenaryHireableResponse
 import com.example.quickdraw.network.data.MercenaryUnassigned
 import com.example.quickdraw.network.data.NextToUnlockMercenaryResponse
 import com.example.quickdraw.network.data.TokenRequest
+import com.example.quickdraw.network.data.UnassignedMercenaryResponse
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -33,7 +34,7 @@ fun getHirableAPI(authToken: String): MercenaryHireableResponse {
     return MercenaryHireableResponse(mercenaries = listOf())
 }
 
-fun getUnassignedMercenariesAPI(authToken: String): List<MercenaryUnassigned> {
+fun getUnassignedMercenariesAPI(authToken: String): UnassignedMercenaryResponse {
     val client = OkHttpClient()
     val request = Request.Builder()
         .url(MERCENARY_PLAYER_UNASSIGNED)
@@ -46,9 +47,9 @@ fun getUnassignedMercenariesAPI(authToken: String): List<MercenaryUnassigned> {
         //it should always be 200, otherwise there is a problem with the auth token
         val result = response.body!!.string()
         Log.i(TAG, result)
-        return Json.decodeFromString<List<MercenaryUnassigned>>(result)
+        return Json.decodeFromString<UnassignedMercenaryResponse>(result)
     }
-    return listOf()
+    return UnassignedMercenaryResponse(mercenaries = listOf())
 }
 
 fun employMercenaryAPI(authToken: String,mercenary: HireableMercenary) : EmployMercenaryResponse {

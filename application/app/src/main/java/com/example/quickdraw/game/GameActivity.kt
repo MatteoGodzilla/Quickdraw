@@ -65,6 +65,7 @@ class GameActivity : ComponentActivity() {
             repository.getHireableMercenaries()
             repository.getNextToUnlockMercenaries()
             repository.getPlayerEmployedMercenaries()
+            repository.getUnassignedMercenaries()
         }
 
         setContent {

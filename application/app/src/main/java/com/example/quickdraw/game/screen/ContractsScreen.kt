@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -22,6 +23,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -38,7 +40,9 @@ import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.LockedMercenary
 import com.example.quickdraw.network.data.MercenaryHireable
 import com.example.quickdraw.ui.theme.Typography
+import com.example.quickdraw.ui.theme.availableMercenaryStatusColor
 import com.example.quickdraw.ui.theme.lockedElementColor
+import com.example.quickdraw.ui.theme.unavailableMercenaryStatusColor
 import kotlinx.coroutines.delay
 import okio.Lock
 
@@ -84,31 +88,28 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                 }
             }
         },
-        ContentTab("Mercenaries"){
+        ContentTab("Mercenary"){
 
             Column(
                 modifier = Modifier.padding(it)
             ){
 
                 if(repository.playerEmployedMercenaries != null){
-                    if(repository.playerEmployedMercenaries.size>0!!){
-                        Text("Your mercenaries",
-                            fontSize = Typography.titleLarge.fontSize,
-                            textAlign = TextAlign.Center,
-                            modifier = Modifier.fillMaxWidth()
+
+                    val unAssignedExist = repository.unAssignedMercenaries!= null
+
+                    for(playerMercenary in repository.playerEmployedMercenaries!!){
+                        EmployedMercenaryPost(playerMercenary,
+                            (repository.unAssignedMercenaries.filter { x -> x.idEmployment == playerMercenary.idEmployment }).size > 0
                         )
                     }
-                    for(playerMercenary in repository.playerEmployedMercenaries!!){
-                        EmployedMercenaryPost(playerMercenary)
-                    }
                 }
-
-                Text("Employ mercenaries",
-                    fontSize = Typography.titleLarge.fontSize,
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.fillMaxWidth()
-                )
-
+            }
+        },
+        ContentTab("Employ"){
+            Column (
+                modifier = Modifier.padding(it)
+            ){
                 if(repository.hireableMercenaries != null){
                     for(hireableMercenary in repository.hireableMercenaries!!){
                         HireableMercenaryPost(hireableMercenary){
@@ -225,7 +226,7 @@ fun LockedMercenaryPost(mercenary: LockedMercenary){
 }
 
 @Composable
-fun EmployedMercenaryPost(mercenary: EmployedMercenary){
+fun EmployedMercenaryPost(mercenary: EmployedMercenary,available: Boolean = true){
     Row (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -235,5 +236,18 @@ fun EmployedMercenaryPost(mercenary: EmployedMercenary){
             Text(mercenary.name, fontSize = Typography.titleLarge.fontSize)
             Text("Power: ${mercenary.power}")
         }
+
+        if(available){
+            Text("Available for contract", textAlign = TextAlign.Center,
+                modifier = Modifier.width(110.dp).height(60.dp)
+                    .background(availableMercenaryStatusColor,shape = RectangleShape))
+        }
+        else{
+            Text("Already assigned", textAlign = TextAlign.Center,
+                modifier = Modifier.width(110.dp).height(60.dp)
+                    .background(unavailableMercenaryStatusColor,shape = RectangleShape))
+        }
+
+
     }
 }

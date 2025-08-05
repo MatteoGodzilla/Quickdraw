@@ -20,6 +20,7 @@ import com.example.quickdraw.network.api.getShopMedikitsAPI
 import com.example.quickdraw.network.api.getShopUpgradesAPI
 import com.example.quickdraw.network.api.getShopWeaponsAPI
 import com.example.quickdraw.network.api.getStatusAPI
+import com.example.quickdraw.network.api.getUnassignedMercenariesAPI
 import com.example.quickdraw.network.api.redeemContractAPI
 import com.example.quickdraw.network.api.startContractAPI
 import com.example.quickdraw.network.data.ActiveContract
@@ -93,6 +94,8 @@ class GameRepository(
     var nextUnlockablesMercenaries: List<LockedMercenary> = listOf()
         private set
     var playerEmployedMercenaries: List<EmployedMercenary> = listOf()
+        private set
+    var unAssignedMercenaries: List<EmployedMercenary> = listOf()
         private set
 
 
@@ -189,15 +192,20 @@ class GameRepository(
         nextUnlockablesMercenaries = response.mercenaries
     }
 
+    suspend fun getUnassignedMercenaries() = runIfAuthenticated { auth ->
+        val response = getUnassignedMercenariesAPI(auth)
+        unAssignedMercenaries = response.mercenaries
+    }
+
     suspend fun employMercenary(mercenary: HireableMercenary) = runIfAuthenticated { auth ->
         val response = employMercenaryAPI(auth, mercenary = mercenary)
         if(response.idEmployment!=-1){
             hireableMercenaries = hireableMercenaries.filter { merc -> merc.id != mercenary.id }
-            playerEmployedMercenaries= playerEmployedMercenaries +
-                    EmployedMercenary(response.idEmployment,
-                        mercenary.name,
-                        mercenary.power)
-
+            val newEmploy = EmployedMercenary(response.idEmployment,
+                mercenary.name,
+                mercenary.power)
+            playerEmployedMercenaries= playerEmployedMercenaries + newEmploy
+            unAssignedMercenaries = unAssignedMercenaries + newEmploy
         }
     }
 
