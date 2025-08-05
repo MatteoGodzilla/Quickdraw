@@ -19,21 +19,21 @@ class LockedMercenary(BaseMercenaryInfo):
     levelRequired:int
     id:int
 
-class EmployedMercenary(BaseMercenaryInfo):
+class EmployedMercenaryInfo(BaseMercenaryInfo):
     idEmployment:int
 
 #responses
 class EmployResponse(BaseModel):
-    idMercenary:int
+    idEmployment:int
 
 class AvaliableResponse(BaseModel):
     mercenaries:List[BuyableMercenary]
 
 class PlayerAllResponse(BaseModel):
-    mercenaries:List[EmployedMercenary]
+    mercenaries:List[EmployedMercenaryInfo]
 
 class UnassignedResponse(BaseModel):
-    mercenaries:List[EmployedMercenary]
+    mercenaries:List[EmployedMercenaryInfo]
 
 class NextUnlockRespone(BaseModel):
     mercenaries:List[LockedMercenary]

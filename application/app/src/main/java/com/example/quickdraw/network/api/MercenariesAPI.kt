@@ -3,6 +3,7 @@ package com.example.quickdraw.network.api
 import android.util.Log
 import com.example.quickdraw.TAG
 import com.example.quickdraw.network.data.EmployMercenary
+import com.example.quickdraw.network.data.EmployMercenaryResponse
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.LeaderboardEntry
 import com.example.quickdraw.network.data.MercenaryEmployedResponse
@@ -50,7 +51,7 @@ fun getUnassignedMercenariesAPI(authToken: String): List<MercenaryUnassigned> {
     return listOf()
 }
 
-fun employMercenaryAPI(authToken: String,mercenary: HireableMercenary) : Int {
+fun employMercenaryAPI(authToken: String,mercenary: HireableMercenary) : EmployMercenaryResponse {
     val client = OkHttpClient()
     val request = Request.Builder()
         .url(MERCENARY_EMPLOY)
@@ -63,9 +64,9 @@ fun employMercenaryAPI(authToken: String,mercenary: HireableMercenary) : Int {
         //it should always be 200, otherwise there is a problem with the auth token
         val result = response.body!!.string()
         Log.i(TAG, result)
-        return Json.decodeFromString<Int>(result)
+        return Json.decodeFromString<EmployMercenaryResponse>(result)
     }
-    return -1
+    return EmployMercenaryResponse(idEmployment = -1)
 }
 
 fun getNextUnlockableMercenariesAPI(authToken: String) : NextToUnlockMercenaryResponse {

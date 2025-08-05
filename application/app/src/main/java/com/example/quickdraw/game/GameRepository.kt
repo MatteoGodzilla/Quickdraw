@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.TAG
+import com.example.quickdraw.network.api.employMercenaryAPI
 import com.example.quickdraw.network.api.getActiveContractsAPI
 import com.example.quickdraw.network.api.getAllPlayerMercenariesAPI
 import com.example.quickdraw.network.api.getAvailableContractsAPI
@@ -186,6 +187,18 @@ class GameRepository(
     suspend fun getNextToUnlockMercenaries() = runIfAuthenticated { auth ->
         val response = getNextUnlockableMercenariesAPI(auth)
         nextUnlockablesMercenaries = response.mercenaries
+    }
+
+    suspend fun employMercenary(mercenary: HireableMercenary) = runIfAuthenticated { auth ->
+        val response = employMercenaryAPI(auth, mercenary = mercenary)
+        if(response.idEmployment!=-1){
+            hireableMercenaries = hireableMercenaries.filter { merc -> merc.id != mercenary.id }
+            playerEmployedMercenaries= playerEmployedMercenaries +
+                    EmployedMercenary(response.idEmployment,
+                        mercenary.name,
+                        mercenary.power)
+
+        }
     }
 
     private suspend fun runIfAuthenticated(block: (authToken: String)->Unit) = withContext(Dispatchers.IO) {

@@ -27,6 +27,8 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+val lockedElementColor  = Color(0xFFE1D6AB)
+
 class ProgressBarColors() {
     companion object {
         val health = Color.Red

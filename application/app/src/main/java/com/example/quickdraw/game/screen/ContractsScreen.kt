@@ -1,5 +1,6 @@
 package com.example.quickdraw.game.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,13 +38,14 @@ import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.LockedMercenary
 import com.example.quickdraw.network.data.MercenaryHireable
 import com.example.quickdraw.ui.theme.Typography
+import com.example.quickdraw.ui.theme.lockedElementColor
 import kotlinx.coroutines.delay
 import okio.Lock
 
 interface ContractsCallbacks {
     fun onRedeemContract(activeContract: ActiveContract)
     fun onStartContract(availableContract: AvailableContract)
-    fun onShowHireables(hireable: HireableMercenary)
+    fun onHireMercenary(hireable: HireableMercenary)
 }
 
 @Composable
@@ -90,26 +92,32 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
 
                 if(repository.playerEmployedMercenaries != null){
                     if(repository.playerEmployedMercenaries.size>0!!){
-                        Text("Your mercenaries", fontSize = Typography.titleLarge.fontSize)
+                        Text("Your mercenaries",
+                            fontSize = Typography.titleLarge.fontSize,
+                            textAlign = TextAlign.Center,
+                            modifier = Modifier.fillMaxWidth()
+                        )
                     }
                     for(playerMercenary in repository.playerEmployedMercenaries!!){
                         EmployedMercenaryPost(playerMercenary)
                     }
                 }
 
+                Text("Employ mercenaries",
+                    fontSize = Typography.titleLarge.fontSize,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
+
                 if(repository.hireableMercenaries != null){
-                    if(repository.hireableMercenaries.size>0!!){
-                        Text("Employ mercenaries", fontSize = Typography.titleLarge.fontSize)
-                    }
                     for(hireableMercenary in repository.hireableMercenaries!!){
-                        HireableMercenaryPost(hireableMercenary)
+                        HireableMercenaryPost(hireableMercenary){
+                            callbacks.onHireMercenary(hireableMercenary)
+                        }
                     }
                 }
 
                 if(repository.nextUnlockablesMercenaries != null){
-                    if(repository.nextUnlockablesMercenaries.size > 0!!){
-                        Text("Locked", fontSize = Typography.titleLarge.fontSize)
-                    }
                     for(lockedMercenary in repository.nextUnlockablesMercenaries!!){
                         LockedMercenaryPost(lockedMercenary)
                     }
@@ -176,9 +184,9 @@ fun AvailableContract(contract: AvailableContract, onStartButton: ()->Unit){
 }
 
 @Composable
-fun HireableMercenaryPost(mercenary: HireableMercenary){
+fun HireableMercenaryPost(mercenary: HireableMercenary, onHireClick: ()->Unit){
     Row (
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        modifier = Modifier.fillMaxWidth().padding(12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
@@ -187,20 +195,31 @@ fun HireableMercenaryPost(mercenary: HireableMercenary){
             Text("Cost: ${mercenary.cost}")
             Text("Power: ${mercenary.power}")
         }
+        Button(
+            onClick = onHireClick,
+            modifier = Modifier.width(72.dp).height(72.dp)
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.money_bag_24px_1_),
+                "",
+                tint = Color.Black,
+            )
+        }
     }
 }
 
 @Composable
 fun LockedMercenaryPost(mercenary: LockedMercenary){
     Row (
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        modifier = Modifier.fillMaxWidth().background(lockedElementColor).padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+
     ){
         Column {
             Text(mercenary.name, fontSize = Typography.titleLarge.fontSize)
             Text("Power: ${mercenary.power}")
-            Text("Unlock at level: ${mercenary.power}")
+            Text("Unlock at level ${mercenary.levelRequired}")
         }
     }
 }

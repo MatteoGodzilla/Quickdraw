@@ -149,8 +149,8 @@ class GameActivity : ComponentActivity() {
                             lifecycleScope.launch { repository.startContract(availableContract) }
                         }
 
-                        override fun onShowHireables(hireable: HireableMercenary) {
-                            lifecycleScope.launch { repository.getHireableMercenaries() }
+                        override fun onHireMercenary(hireable: HireableMercenary) {
+                            lifecycleScope.launch { repository.employMercenary(hireable) }
                         }
                     })
                 }

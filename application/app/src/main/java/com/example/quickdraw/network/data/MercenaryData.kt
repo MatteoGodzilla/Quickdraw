@@ -21,7 +21,7 @@ data class HireableMercenary(
 
 @Serializable
 data class LockedMercenary(
-    val idMercenary: Int,
+    val id: Int,
     val name: String,
     val power: Int,
     val levelRequired: Int
@@ -47,7 +47,7 @@ data class MercenaryUnassigned(val authToken: String)
 data class MercenaryHireableResponse(val mercenaries: List<HireableMercenary>)
 
 @Serializable
-data class EmployMercenaryResponse(val idEmployment: Integer)
+data class EmployMercenaryResponse(val idEmployment: Int)
 
 @Serializable
 data class MercenaryEmployedResponse(val mercenaries: List<EmployedMercenary>)
