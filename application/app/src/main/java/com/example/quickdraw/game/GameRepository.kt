@@ -42,6 +42,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.withContext
 
 class GameRepository(
@@ -89,14 +90,15 @@ class GameRepository(
         private set
 
     //Mercenaries
-    var hireableMercenaries: List<HireableMercenary> = listOf()
+    var hireableMercenaries: MutableStateFlow<List<HireableMercenary>> =  MutableStateFlow(listOf())
         private set
-    var nextUnlockablesMercenaries: List<LockedMercenary> = listOf()
+    var nextUnlockablesMercenaries: MutableStateFlow<List<LockedMercenary>> =  MutableStateFlow(listOf())
         private set
-    var playerEmployedMercenaries: List<EmployedMercenary> = listOf()
+    var playerEmployedMercenaries: MutableStateFlow<List<EmployedMercenary>> =  MutableStateFlow(listOf())
         private set
-    var unAssignedMercenaries: List<EmployedMercenary> = listOf()
+    var unAssignedMercenaries:MutableStateFlow<List<EmployedMercenary>> = MutableStateFlow(listOf())
         private set
+
 
 
     suspend fun getStatus() = runIfAuthenticated { auth ->
@@ -150,6 +152,7 @@ class GameRepository(
         val success = redeemContractAPI(auth, contract)
         if(success){
            activeContracts.filter { c -> c.activeId != contract.activeId }
+
         }
     }
 
@@ -179,33 +182,33 @@ class GameRepository(
 
     suspend fun getHireableMercenaries() = runIfAuthenticated { auth ->
         val response = getHirableAPI(auth)
-        hireableMercenaries = response.mercenaries
+        hireableMercenaries.update { x -> response.mercenaries }
     }
 
     suspend fun getPlayerEmployedMercenaries() = runIfAuthenticated { auth ->
         val response = getAllPlayerMercenariesAPI(auth)
-        playerEmployedMercenaries = response.mercenaries
+        playerEmployedMercenaries.update { x -> response.mercenaries }
     }
 
     suspend fun getNextToUnlockMercenaries() = runIfAuthenticated { auth ->
         val response = getNextUnlockableMercenariesAPI(auth)
-        nextUnlockablesMercenaries = response.mercenaries
+        nextUnlockablesMercenaries.update { x -> response.mercenaries }
     }
 
     suspend fun getUnassignedMercenaries() = runIfAuthenticated { auth ->
         val response = getUnassignedMercenariesAPI(auth)
-        unAssignedMercenaries = response.mercenaries
+        unAssignedMercenaries = MutableStateFlow(response.mercenaries)
     }
 
     suspend fun employMercenary(mercenary: HireableMercenary) = runIfAuthenticated { auth ->
         val response = employMercenaryAPI(auth, mercenary = mercenary)
         if(response.idEmployment!=-1){
-            hireableMercenaries = hireableMercenaries.filter { merc -> merc.id != mercenary.id }
+            hireableMercenaries.update{x->hireableMercenaries.value.filter { merc -> merc.id != mercenary.id }}
             val newEmploy = EmployedMercenary(response.idEmployment,
                 mercenary.name,
                 mercenary.power)
-            playerEmployedMercenaries= playerEmployedMercenaries + newEmploy
-            unAssignedMercenaries = unAssignedMercenaries + newEmploy
+            playerEmployedMercenaries.update{x->x+newEmploy}
+            unAssignedMercenaries.update {x->x+newEmploy}
         }
     }
 

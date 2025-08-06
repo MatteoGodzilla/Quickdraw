@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
@@ -16,6 +15,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
@@ -38,13 +38,11 @@ import com.example.quickdraw.game.GameRepository
 import com.example.quickdraw.network.data.EmployedMercenary
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.LockedMercenary
-import com.example.quickdraw.network.data.MercenaryHireable
 import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.availableMercenaryStatusColor
 import com.example.quickdraw.ui.theme.lockedElementColor
 import com.example.quickdraw.ui.theme.unavailableMercenaryStatusColor
 import kotlinx.coroutines.delay
-import okio.Lock
 
 interface ContractsCallbacks {
     fun onRedeemContract(activeContract: ActiveContract)
@@ -52,8 +50,15 @@ interface ContractsCallbacks {
     fun onHireMercenary(hireable: HireableMercenary)
 }
 
+
 @Composable
 fun ContractsScreen (controller: NavHostController, repository: GameRepository, callbacks: ContractsCallbacks) {
+    //mutable states for mercenaries
+    val unassigned by repository.unAssignedMercenaries.collectAsState()
+    val employedAll by repository.playerEmployedMercenaries.collectAsState()
+    val hireable by repository.hireableMercenaries.collectAsState()
+    val unlockable by repository.nextUnlockablesMercenaries.collectAsState()
+
     BasicScreen("Contracts", controller, listOf(
         ContentTab("Active"){
             Column (
@@ -93,14 +98,10 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
             Column(
                 modifier = Modifier.padding(it)
             ){
-
-                if(repository.playerEmployedMercenaries != null){
-
-                    val unAssignedExist = repository.unAssignedMercenaries!= null
-
-                    for(playerMercenary in repository.playerEmployedMercenaries!!){
+                if(employedAll != null){
+                    for(playerMercenary in employedAll!!){
                         EmployedMercenaryPost(playerMercenary,
-                            (repository.unAssignedMercenaries.filter { x -> x.idEmployment == playerMercenary.idEmployment }).size > 0
+                            (unassigned.any{x->x.idEmployment == playerMercenary.idEmployment})
                         )
                     }
                 }
@@ -110,16 +111,16 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
             Column (
                 modifier = Modifier.padding(it)
             ){
-                if(repository.hireableMercenaries != null){
-                    for(hireableMercenary in repository.hireableMercenaries!!){
+                if(hireable != null){
+                    for(hireableMercenary in hireable!!){
                         HireableMercenaryPost(hireableMercenary){
                             callbacks.onHireMercenary(hireableMercenary)
                         }
                     }
                 }
 
-                if(repository.nextUnlockablesMercenaries != null){
-                    for(lockedMercenary in repository.nextUnlockablesMercenaries!!){
+                if(unlockable != null){
+                    for(lockedMercenary in unlockable!!){
                         LockedMercenaryPost(lockedMercenary)
                     }
                 }
