@@ -4,11 +4,14 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -18,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -43,6 +47,8 @@ import com.example.quickdraw.ui.theme.availableMercenaryStatusColor
 import com.example.quickdraw.ui.theme.lockedElementColor
 import com.example.quickdraw.ui.theme.unavailableMercenaryStatusColor
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 interface ContractsCallbacks {
     fun onRedeemContract(activeContract: ActiveContract)
@@ -58,6 +64,12 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
     val employedAll by repository.playerEmployedMercenaries.collectAsState()
     val hireable by repository.hireableMercenaries.collectAsState()
     val unlockable by repository.nextUnlockablesMercenaries.collectAsState()
+
+    //mutable states for contracts (selectedMercenariesState pair is id and power
+    val selectedContractState = MutableStateFlow(-1)
+    val selectedMercenariesState = MutableStateFlow<List<Pair<Int,Int>>>(listOf())
+    val selectedContract = selectedContractState.collectAsState()
+    val selectedMercenaries = selectedMercenariesState.collectAsState()
 
     BasicScreen("Contracts", controller, listOf(
         ContentTab("Active"){
@@ -84,12 +96,64 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
             Column (
                 modifier = Modifier.padding(it)
             ){
-                if(repository.availableContracts != null){
-                    for(contract in repository.availableContracts!!){
-                        AvailableContract(contract){
-                            callbacks.onStartContract(contract)
+                if(selectedContract.value == -1){
+                    if(repository.availableContracts != null){
+                        for(contract in repository.availableContracts!!){
+                            AvailableContract(contract){
+                                selectedContractState.update { x->contract.id }
+                            }
                         }
                     }
+                }
+                else{
+                    Row(modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically
+                    ){
+                        Text("Select mercenaries",
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 15.dp),
+                            fontSize = Typography.titleLarge.fontSize,
+                            textAlign = TextAlign.Center
+                        )
+                    }
+                    //Display available mercenaries
+                    for(merc in employedAll){
+                        AssignableMercenary(merc,selectedMercenariesState)
+                    }
+                    val selected = repository.availableContracts.filter { x->x.id == selectedContract.value }
+                    if(selected.isEmpty()){
+                        selectedContractState.update { x->-1 }
+                    }
+                    else{
+                        val currentContract = selected.first()
+                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)){
+                            Button(modifier = Modifier.padding(horizontal = 10.dp),
+                                onClick = {selectedContractState.update { x->-1 }
+                                    selectedMercenariesState.update { x->listOf() }
+                                }) {
+                                Text("Cancel")
+                            }
+                            Spacer(modifier = Modifier.weight(0.5f))
+                            Button(modifier = Modifier.padding(horizontal = 10.dp),
+                                onClick = {}) {
+                                Text("Start contract")
+                            }
+                        }
+                        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally) {
+                            var successRate = 100.0
+                            var tooMany = selectedMercenaries.value.size>currentContract.maxMercenaries
+                            if(currentContract.requiredPower>0){
+                                successRate = kotlin.math.round((selectedMercenaries.value.sumOf { x-> x.second }.toDouble() / (currentContract.requiredPower).toDouble()) * 100)
+                            }
+                            Text("Start cost:${currentContract.startCost}", fontSize = Typography.bodyLarge.fontSize )
+                            Text("Completion time:${currentContract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
+                            Text("Chance of success:${successRate}%", fontSize = Typography.bodyLarge.fontSize)
+                            Text("Selected :${selectedMercenaries.value.size}/${currentContract.maxMercenaries} mercenaries"
+                                , fontSize = Typography.bodyLarge.fontSize)
+                        }
+
+                    }
+
                 }
             }
         },
@@ -250,5 +314,32 @@ fun EmployedMercenaryPost(mercenary: EmployedMercenary,available: Boolean = true
         }
 
 
+    }
+}
+
+@Composable
+fun AssignableMercenary(mercenary: EmployedMercenary,stateArray: MutableStateFlow<List<Pair<Int,Int>>>){
+    var checked by remember { mutableStateOf(false) }
+    Row (
+        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Column {
+            Text(mercenary.name, fontSize = Typography.titleLarge.fontSize)
+            Text("Power: ${mercenary.power}")
+        }
+        Checkbox(onCheckedChange =
+            {
+                checked = it
+                if(checked){
+                    stateArray.update { x->x+Pair<Int,Int>(mercenary.idEmployment,mercenary.power) }
+                }
+                else{
+                    stateArray.update { x->x.filter { y->y.first!=mercenary.idEmployment } }
+                }
+            }
+            , checked = checked
+        )
     }
 }

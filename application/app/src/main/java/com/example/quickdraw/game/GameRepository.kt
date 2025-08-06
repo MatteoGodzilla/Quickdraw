@@ -197,7 +197,7 @@ class GameRepository(
 
     suspend fun getUnassignedMercenaries() = runIfAuthenticated { auth ->
         val response = getUnassignedMercenariesAPI(auth)
-        unAssignedMercenaries = MutableStateFlow(response.mercenaries)
+        unAssignedMercenaries.update { x->response.mercenaries }
     }
 
     suspend fun employMercenary(mercenary: HireableMercenary) = runIfAuthenticated { auth ->
