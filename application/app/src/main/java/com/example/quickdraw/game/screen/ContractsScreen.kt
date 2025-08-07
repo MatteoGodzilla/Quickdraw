@@ -52,7 +52,7 @@ import kotlinx.coroutines.flow.update
 
 interface ContractsCallbacks {
     fun onRedeemContract(activeContract: ActiveContract)
-    fun onStartContract(availableContract: AvailableContract)
+    fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>)
     fun onHireMercenary(hireable: HireableMercenary)
 }
 
@@ -65,11 +65,15 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
     val hireable by repository.hireableMercenaries.collectAsState()
     val unlockable by repository.nextUnlockablesMercenaries.collectAsState()
 
-    //mutable states for contracts (selectedMercenariesState pair is id and power
+    //mutable states for contracts starting (selectedMercenariesState pair is id and power)
     val selectedContractState = MutableStateFlow(-1)
     val selectedMercenariesState = MutableStateFlow<List<Pair<Int,Int>>>(listOf())
     val selectedContract = selectedContractState.collectAsState()
     val selectedMercenaries = selectedMercenariesState.collectAsState()
+
+    //mutable states for contracts
+    val activeContracts = repository.activeContracts.collectAsState()
+    val availableContracts = repository.availableContracts.collectAsState()
 
     BasicScreen("Contracts", controller, listOf(
         ContentTab("Active"){
@@ -77,14 +81,14 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                 modifier = Modifier.padding(it)
             ){
                 var timeSeconds by remember { mutableLongStateOf(0L) }
-                if(repository.activeContracts != null){
-                    for(contract in repository.activeContracts!!){
+                if(activeContracts.value != null){
+                    for(contract in activeContracts.value!!){
                         ActiveContract(contract, timeSeconds) {
                             callbacks.onRedeemContract(contract)
                         }
                     }
                 }
-                LaunchedEffect(repository.activeContracts) {
+                LaunchedEffect(activeContracts.value) {
                     while(true){
                         timeSeconds = System.currentTimeMillis() / 1000
                         delay(500)
@@ -97,8 +101,8 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                 modifier = Modifier.padding(it)
             ){
                 if(selectedContract.value == -1){
-                    if(repository.availableContracts != null){
-                        for(contract in repository.availableContracts!!){
+                    if(availableContracts.value != null){
+                        for(contract in availableContracts.value!!){
                             AvailableContract(contract){
                                 selectedContractState.update { x->contract.id }
                             }
@@ -116,15 +120,17 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                         )
                     }
                     //Display available mercenaries
-                    for(merc in employedAll){
+                    for(merc in unassigned){
                         AssignableMercenary(merc,selectedMercenariesState)
                     }
-                    val selected = repository.availableContracts.filter { x->x.id == selectedContract.value }
+                    val selected = availableContracts.value.filter { x->x.id == selectedContract.value }
                     if(selected.isEmpty()){
                         selectedContractState.update { x->-1 }
                     }
                     else{
                         val currentContract = selected.first()
+                        val notTooMany = selectedMercenaries.value.size<=currentContract.maxMercenaries
+                        val atLeastOne = selectedMercenaries.value.isNotEmpty()
                         Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)){
                             Button(modifier = Modifier.padding(horizontal = 10.dp),
                                 onClick = {selectedContractState.update { x->-1 }
@@ -133,23 +139,30 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                                 Text("Cancel")
                             }
                             Spacer(modifier = Modifier.weight(0.5f))
-                            Button(modifier = Modifier.padding(horizontal = 10.dp),
-                                onClick = {}) {
+                            Button(enabled = notTooMany && atLeastOne,
+                                modifier = Modifier.padding(horizontal = 10.dp),
+                                onClick = {
+                                    callbacks.onStartContract(currentContract,selectedMercenaries.value.map{x->x.first})
+                                    selectedMercenariesState.update { x->listOf() }
+                                    selectedContractState.update { x->-1 }
+                                }) {
                                 Text("Start contract")
                             }
                         }
                         Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
                             horizontalAlignment = Alignment.CenterHorizontally) {
                             var successRate = 100.0
-                            var tooMany = selectedMercenaries.value.size>currentContract.maxMercenaries
                             if(currentContract.requiredPower>0){
-                                successRate = kotlin.math.round((selectedMercenaries.value.sumOf { x-> x.second }.toDouble() / (currentContract.requiredPower).toDouble()) * 100)
+                                successRate =
+                                    kotlin.math.round((selectedMercenaries.value.sumOf { x -> x.second }
+                                        .toDouble() / (currentContract.requiredPower).toDouble()) * 100)
+                                        .coerceAtMost(100.0)
                             }
                             Text("Start cost:${currentContract.startCost}", fontSize = Typography.bodyLarge.fontSize )
                             Text("Completion time:${currentContract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
                             Text("Chance of success:${successRate}%", fontSize = Typography.bodyLarge.fontSize)
                             Text("Selected :${selectedMercenaries.value.size}/${currentContract.maxMercenaries} mercenaries"
-                                , fontSize = Typography.bodyLarge.fontSize)
+                                , fontSize = Typography.bodyLarge.fontSize, color = if(notTooMany) Color.Black else Color.Red)
                         }
 
                     }

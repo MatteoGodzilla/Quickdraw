@@ -191,7 +191,7 @@ async def start_contract(request:StartContractRequest):
         )
 
     #check mercenaries
-    select_mercenaries = select(EmployedMercenary).where(and_(EmployedMercenary.idMercenary.in_(request.mercenaries),EmployedMercenary.idPlayer==player.idPlayer))
+    select_mercenaries = select(EmployedMercenary).where(and_(EmployedMercenary.id.in_(request.mercenaries),EmployedMercenary.idPlayer==player.idPlayer))
     result = session.exec(select_mercenaries)
     mercenariesData = result.fetchall()
     mercenaries = []
@@ -210,7 +210,7 @@ async def start_contract(request:StartContractRequest):
 
     assigned = select(AssignedMercenary.idEmployedMercenary).where(and_(EmployedMercenary.idPlayer == player.idPlayer,AssignedMercenary.idEmployedMercenary == EmployedMercenary.id))
 
-    already_in_use = select(EmployedMercenary).where(and_(EmployedMercenary.idMercenary.in_(assigned.scalar_subquery()),EmployedMercenary.idMercenary.in_(request.mercenaries)))
+    already_in_use = select(EmployedMercenary).where(and_(EmployedMercenary.id.in_(assigned.scalar_subquery()),EmployedMercenary.id.in_(request.mercenaries)))
 
     result = session.exec(already_in_use)
     if len(result.fetchall()) > 0:

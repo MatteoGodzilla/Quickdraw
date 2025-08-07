@@ -32,14 +32,13 @@ fun redeemContractAPI(authToken: String, contract: ActiveContract) : Boolean {
     return false
 }
 
-fun startContractAPI(authToken: String, contract: AvailableContract): Boolean{
+fun startContractAPI(authToken: String, contract: AvailableContract,mercenaries:List<Int>): Boolean{
     val client = OkHttpClient()
     val request = Request.Builder()
         .url(CONTRACTS_START)
-        //TODO: add chosen mercenaries to request
-        .post(ContractStartRequest(authToken, contract.id, listOf(1)).toRequestBody())
+        .post(ContractStartRequest(authToken, contract.id, mercenaries).toRequestBody())
         .build()
-
+    Log.i(TAG,mercenaries.toString())
     val response = client.newCall(request).execute()
     Log.i(TAG, response.code.toString())
     val body = response.body!!.string()

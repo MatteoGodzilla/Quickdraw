@@ -54,25 +54,25 @@ class GameRepository(
     //If it's a single object, it should be nullable with default as null
 
     //Status
-    var player: PlayerStatus? = null
+    var player: MutableStateFlow<PlayerStatus?> = MutableStateFlow<PlayerStatus?>(null)
         private set
     var levels: List<Int> = listOf()
         private set
     var playerLevel: MutableStateFlow<Int> = MutableStateFlow(-1)
         private set
     //Inventory
-    var bullets: List<InventoryBullet> = listOf()
+    var bullets: MutableStateFlow<List<InventoryBullet>> = MutableStateFlow<List<InventoryBullet>>(listOf())
         private set
-    var weapons: List<InventoryWeapon> = listOf()
+    var weapons: MutableStateFlow<List<InventoryWeapon>> = MutableStateFlow<List<InventoryWeapon>>(listOf())
         private set
-    var medikits: List<InventoryMedikit> = listOf()
+    var medikits: MutableStateFlow<List<InventoryMedikit>> = MutableStateFlow<List<InventoryMedikit>>(listOf())
         private set
-    var upgrades: List<InventoryUpgrade> = listOf()
+    var upgrades: MutableStateFlow<List<InventoryUpgrade>> = MutableStateFlow<List<InventoryUpgrade>>(listOf())
         private set
     //Contracts
-    var activeContracts: List<ActiveContract> = listOf()
+    var activeContracts: MutableStateFlow<List<ActiveContract>> = MutableStateFlow<List<ActiveContract>>(listOf())
         private set
-    var availableContracts: List<AvailableContract> = listOf()
+    var availableContracts: MutableStateFlow<List<AvailableContract>> = MutableStateFlow<List<AvailableContract>>(listOf())
         private set
     //Shop
     var shopWeapons: List<ShopWeapon> = listOf()
@@ -102,8 +102,9 @@ class GameRepository(
 
 
     suspend fun getStatus() = runIfAuthenticated { auth ->
-        player = getStatusAPI(auth)
-        playerLevel.value = getPlayerLevel()
+        val response = getStatusAPI(auth)
+        player.update { x->response }
+        playerLevel.update { x-> getPlayerLevel()}
     }
 
     suspend fun getLevels() = withContext(Dispatchers.IO) {
@@ -112,12 +113,12 @@ class GameRepository(
     }
 
     private fun getPlayerLevel(): Int {
-        if(player == null || levels.isEmpty()) {
+        if(player.value == null || levels.isEmpty()) {
             return -2;
         }
         var level = -1
         for(i in levels.indices){
-            if(player!!.exp >= levels[i]){
+            if(player.value!!.exp >= levels[i]){
                 level = i + 1
             }
         }
@@ -128,31 +129,31 @@ class GameRepository(
         val response = getInventoryAPI(auth)
         if(response != null) {
             //Separate values
-            bullets = response.bullets
-            weapons = response.weapons
-            medikits = response.medikits
-            upgrades = response.upgrades
+            bullets.update { x->response.bullets }
+            weapons.update { x->response.weapons }
+            medikits.update { x->response.medikits }
+            upgrades.update { x->response.upgrades }
         }
     }
 
     suspend fun getContracts() = runIfAuthenticated{ auth ->
-        activeContracts = getActiveContractsAPI(auth)
-        availableContracts = getAvailableContractsAPI(auth)
+        activeContracts.update{x->getActiveContractsAPI(auth)}
+        availableContracts.update{getAvailableContractsAPI(auth)}
     }
 
-    suspend fun startContract(contract: AvailableContract) = runIfAuthenticated { auth ->
-        val success = startContractAPI(auth, contract)
+    suspend fun startContract(contract: AvailableContract,mercenaries:List<Int>) = runIfAuthenticated { auth ->
+        val success = startContractAPI(auth, contract, mercenaries)
         //it should always be successful, otherwise there is a problem with the flow not being correct
         if(success){
-            availableContracts.filter { ac -> contract.id != ac.id }
+            availableContracts.update { contracts->contracts.filter { ac -> contract.id != ac.id } }
+            unAssignedMercenaries.update { x->x.filter { y->!mercenaries.any{z->z==y.idEmployment} } } // yeah i have to make this more readable i know
         }
     }
 
     suspend fun redeemContract(contract: ActiveContract) = runIfAuthenticated { auth->
         val success = redeemContractAPI(auth, contract)
         if(success){
-           activeContracts.filter { c -> c.activeId != contract.activeId }
-
+           activeContracts.update{contracts->contracts.filter { c -> c.activeId != contract.activeId }}
         }
     }
 

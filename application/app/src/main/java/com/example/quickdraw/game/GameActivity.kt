@@ -146,8 +146,8 @@ class GameActivity : ComponentActivity() {
                         override fun onRedeemContract(activeContract: ActiveContract) {
                             lifecycleScope.launch { repository.redeemContract(activeContract) }
                         }
-                        override fun onStartContract(availableContract: AvailableContract) {
-                            lifecycleScope.launch { repository.startContract(availableContract) }
+                        override fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>) {
+                            lifecycleScope.launch { repository.startContract(availableContract,mercenaries) }
                         }
 
                         override fun onHireMercenary(hireable: HireableMercenary) {

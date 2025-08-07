@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -30,6 +31,13 @@ import com.example.quickdraw.ui.theme.Typography
 
 @Composable
 fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
+
+    //stateflows
+    val weapons = repository.weapons.collectAsState()
+    val medikits = repository.medikits.collectAsState()
+    val upgrades = repository.upgrades.collectAsState()
+    val bullets = repository.bullets.collectAsState()
+
     BasicScreen("Your Place", controller, listOf(
         ContentTab("Stats") {
             Text("Main", modifier = Modifier.padding(it))
@@ -42,8 +50,8 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                 modifier = Modifier.padding(it)
             ) {
                 //Weapons
-                if(repository.weapons != null){
-                    CollapsableList(true, "Weapons", repository.weapons!!) { weapon ->
+                if(weapons.value != null){
+                    CollapsableList(true, "Weapons", weapons.value!!) { weapon ->
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -54,8 +62,8 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                     }
                 }
                 //Bullets
-                if(repository.bullets != null){
-                    CollapsableList(true, "Bullets", repository.bullets!!) { bullet ->
+                if(bullets.value != null){
+                    CollapsableList(true, "Bullets", bullets.value!!) { bullet ->
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -66,8 +74,8 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                     }
                 }
                 //Medikits
-                if(repository.medikits != null){
-                    CollapsableList(true, "Medikits", repository.medikits!!) { medikit ->
+                if(medikits.value != null){
+                    CollapsableList(true, "Medikits", medikits.value!!) { medikit ->
                         Text(
                             medikit.description,
                             fontSize = Typography.titleLarge.fontSize,
@@ -83,8 +91,8 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                     }
                 }
                 //Upgrades
-                if(repository.upgrades != null){
-                    CollapsableList(true, "Upgrades", repository.upgrades!!) { upgrade ->
+                if(upgrades.value!= null){
+                    CollapsableList(true, "Upgrades", upgrades.value!!) { upgrade ->
                         Row (
                             modifier = Modifier.fillMaxWidth().padding(8.dp),
                             verticalAlignment = Alignment.CenterVertically,

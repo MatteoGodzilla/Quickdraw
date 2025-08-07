@@ -35,6 +35,7 @@ import com.example.quickdraw.ui.theme.Typography
 
 @Composable
 fun TopBar(repository: GameRepository) {
+    val player = repository.player.collectAsState()
     Surface(color = MaterialTheme.colorScheme.surfaceContainer){
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
@@ -43,10 +44,10 @@ fun TopBar(repository: GameRepository) {
         ) {
             val rowHeight = Typography.bodyLarge.lineHeight.value.dp
             item ( span = { GridItemSpan(2) } ) {
-                val ratio = if(repository.player != null) repository.player!!.health.toFloat() / repository.player!!.maxHealth else 0.0f
+                val ratio = if(player.value != null) player.value!!.health.toFloat() / player.value!!.maxHealth else 0.0f
                 ProgressBar(ratio, ProgressBarColors.health, rowHeight, ImageVector.vectorResource(R.drawable.favorite_24px), "Health")
             }
-            item { CenteredText("${repository.player?.health}/${repository.player?.maxHealth} HP", rowHeight ) }
+            item { CenteredText("${player.value?.health}/${player.value?.maxHealth} HP", rowHeight ) }
             item ( span = { GridItemSpan(2) } ) {
                 //TODO: use levels for this
                 var progress = 0f
@@ -55,15 +56,15 @@ fun TopBar(repository: GameRepository) {
                     val levelIndex = playerLevel - 1
                     if(levelIndex < repository.levels.size){
                         //playerLevel -1 is a valid index
-                        progress = (repository.player!!.exp - repository.levels[levelIndex]).toFloat() /
+                        progress = (player.value!!.exp - repository.levels[levelIndex]).toFloat() /
                                 (repository.levels[levelIndex + 1] - repository.levels[levelIndex])
                     }
                 }
                 ProgressBar(progress, ProgressBarColors.experience, rowHeight, ImageVector.vectorResource(R.drawable.stars_2_24px), "Experience")
             }
             item { CenteredText("Lv. ${repository.playerLevel.collectAsState().value}", rowHeight) }
-            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.money_bag_24px_1_), rowHeight, text = "${repository.player?.money}") }
-            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.local_police_24px), rowHeight, text = "${repository.player?.bounty}") }
+            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.money_bag_24px_1_), rowHeight, text = "${player.value?.money}") }
+            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.local_police_24px), rowHeight, text = "${player.value?.bounty}") }
             item { TopBarRow(image = Icons.Default.Done, rowHeight, text = "##BULLETS##") }
         }
     }
