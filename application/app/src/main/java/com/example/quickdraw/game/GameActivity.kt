@@ -23,6 +23,7 @@ import com.example.quickdraw.game.screen.ContractsScreen
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
+import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
 import com.example.quickdraw.network.api.toRequestBody
 import com.example.quickdraw.network.data.HireableMercenary
@@ -74,44 +75,7 @@ class GameActivity : ComponentActivity() {
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
                 composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository) }
                 composable<GameNavigation.Shop> {
-                    BasicScreen("Shop", controller, listOf(
-                        ContentTab("Weapons"){
-                            if(repository.shopWeapons.isNotEmpty()){
-                                Column (modifier = Modifier.padding(it)){
-                                    for (w in repository.shopWeapons){
-                                        Text(w.toString())
-                                    }
-                                }
-                            }
-                        },
-                        ContentTab("Bullets"){
-                            if(repository.shopBullets.isNotEmpty()){
-                                Column (modifier = Modifier.padding(it)){
-                                    for (w in repository.shopBullets){
-                                        Text(w.toString())
-                                    }
-                                }
-                            }
-                        },
-                        ContentTab("Medikits"){
-                            if(repository.shopMedikits.isNotEmpty()){
-                                Column (modifier = Modifier.padding(it)){
-                                    for (w in repository.shopMedikits){
-                                        Text(w.toString())
-                                    }
-                                }
-                            }
-                        },
-                        ContentTab("Upgrades"){
-                            if(repository.shopUpgrades.isNotEmpty()){
-                                Column (modifier = Modifier.padding(it)){
-                                    for (w in repository.shopUpgrades){
-                                        Text(w.toString())
-                                    }
-                                }
-                            }
-                        }
-                    ))
+                    ShopScreen(controller, repository)
                 }
                 composable<GameNavigation.Map> {
                     MainScreen(controller, repository){

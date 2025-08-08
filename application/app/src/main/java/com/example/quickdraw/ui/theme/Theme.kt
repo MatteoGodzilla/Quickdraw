@@ -28,9 +28,12 @@ private val LightColorScheme = lightColorScheme(
 )
 
 //For mercenaries, TODO: place this in a correct class
-val lockedElementColor  = Color(0xFFE1D6AB)
 val availableMercenaryStatusColor = Color(0xFFA9F89D)
 val unavailableMercenaryStatusColor = Color(0xFFE79273)
+
+//For shop TODO: place this in a correct class
+val lockedShopEntry  = Color(0xFFE1D6AB)
+val shopEntry = Color(0XFFf7f1d0)
 
 class ProgressBarColors() {
     companion object {
