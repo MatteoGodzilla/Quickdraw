@@ -97,40 +97,16 @@ fun AvailableContract(contract: AvailableContract, onStartButton: ()->Unit){
     }
 }
 
-@Composable
-fun HireableMercenaryPost(mercenary: HireableMercenary, onHireClick: ()->Unit){
-    Row (
-        modifier = Modifier.fillMaxWidth().padding(12.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        Column {
-            Text(mercenary.name, fontSize = Typography.titleLarge.fontSize)
-            Text("Cost: ${mercenary.cost}")
-            Text("Power: ${mercenary.power}")
-        }
-        Button(
-            onClick = onHireClick,
-            modifier = Modifier.width(72.dp).height(72.dp)
-        ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.money_bag_24px_1_),
-                "",
-                tint = Color.Black,
-            )
-        }
-    }
-}
 
 @Composable
 fun LockedMercenaryPost(mercenary: LockedMercenary){
     Row (
-        modifier = Modifier.fillMaxWidth().background(lockedShopEntry).padding(8.dp),
+        modifier = Modifier.fillMaxWidth().background(lockedShopEntry).padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
 
         ){
-        Column {
+        Column(modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp)) {
             Text(mercenary.name, fontSize = Typography.titleLarge.fontSize)
             Text("Power: ${mercenary.power}")
             Text("Unlock at level ${mercenary.levelRequired}")

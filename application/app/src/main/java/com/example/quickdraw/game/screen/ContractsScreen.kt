@@ -59,6 +59,9 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
     val activeContracts = repository.activeContracts.collectAsState()
     val availableContracts = repository.availableContracts.collectAsState()
 
+    //for mercenaries shop
+    val player = repository.player.collectAsState()
+
     BasicScreen("Contracts", controller, listOf(
         ContentTab("Active"){
             Column (
@@ -170,9 +173,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                 modifier = Modifier.padding(it)
             ){
                 for(mercenary in hireable){
-                    HireableMercenaryPost(mercenary){
-                        callbacks.onHireMercenary(mercenary)
-                    }
+                    MercenaryShopEntry(mercenary,{callbacks.onHireMercenary(mercenary)},player.value!!.money>=mercenary.cost)
                 }
                 for(mercenary in unlockable){
                     LockedMercenaryPost(mercenary)

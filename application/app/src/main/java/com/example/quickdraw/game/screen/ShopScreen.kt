@@ -17,6 +17,9 @@ import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.dataDisplayers.ActiveContract
 import com.example.quickdraw.game.dataDisplayers.BulletShopEntry
+import com.example.quickdraw.game.dataDisplayers.MedikitEntryShop
+import com.example.quickdraw.game.dataDisplayers.UpgradeEntryShop
+import com.example.quickdraw.game.dataDisplayers.WeaponEntryShop
 import kotlinx.coroutines.delay
 
 @Composable
@@ -30,7 +33,7 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository) {
             if(repository.shopWeapons.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
                     for (w in repository.shopWeapons){
-                        Text(w.toString())
+                        WeaponEntryShop(w,{},playerState.value!!.money>=w.cost)
                     }
                 }
             }
@@ -48,7 +51,7 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository) {
             if(repository.shopMedikits.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
                     for (w in repository.shopMedikits){
-                        Text(w.toString())
+                        MedikitEntryShop(w,{},playerState.value!!.money>=w.cost)
                     }
                 }
             }
@@ -57,7 +60,7 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository) {
             if(repository.shopUpgrades.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
                     for (w in repository.shopUpgrades){
-                        Text(w.toString())
+                        UpgradeEntryShop(w,{},playerState.value!!.money>=w.cost)
                     }
                 }
             }
