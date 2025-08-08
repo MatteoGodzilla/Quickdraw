@@ -9,12 +9,15 @@ import com.example.quickdraw.network.data.AvailableContractResponse
 import com.example.quickdraw.network.data.ContractRedeemRequest
 import com.example.quickdraw.network.data.ContractRedeemResponse
 import com.example.quickdraw.network.data.ContractStartRequest
+import com.example.quickdraw.network.data.ContractStartResponse
+import com.example.quickdraw.network.data.StartedContract
 import com.example.quickdraw.network.data.TokenRequest
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.Response
 
-fun redeemContractAPI(authToken: String, contract: ActiveContract) : Boolean {
+fun redeemContractAPI(authToken: String, contract: ActiveContract) : ContractRedeemResponse {
     val client = OkHttpClient()
     val request = Request.Builder()
         .url(CONTRACTS_REDEEM)
@@ -27,12 +30,12 @@ fun redeemContractAPI(authToken: String, contract: ActiveContract) : Boolean {
         val body = response.body!!.string()
         Log.i(TAG, body)
         val obj = Json.decodeFromString<ContractRedeemResponse>(body)
-        return obj.success
+        return obj
     }
-    return false
+    return ContractRedeemResponse(success = false, reward = 0, returnableContract = AvailableContract(0,"",0,0,0,0,))
 }
 
-fun startContractAPI(authToken: String, contract: AvailableContract,mercenaries:List<Int>): Boolean{
+fun startContractAPI(authToken: String, contract: AvailableContract,mercenaries:List<Int>): ContractStartResponse{
     val client = OkHttpClient()
     val request = Request.Builder()
         .url(CONTRACTS_START)
@@ -43,7 +46,12 @@ fun startContractAPI(authToken: String, contract: AvailableContract,mercenaries:
     Log.i(TAG, response.code.toString())
     val body = response.body!!.string()
     Log.i(TAG, body)
-    return response.code == 200
+    if(response.code == 200){
+        //it should always be 200, otherwise there is a problem with the auth token
+        Log.i(TAG, body)
+        return Json.decodeFromString<ContractStartResponse>(body)
+    }
+    return ContractStartResponse(success = false, contractInfo = StartedContract(0,0))
 }
 
 fun getActiveContractsAPI(authToken: String): List<ActiveContract>{

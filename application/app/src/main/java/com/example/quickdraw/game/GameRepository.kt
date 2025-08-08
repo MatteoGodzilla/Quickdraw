@@ -40,6 +40,7 @@ import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
@@ -142,18 +143,24 @@ class GameRepository(
     }
 
     suspend fun startContract(contract: AvailableContract,mercenaries:List<Int>) = runIfAuthenticated { auth ->
-        val success = startContractAPI(auth, contract, mercenaries)
+        val response = startContractAPI(auth, contract, mercenaries)
         //it should always be successful, otherwise there is a problem with the flow not being correct
-        if(success){
+        if(response.success){
+            val info = response.contractInfo
+            activeContracts.update { x->x+ ActiveContract(info.idActiveContract,contract.name,contract.requiredTime,info.startTime,
+                mercenaries=unAssignedMercenaries.value.filter { x->mercenaries.any{y->y==x.idEmployment} }) }
             availableContracts.update { contracts->contracts.filter { ac -> contract.id != ac.id } }
             unAssignedMercenaries.update { x->x.filter { y->!mercenaries.any{z->z==y.idEmployment} } } // yeah i have to make this more readable i know
         }
     }
 
     suspend fun redeemContract(contract: ActiveContract) = runIfAuthenticated { auth->
-        val success = redeemContractAPI(auth, contract)
-        if(success){
+        val response = redeemContractAPI(auth, contract)
+        if(response.success){
            activeContracts.update{contracts->contracts.filter { c -> c.activeId != contract.activeId }}
+            player.update { x-> PlayerStatus(x!!.id,x.health,x.maxHealth,x.exp,x.money+response.reward,x.bounty,x.username) }
+            availableContracts.update { x->x+response.returnableContract }
+            unAssignedMercenaries.update { x->x+contract.mercenaries }
         }
     }
 

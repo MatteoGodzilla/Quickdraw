@@ -5,7 +5,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
-from sqlmodel import Session, delete,select,and_,func, update
+from sqlmodel import Sequence, Session, delete,select,and_,func, update
 from starlette.status import *
 from bcrypt import *
 from uuid_utils import *
@@ -52,14 +52,33 @@ async def get_actives(request:BasicAuthTokenRequest):
     
     result = session.exec(active_contracts)
     contracts = result.fetchall()
+    contract_ids = [x.id for x,y in contracts]
+
+    used_mercenaries = select(AssignedMercenary,EmployedMercenary,Mercenary).where(
+         and_(
+              AssignedMercenary.idEmployedMercenary == EmployedMercenary.id,
+              EmployedMercenary.idMercenary == Mercenary.id,
+              EmployedMercenary.idPlayer == player.idPlayer,
+              AssignedMercenary.idActiveContract.in_(contract_ids)
+         )
+    )
+
+    result = session.exec(used_mercenaries)
+    inUseMercenaries = result.fetchall()
+
     response = []
     for active,contract in contracts:
         response.append(ActiveContractResponseElement(activeId=active.id,name=contract.name,
-                                                      requiredTime=contract.requiredTime,startTime=active.startTime))
+            requiredTime=contract.requiredTime,
+            startTime=active.startTime,
+            mercenaries=[InUseMercenary(idEmployment=y.id,power=z.power,name=z.name) for x,y,z in inUseMercenaries if x.idActiveContract==active.id])
+        )
+        
     return JSONResponse(
         status_code = HTTP_200_OK,
         content={"contracts":jsonable_encoder(response)}
     )
+
 
 @router.post("/redeem")
 async def redeem(request:RedeemContractRequest):
@@ -117,7 +136,18 @@ async def redeem(request:RedeemContractRequest):
     ratio = float(power)/float(max(1,contract[1].requiredPower))
     success = (random.random() <= min(1.0,ratio))
     reward = int(success)*(random.randint(contract[1].minReward,contract[1].maxReward))
-    response = ContractRedeemedResponse(success = success,reward=reward)
+    toReclaim = AvailableContractResponseElement(
+        id=contract[1].id,
+        name=contract[1].name,
+        requiredTime=contract[1].requiredTime,
+        requiredPower=contract[1].requiredPower,
+        maxMercenaries=contract[1].maxMercenaries,
+        startCost=contract[1].startCost)
+    
+    response = ContractRedeemedResponse(success = success,
+        reward=reward,
+        returnableContract=toReclaim
+    )
 
     #update player balance and remove column
     try:
@@ -131,8 +161,6 @@ async def redeem(request:RedeemContractRequest):
             status_code= HTTP_500_INTERNAL_SERVER_ERROR,
             content = {"message":"failed to update player balance"}
         )
-
-    
 
     return JSONResponse(
         status_code= HTTP_200_OK,
@@ -179,7 +207,7 @@ async def start_contract(request:StartContractRequest):
     contract_to_start = result.first()
     if contract_to_start == None:
         return JSONResponse(
-            status_code = HTTP_200_OK,
+            status_code = HTTP_406_NOT_ACCEPTABLE,
             content={"message":"Selected contract doesnt exist or it is not available"}
         )
     
@@ -238,9 +266,11 @@ async def start_contract(request:StartContractRequest):
             content={"message":"Something went wrong in creating contract and assigning mercenaries:"+str(e)}
         )
     
+    info = StartedContract(startTime=newContract.startTime,idActiveContract=newContract.id)
+
     return JSONResponse(
         status_code = HTTP_200_OK,
-        content=jsonable_encoder(ContractStartResponse(success=True))
+        content=jsonable_encoder(ContractStartResponse(success=True,contractInfo=info))
     )
 
 

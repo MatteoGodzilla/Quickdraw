@@ -119,18 +119,22 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                             textAlign = TextAlign.Center
                         )
                     }
-                    //Display available mercenaries
-                    for(merc in unassigned){
-                        AssignableMercenary(merc,selectedMercenariesState)
-                    }
+
+
                     val selected = availableContracts.value.filter { x->x.id == selectedContract.value }
                     if(selected.isEmpty()){
                         selectedContractState.update { x->-1 }
                     }
                     else{
+                        //Display available mercenaries
                         val currentContract = selected.first()
                         val notTooMany = selectedMercenaries.value.size<=currentContract.maxMercenaries
                         val atLeastOne = selectedMercenaries.value.isNotEmpty()
+                        for(merc in unassigned){
+                            val checkBoxSelectable = selectedMercenaries.value.any{x->x.first==merc.idEmployment} || selectedMercenaries.value.size<currentContract.maxMercenaries
+                            AssignableMercenary(merc,selectedMercenariesState,checkBoxSelectable)
+                        }
+
                         Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)){
                             Button(modifier = Modifier.padding(horizontal = 10.dp),
                                 onClick = {selectedContractState.update { x->-1 }
@@ -331,7 +335,7 @@ fun EmployedMercenaryPost(mercenary: EmployedMercenary,available: Boolean = true
 }
 
 @Composable
-fun AssignableMercenary(mercenary: EmployedMercenary,stateArray: MutableStateFlow<List<Pair<Int,Int>>>){
+fun AssignableMercenary(mercenary: EmployedMercenary,stateArray: MutableStateFlow<List<Pair<Int,Int>>>,isCheckable: Boolean=true){
     var checked by remember { mutableStateOf(false) }
     Row (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
@@ -342,7 +346,7 @@ fun AssignableMercenary(mercenary: EmployedMercenary,stateArray: MutableStateFlo
             Text(mercenary.name, fontSize = Typography.titleLarge.fontSize)
             Text("Power: ${mercenary.power}")
         }
-        Checkbox(onCheckedChange =
+        Checkbox(enabled=isCheckable,onCheckedChange =
             {
                 checked = it
                 if(checked){

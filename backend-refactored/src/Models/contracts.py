@@ -3,6 +3,11 @@ from typing import List
 from Models.commons import BasicAuthTokenRequest
 
 #objects
+class InUseMercenary(BaseModel):
+    idEmployment:int
+    power:int
+    name:str
+
 class AvailableContractResponseElement(BaseModel):
     id:int
     name:str
@@ -16,6 +21,13 @@ class ActiveContractResponseElement(BaseModel):
     name:str
     requiredTime:int
     startTime:int
+    mercenaries:List[InUseMercenary]
+
+class StartedContract(BaseModel):
+    startTime:int
+    idActiveContract:int
+
+
 
 #requests
 class RedeemContractRequest(BasicAuthTokenRequest):
@@ -29,6 +41,11 @@ class StartContractRequest(BasicAuthTokenRequest):
 class ContractRedeemedResponse(BaseModel):
     success:bool
     reward:int
+    returnableContract:AvailableContractResponseElement
 
 class ContractStartResponse(BaseModel):
     success:bool
+    contractInfo:StartedContract
+
+
+

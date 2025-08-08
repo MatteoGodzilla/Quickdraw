@@ -1,5 +1,6 @@
 # API Reference
 tutti i dati vengono inviati in formato json
+QUESTE API SONO DESIGNATE PER CREARE MODIFICHE INCREMENTALI NELL'APPLICATIVO MOBILE
 
 ## Auth
 ### /auth/login X

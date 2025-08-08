@@ -7,7 +7,8 @@ data class ActiveContract(
     val activeId: Int,
     val name: String,
     val requiredTime: Long,
-    val startTime: Long
+    val startTime: Long,
+    val mercenaries:List<EmployedMercenary>
 )
 
 @Serializable
@@ -18,6 +19,12 @@ data class AvailableContract(
     val requiredPower: Int,
     val maxMercenaries: Int,
     val startCost: Int,
+)
+
+@Serializable
+data class StartedContract(
+    val idActiveContract:Int,
+    val startTime:Long
 )
 
 /* --- Request --- */
@@ -47,5 +54,11 @@ data class AvailableContractResponse(
 @Serializable
 data class ContractRedeemResponse(
     val success: Boolean,
-    val reward: Int
+    val reward: Int,
+    val returnableContract: AvailableContract
+)
+@Serializable
+data class ContractStartResponse(
+    val success: Boolean,
+    val contractInfo: StartedContract,
 )
