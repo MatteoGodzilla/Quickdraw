@@ -1,14 +1,17 @@
 from fastapi import APIRouter
+from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from MySql import SessionManager
-from MySql.tables import Weapon, PlayerWeapon, BulletShop, Bullet, MedikitShop, Medikit, UpgradeShop, PlayerUpgrade, UpgradeTypes
-from Models.commons import BasicAuthTokenRequest
+from MySql.tables import *
+from Models.commons import BasicAuthTokenRequest, BuyRequest
 from routes.middlewares.checkAuthTokenExpiration import checkAuthTokenValidity 
 from routes.middlewares.key_names import SUCCESS, ERROR, HTTP_CODE, PLAYER
-from routes.middlewares.getPlayer import getPlayer
+from routes.middlewares.getPlayer import getPlayer, getPlayerData
 from sqlalchemy import and_, or_, func, join
 from sqlmodel import Session, select
-from starlette.status import HTTP_200_OK
+from starlette.status import *
+
+from Models.shop import BuyBulletResponse
 
 session = SessionManager.global_session
 
@@ -198,3 +201,92 @@ async def bullets(request: BasicAuthTokenRequest):
         content=response_upgrades
     )
 
+
+@router.post("/bullets/buy")
+async def buyBullets(request: BuyRequest):
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken,session)
+    if obtain_player[SUCCESS] == False:
+            return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+
+    obtain_bullet = select(Bullet,BulletShop).where(
+         and_(
+              BulletShop.id == request.id,
+              BulletShop.idBullet == Bullet.type
+         )
+    )
+
+    result = session.exec(obtain_bullet)
+    bulletInfo = result.first()
+
+    #bullet does not exist
+    if bulletInfo == None or bulletInfo[1]==None:
+        return JSONResponse(
+            status_code = HTTP_406_NOT_ACCEPTABLE,
+            content={"message":"Required bullet sale does not exist"}
+        )
+    
+    playerInfo = getPlayerData(player,session)
+    if playerInfo[SUCCESS] == False:
+        return JSONResponse(
+            status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message":"Could not find player data"}
+        )
+    
+    #too expensive 
+    playerInfo:Player = playerInfo[PLAYER]
+    if bulletInfo[1].cost > playerInfo.money:
+        return JSONResponse(
+            status_code = HTTP_402_PAYMENT_REQUIRED,
+            content={"message":"Insuffucient founds"}
+        )
+    
+    #check if player already has bullet or not
+    getBullet = select(Bullet,PlayerBullet).where(
+         and_(
+              PlayerBullet.idPlayer==playerInfo.id,
+              Bullet.type==bulletInfo[0].type
+        )
+    )
+
+    result = session.exec(getBullet)
+    bulletPlayer = result.first()
+
+    #case 1: player does not already own bullet:
+    if bulletPlayer==None:
+        try:
+            playerInfo.money-=bulletInfo[1].cost
+            playerRow = PlayerBullet(idPlayer=player.idPlayer,idBullet=bulletInfo[1].idBullet,amount=bulletInfo[1].quantity)
+            session.add(playerRow)
+            session.commit()
+        except:
+            session.rollback()
+            return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR,content={"message":"error while doing purchase"})
+    #case 2: player is not buying for the first time
+    else:
+        try:
+            playerInfo.money-=bulletInfo[1].cost
+            bulletPlayer[1].amount = min(bulletPlayer[1].amount+bulletInfo[1].quantity,bulletInfo[0].capacity)
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR,content={"message":"error while doing purchase"})
+
+    #By passing directly bulletInfo[1] it returns an array...
+    response = BuyBulletResponse(id = bulletInfo[1].id,type=bulletInfo[1].idBullet,name=bulletInfo[0].description,cost = bulletInfo[1].cost,quantity=bulletInfo[1].quantity,capacity=bulletInfo[0].capacity)
+    return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))
+    
+         
+
+    

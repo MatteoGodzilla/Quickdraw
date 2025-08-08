@@ -2,6 +2,8 @@ package com.example.quickdraw.network.api
 
 import android.util.Log
 import com.example.quickdraw.TAG
+import com.example.quickdraw.game.dataDisplayers.BulletShopEntry
+import com.example.quickdraw.network.data.BuyRequest
 import com.example.quickdraw.network.data.TokenRequest
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
@@ -81,4 +83,22 @@ fun getShopUpgradesAPI(authToken: String): List<ShopUpgrade> {
         return Json.decodeFromString<List<ShopUpgrade>>(result)
     }
     return listOf()
+}
+
+fun buyBulletsAPI(buy: BuyRequest): ShopBullet?{
+    val client = OkHttpClient()
+    val request = Request.Builder()
+        .url(SHOP_BUY_BULLETS)
+        .post(buy.toRequestBody())
+        .build()
+
+    val response = client.newCall(request).execute()
+    Log.i(TAG, response.code.toString())
+    if(response.code == 200){
+        //it should always be 200, otherwise there is a problem with the auth token
+        val result = response.body!!.string()
+        Log.i(TAG, result)
+        return Json.decodeFromString<ShopBullet>(result)
+    }
+    return null
 }

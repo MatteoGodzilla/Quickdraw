@@ -40,3 +40,11 @@ data class ShopUpgrade(
     val level: Int,
     val cost: Int
 )
+
+//request
+@Serializable
+data class BuyRequest(
+    val authToken:String,
+    val id:Int
+)
+

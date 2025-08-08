@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.TAG
+import com.example.quickdraw.network.api.buyBulletsAPI
 import com.example.quickdraw.network.api.employMercenaryAPI
 import com.example.quickdraw.network.api.getActiveContractsAPI
 import com.example.quickdraw.network.api.getAllPlayerMercenariesAPI
@@ -25,6 +26,7 @@ import com.example.quickdraw.network.api.redeemContractAPI
 import com.example.quickdraw.network.api.startContractAPI
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
+import com.example.quickdraw.network.data.BuyRequest
 import com.example.quickdraw.network.data.EmployedMercenary
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.InventoryBullet
@@ -178,6 +180,25 @@ class GameRepository(
 
     suspend fun getShopUpgrades() = runIfAuthenticated { auth ->
         shopUpgrades.update{x->getShopUpgradesAPI(auth)}
+    }
+
+    suspend fun buyBullet(bullet: ShopBullet) = runIfAuthenticated { auth->
+        val response = buyBulletsAPI(BuyRequest(id=bullet.id, authToken = auth))
+        if(response!=null){
+            player.update { x->x!!.copy(money=x.money-bullet.cost) }
+            if(bullets.value.any{x->x.type==bullet.type}){
+                bullets.update { x->x.map{y->
+                    if(y.type!=bullet.type) y.copy()
+                    else y.copy(amount=kotlin.math.min(y.amount+bullet.quantity,bullet.capacity))} }
+                }
+            else{
+                bullets.update { x->x+ InventoryBullet(type = bullet.type,
+                    description = bullet.name,
+                    amount=bullet.quantity,
+                    capacity = bullet.capacity)
+                }
+            }
+        }
     }
 
     suspend fun getFriendLeaderboard() = runIfAuthenticated { auth ->

@@ -23,11 +23,14 @@ import com.example.quickdraw.game.screen.ContractsScreen
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
+import com.example.quickdraw.game.screen.ShopCallbacks
 import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
+import com.example.quickdraw.network.api.buyBulletsAPI
 import com.example.quickdraw.network.api.toRequestBody
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.MercenaryHireable
+import com.example.quickdraw.network.data.ShopBullet
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -75,7 +78,11 @@ class GameActivity : ComponentActivity() {
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
                 composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository) }
                 composable<GameNavigation.Shop> {
-                    ShopScreen(controller, repository)
+                    ShopScreen(controller, repository,object : ShopCallbacks{
+                        override fun onBuyBullet(toBuy: ShopBullet) {
+                            lifecycleScope.launch { repository.buyBullet(toBuy) }
+                        }
+                    })
                 }
                 composable<GameNavigation.Map> {
                     MainScreen(controller, repository){

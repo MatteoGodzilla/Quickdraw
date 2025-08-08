@@ -25,6 +25,7 @@ const val SHOP_WEAPONS = "$BASE_URL/shop/weapons"
 const val SHOP_BULLETS = "$BASE_URL/shop/bullets"
 const val SHOP_MEDIKITS = "$BASE_URL/shop/medikits"
 const val SHOP_UPGRADES = "$BASE_URL/shop/upgrades"
+const val SHOP_BUY_BULLETS = "$SHOP_BULLETS/buy"
 
 const val BOUNTY_FRIENDS = "$BASE_URL/bounty/friends"
 const val BOUNTY_LEADERBOARD = "$BASE_URL/bounty/leaderboard"

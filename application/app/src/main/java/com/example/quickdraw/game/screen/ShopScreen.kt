@@ -20,10 +20,18 @@ import com.example.quickdraw.game.dataDisplayers.BulletShopEntry
 import com.example.quickdraw.game.dataDisplayers.MedikitEntryShop
 import com.example.quickdraw.game.dataDisplayers.UpgradeEntryShop
 import com.example.quickdraw.game.dataDisplayers.WeaponEntryShop
+import com.example.quickdraw.network.data.ActiveContract
+import com.example.quickdraw.network.data.AvailableContract
+import com.example.quickdraw.network.data.HireableMercenary
+import com.example.quickdraw.network.data.ShopBullet
 import kotlinx.coroutines.delay
 
+interface ShopCallbacks {
+    fun onBuyBullet(toBuy: ShopBullet)
+}
+
 @Composable
-fun ShopScreen (controller: NavHostController, repository: GameRepository) {
+fun ShopScreen (controller: NavHostController, repository: GameRepository,callbacks: ShopCallbacks) {
 
     //collectable states
     val playerState = repository.player.collectAsState()
@@ -46,7 +54,7 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository) {
             if(bullets.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
                     for (w in bullets.value){
-                        BulletShopEntry(w,{},playerState.value!!.money>=w.cost)
+                        BulletShopEntry(w,{callbacks.onBuyBullet(w)},playerState.value!!.money>=w.cost)
                     }
                 }
             }
