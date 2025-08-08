@@ -33,7 +33,7 @@ import java.nio.file.WatchEvent
 
 
 @Composable
-fun BasicShopEntry(canAfford: Boolean, action:()->Unit, populateShopEntry: @Composable ()->Unit){
+fun BasicShopEntry(price:Int,canAfford: Boolean, action:()->Unit, populateShopEntry: @Composable ()->Unit){
     Row (
         modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -48,7 +48,9 @@ fun BasicShopEntry(canAfford: Boolean, action:()->Unit, populateShopEntry: @Comp
                 onClick = action,
                 modifier = Modifier.fillMaxWidth().height(72.dp)
             ) {
+                Text(price.toString(),fontSize = Typography.titleLarge.fontSize)
                 Icon(
+
                     imageVector = ImageVector.vectorResource(R.drawable.money_bag_24px_1_),
                     "",
                     tint = Color.Black,
@@ -60,7 +62,7 @@ fun BasicShopEntry(canAfford: Boolean, action:()->Unit, populateShopEntry: @Comp
 
 @Composable
 fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit,canAfford:Boolean=true){
-    BasicShopEntry(canAfford,onBuy) {
+    BasicShopEntry(bullet.cost,canAfford,onBuy) {
         Text(bullet.name, fontSize = Typography.titleLarge.fontSize)
         Text("Cost: ${bullet.cost} coins", color = if (canAfford) Color.Black  else Color.Red)
         Text("${bullet.quantity} pieces per purchase")
@@ -70,7 +72,7 @@ fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit,canAfford:Boolean=true){
 
 @Composable
 fun MedikitEntryShop(medikit: ShopMedikit, onBuy: ()->Unit,canAfford:Boolean=true){
-    BasicShopEntry(canAfford,onBuy) {
+    BasicShopEntry(medikit.cost,canAfford,onBuy) {
         Text(medikit.description, fontSize = Typography.titleLarge.fontSize)
         Text("Heals ${medikit.healthRecover} per use")
         Text("Cost: ${medikit.cost} coins", color = if (canAfford) Color.Black  else Color.Red)
@@ -81,18 +83,16 @@ fun MedikitEntryShop(medikit: ShopMedikit, onBuy: ()->Unit,canAfford:Boolean=tru
 
 @Composable
 fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit,canAfford:Boolean=true){
-    BasicShopEntry(canAfford,onBuy) {
+    BasicShopEntry(weapon.cost,canAfford,onBuy) {
         Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
-        Text("Cost: ${weapon.cost} coins", color = if (canAfford) Color.Black  else Color.Red)
         Text("${weapon.damage} damage per hit")
     }
 }
 
 @Composable
 fun UpgradeEntryShop(upgrade: ShopUpgrade, onBuy: ()->Unit,canAfford:Boolean=true){
-    BasicShopEntry(canAfford,onBuy) {
+    BasicShopEntry(upgrade.cost,canAfford,onBuy) {
         Text("Upgrade type:${upgrade.type}",fontSize = Typography.titleLarge.fontSize)
-        Text("Cost: ${upgrade.cost} coins", color = if (canAfford) Color.Black  else Color.Red)
         Text("Level ${upgrade.level}")
         Text(upgrade.description)
     }
@@ -100,11 +100,13 @@ fun UpgradeEntryShop(upgrade: ShopUpgrade, onBuy: ()->Unit,canAfford:Boolean=tru
 
 @Composable
 fun MercenaryShopEntry(mercenary: HireableMercenary, onBuy: ()->Unit,canAfford:Boolean=true){
-    BasicShopEntry(canAfford,onBuy) {
+    BasicShopEntry(mercenary.cost,canAfford,onBuy) {
         Text(mercenary.name,fontSize = Typography.titleLarge.fontSize)
-        Text("Cost: ${mercenary.cost} coins", color = if (canAfford) Color.Black  else Color.Red)
         Text("Power:${mercenary.power}")
     }
 }
+
+
+
 
 

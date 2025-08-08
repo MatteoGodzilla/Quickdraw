@@ -256,7 +256,7 @@ async def buyBullets(request: BuyRequest):
     getBullet = select(Bullet,PlayerBullet).where(
          and_(
               PlayerBullet.idPlayer==playerInfo.id,
-              Bullet.type==bulletInfo[0].type
+              PlayerBullet.idBullet==bulletInfo[0].type
         )
     )
 
