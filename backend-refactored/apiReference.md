@@ -62,7 +62,8 @@ QUESTE API SONO DESIGNATE PER CREARE MODIFICHE INCREMENTALI NELL'APPLICATIVO MOB
     id:number,
     name:string,
     requiredTime:number,
-    startTime:number
+    startTime:number,
+    mercenaries:[]
 }]
 
 ### /contracts/available/

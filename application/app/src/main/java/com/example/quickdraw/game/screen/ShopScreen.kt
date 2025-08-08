@@ -27,39 +27,43 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository) {
 
     //collectable states
     val playerState = repository.player.collectAsState()
+    val bullets = repository.shopBullets.collectAsState()
+    val weapons = repository.shopWeapons.collectAsState()
+    val medikits = repository.shopMedikits.collectAsState()
+    val upgrades = repository.shopUpgrades.collectAsState()
 
     BasicScreen("Shop", controller, listOf(
         ContentTab("Weapons"){
-            if(repository.shopWeapons.isNotEmpty()){
+            if(weapons.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
-                    for (w in repository.shopWeapons){
+                    for (w in weapons.value){
                         WeaponEntryShop(w,{},playerState.value!!.money>=w.cost)
                     }
                 }
             }
         },
         ContentTab("Bullets"){
-            if(repository.shopBullets.isNotEmpty()){
+            if(bullets.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
-                    for (w in repository.shopBullets){
+                    for (w in bullets.value){
                         BulletShopEntry(w,{},playerState.value!!.money>=w.cost)
                     }
                 }
             }
         },
         ContentTab("Medikits"){
-            if(repository.shopMedikits.isNotEmpty()){
+            if(medikits.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
-                    for (w in repository.shopMedikits){
+                    for (w in medikits.value){
                         MedikitEntryShop(w,{},playerState.value!!.money>=w.cost)
                     }
                 }
             }
         },
         ContentTab("Upgrades"){
-            if(repository.shopUpgrades.isNotEmpty()){
+            if(upgrades.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
-                    for (w in repository.shopUpgrades){
+                    for (w in upgrades.value){
                         UpgradeEntryShop(w,{},playerState.value!!.money>=w.cost)
                     }
                 }

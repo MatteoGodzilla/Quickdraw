@@ -76,13 +76,13 @@ class GameRepository(
     var availableContracts: MutableStateFlow<List<AvailableContract>> = MutableStateFlow<List<AvailableContract>>(listOf())
         private set
     //Shop
-    var shopWeapons: List<ShopWeapon> = listOf()
+    var shopWeapons: MutableStateFlow<List<ShopWeapon>> = MutableStateFlow<List<ShopWeapon>>(listOf())
         private set
-    var shopBullets: List<ShopBullet> = listOf()
+    var shopBullets: MutableStateFlow<List<ShopBullet>> = MutableStateFlow<List<ShopBullet>>(listOf())
         private set
-    var shopMedikits: List<ShopMedikit> = listOf()
+    var shopMedikits: MutableStateFlow<List<ShopMedikit>> = MutableStateFlow<List<ShopMedikit>>(listOf())
         private set
-    var shopUpgrades: List<ShopUpgrade> = listOf()
+    var shopUpgrades: MutableStateFlow<List<ShopUpgrade>> = MutableStateFlow<List<ShopUpgrade>>(listOf())
         private set
     //Bounty board
     var friendLeaderboard: List<LeaderboardEntry> = listOf()
@@ -165,19 +165,19 @@ class GameRepository(
     }
 
     suspend fun getShopWeapons() = runIfAuthenticated { auth ->
-        shopWeapons = getShopWeaponsAPI(auth)
+        shopWeapons.update{x->getShopWeaponsAPI(auth)}
     }
 
     suspend fun getShopBullets() = runIfAuthenticated { auth ->
-        shopBullets = getShopBulletsAPI(auth)
+        shopBullets.update{x->getShopBulletsAPI(auth)}
     }
 
     suspend fun getShopMedikits() = runIfAuthenticated { auth ->
-        shopMedikits = getShopMedikitsAPI(auth)
+        shopMedikits.update{x->getShopMedikitsAPI(auth)}
     }
 
     suspend fun getShopUpgrades() = runIfAuthenticated { auth ->
-        shopUpgrades = getShopUpgradesAPI(auth)
+        shopUpgrades.update{x->getShopUpgradesAPI(auth)}
     }
 
     suspend fun getFriendLeaderboard() = runIfAuthenticated { auth ->
