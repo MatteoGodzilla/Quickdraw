@@ -46,6 +46,9 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository,callba
     val possessedMedikits = repository.medikits.collectAsState()
     val possessedUpgrades = repository.upgrades.collectAsState()
 
+    //for money
+    val player = repository.player.collectAsState()
+
     BasicScreen("Shop", controller, listOf(
         ContentTab("Weapons"){
             if(weapons.value.isNotEmpty()){
@@ -84,5 +87,5 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository,callba
                 }
             }
         }
-    ))
+    ), money = player.value!!.money)
 }

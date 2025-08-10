@@ -232,12 +232,13 @@ class GameRepository(
     suspend fun employMercenary(mercenary: HireableMercenary) = runIfAuthenticated { auth ->
         val response = employMercenaryAPI(auth, mercenary = mercenary)
         if(response.idEmployment!=-1){
+            //mercenary update data
             hireableMercenaries.update{x->hireableMercenaries.value.filter { merc -> merc.id != mercenary.id }}
-            val newEmploy = EmployedMercenary(response.idEmployment,
-                mercenary.name,
-                mercenary.power)
+            val newEmploy = EmployedMercenary(response.idEmployment,mercenary.name, mercenary.power)
             playerEmployedMercenaries.update{x->x+newEmploy}
             unAssignedMercenaries.update {x->x+newEmploy}
+            //player balance update data
+            player.update { x->x!!.copy(money = x.money-mercenary.cost) }
         }
     }
 

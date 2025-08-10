@@ -37,6 +37,7 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
     val medikits = repository.medikits.collectAsState()
     val upgrades = repository.upgrades.collectAsState()
     val bullets = repository.bullets.collectAsState()
+    val player = repository.player.collectAsState()
 
     BasicScreen("Your Place", controller, listOf(
         ContentTab("Stats") {
@@ -108,7 +109,7 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
         ContentTab("Settings") {
 
         }
-    ))
+    ), money = player.value!!.money)
 }
 
 

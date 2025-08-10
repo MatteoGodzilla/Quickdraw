@@ -180,6 +180,6 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                 }
             }
         }
-    ))
+    ), money = player.value!!.money)
 }
 
