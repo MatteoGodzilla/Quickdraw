@@ -34,6 +34,7 @@ val unavailableMercenaryStatusColor = Color(0xFFE79273)
 //For shop TODO: place this in a correct class
 val lockedShopEntry  = Color(0xFFE1D6AB)
 val shopEntry = Color(0XFFf7f1d0)
+val fulledEntry = Color(0xFF217009)
 
 class ProgressBarColors() {
     companion object {

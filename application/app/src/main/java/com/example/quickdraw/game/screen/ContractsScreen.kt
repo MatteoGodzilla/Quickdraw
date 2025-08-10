@@ -1,12 +1,15 @@
 package com.example.quickdraw.game.screen
 
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -19,9 +22,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.quickdraw.R
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.network.data.ActiveContract
@@ -94,39 +100,65 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                     }
                 }
                 else{
-                    Row(modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ){
-                        Text("Select mercenaries",
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 15.dp),
-                            fontSize = Typography.titleLarge.fontSize,
-                            textAlign = TextAlign.Center
-                        )
-                    }
-
+                        Box(modifier = Modifier.fillMaxWidth(),
+                            contentAlignment = Alignment.Center
+                        ){
+                            Button(
+                                modifier = Modifier.padding(horizontal = 10.dp)
+                                    .align(Alignment.CenterStart),
+                                onClick = {selectedContractState.update { x->-1 }
+                                    selectedMercenariesState.update { x->listOf() }
+                                }) {
+                                Icon(
+                                    imageVector = ImageVector.vectorResource(R.drawable.home_24px),
+                                    "",
+                                    tint = Color.Black,
+                                )
+                            }
+                            Text("Select mercenaries",
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 15.dp).align(Alignment.Center),
+                                fontSize = Typography.titleLarge.fontSize,
+                                textAlign = TextAlign.Center,
+                            )
+                        }
 
                     val selected = availableContracts.value.filter { x->x.id == selectedContract.value }
                     if(selected.isEmpty()){
                         selectedContractState.update { x->-1 }
                     }
                     else{
-                        //Display available mercenaries
+                        //Data
                         val currentContract = selected.first()
                         val notTooMany = selectedMercenaries.value.size<=currentContract.maxMercenaries
                         val atLeastOne = selectedMercenaries.value.isNotEmpty()
+                        var successRate = 100.0
+                        if(currentContract.requiredPower>0){
+                            successRate =
+                                kotlin.math.round((selectedMercenaries.value.sumOf { x -> x.second }
+                                    .toDouble() / (currentContract.requiredPower).toDouble()) * 100)
+                                    .coerceAtMost(100.0)
+                        }
+
+                        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally) {
+
+                            Text("Start cost:${currentContract.startCost}", fontSize = Typography.bodyLarge.fontSize )
+                            Text("Completion time:${currentContract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
+                            Text("Chance of success:${successRate}%", fontSize = Typography.bodyLarge.fontSize)
+                            Text("Selected :${selectedMercenaries.value.size}/${currentContract.maxMercenaries} mercenaries"
+                                , fontSize = Typography.bodyLarge.fontSize, color = if(notTooMany) Color.Black else Color.Red)
+                        }
+
+                        //display mercenaries
+                        HorizontalDivider()
                         for(merc in unassigned){
                             val checkBoxSelectable = selectedMercenaries.value.any{x->x.first==merc.idEmployment} || selectedMercenaries.value.size<currentContract.maxMercenaries
                             AssignableMercenary(merc,selectedMercenariesState,checkBoxSelectable)
                         }
 
                         Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)){
-                            Button(modifier = Modifier.padding(horizontal = 10.dp),
-                                onClick = {selectedContractState.update { x->-1 }
-                                    selectedMercenariesState.update { x->listOf() }
-                                }) {
-                                Text("Cancel")
-                            }
-                            Spacer(modifier = Modifier.weight(0.5f))
+
+                            Spacer(modifier = Modifier.weight(0.5f).fillMaxWidth())
                             Button(enabled = notTooMany && atLeastOne,
                                 modifier = Modifier.padding(horizontal = 10.dp),
                                 onClick = {
@@ -134,23 +166,9 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                                     selectedMercenariesState.update { x->listOf() }
                                     selectedContractState.update { x->-1 }
                                 }) {
-                                Text("Start contract")
+                                Text("Start contract", textAlign = TextAlign.Center,
+                                    modifier= Modifier.fillMaxWidth())
                             }
-                        }
-                        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally) {
-                            var successRate = 100.0
-                            if(currentContract.requiredPower>0){
-                                successRate =
-                                    kotlin.math.round((selectedMercenaries.value.sumOf { x -> x.second }
-                                        .toDouble() / (currentContract.requiredPower).toDouble()) * 100)
-                                        .coerceAtMost(100.0)
-                            }
-                            Text("Start cost:${currentContract.startCost}", fontSize = Typography.bodyLarge.fontSize )
-                            Text("Completion time:${currentContract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
-                            Text("Chance of success:${successRate}%", fontSize = Typography.bodyLarge.fontSize)
-                            Text("Selected :${selectedMercenaries.value.size}/${currentContract.maxMercenaries} mercenaries"
-                                , fontSize = Typography.bodyLarge.fontSize, color = if(notTooMany) Color.Black else Color.Red)
                         }
 
                     }

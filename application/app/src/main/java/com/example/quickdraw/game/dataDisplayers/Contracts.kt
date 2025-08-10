@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,7 +52,7 @@ fun ActiveContract(contract: ActiveContract, timeSeconds: Long, onRedeemClick: (
         val elapsed = timeSeconds - contract.startTime
         val timeRemaining = contract.requiredTime - elapsed
         Column {
-            Text("${contract.activeId} ${contract.name}", fontSize = Typography.titleLarge.fontSize)
+            Text(contract.name, fontSize = Typography.titleLarge.fontSize)
             if(timeRemaining > 0){
                 Text("Time remaining: ${timeRemaining}s")
             } else {
@@ -167,4 +168,5 @@ fun AssignableMercenary(mercenary: EmployedMercenary,stateArray: MutableStateFlo
             , checked = checked
         )
     }
+    HorizontalDivider()
 }

@@ -25,6 +25,7 @@ import com.example.quickdraw.network.data.ShopMedikit
 import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
 import com.example.quickdraw.ui.theme.Typography
+import com.example.quickdraw.ui.theme.fulledEntry
 
 
 @Composable
@@ -61,7 +62,7 @@ fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit, purchasable:Boolean=tru
     BasicShopEntry(bullet.cost,purchasable,onBuy) {
         Text(bullet.name, fontSize = Typography.titleLarge.fontSize)
         Text("${bullet.quantity} pieces per purchase")
-        Text("Your possession: ${possessedAmount}/${bullet.capacity}",color = if(possessedAmount==bullet.capacity) Color.Red else Color.Black)
+        Text("Your possession: ${possessedAmount}/${bullet.capacity}",color = if(possessedAmount==bullet.capacity) fulledEntry else Color.Black)
     }
 }
 
@@ -71,7 +72,7 @@ fun MedikitEntryShop(medikit: ShopMedikit, onBuy: ()->Unit, purchasable:Boolean=
         Text(medikit.description, fontSize = Typography.titleLarge.fontSize)
         Text("Heals ${medikit.healthRecover} per use")
         Text("${medikit.quantity} pieces per purchase")
-        Text("Your possession: ${possessedAmount}/${medikit.capacity}",color = if(possessedAmount==medikit.capacity) Color.Red else Color.Black)
+        Text("Your possession: ${possessedAmount}/${medikit.capacity}",color = if(possessedAmount==medikit.capacity) fulledEntry else Color.Black)
     }
 }
 
