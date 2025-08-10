@@ -21,7 +21,8 @@ data class InventoryMedikit(
     val healthRecover: Int,
     val description: String,
     val amount: Int,
-    val capacity: Int
+    val capacity: Int,
+    val id:Int
 )
 @Serializable
 data class InventoryUpgrade(

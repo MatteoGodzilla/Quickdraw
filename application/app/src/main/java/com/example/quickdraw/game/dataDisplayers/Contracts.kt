@@ -72,7 +72,7 @@ fun ActiveContract(contract: ActiveContract, timeSeconds: Long, onRedeemClick: (
 }
 
 @Composable
-fun AvailableContract(contract: AvailableContract, onStartButton: ()->Unit){
+fun AvailableContract(contract: AvailableContract, onStartButton: ()->Unit,startable:Boolean=true){
     Row (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -86,7 +86,8 @@ fun AvailableContract(contract: AvailableContract, onStartButton: ()->Unit){
         }
         Button(
             onClick = onStartButton,
-            modifier = Modifier.width(72.dp).height(72.dp)
+            modifier = Modifier.width(72.dp).height(72.dp),
+            enabled = startable
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),

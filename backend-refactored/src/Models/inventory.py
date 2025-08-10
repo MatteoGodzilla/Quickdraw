@@ -12,6 +12,7 @@ class InventoryResponseMedkit(BaseModel):
     description:str
     capacity:int
     amount:int
+    id:int
 
 class InventoryResponseUpgrade(BaseModel):
     idUpgrade:int

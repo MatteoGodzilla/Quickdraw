@@ -11,7 +11,7 @@ from sqlalchemy import and_, or_, func, join
 from sqlmodel import Session, select
 from starlette.status import *
 
-from Models.shop import BuyBulletResponse
+from Models.shop import BuyBulletResponse, BuyMedikitResponse
 
 session = SessionManager.global_session
 
@@ -289,4 +289,94 @@ async def buyBullets(request: BuyRequest):
     
          
 
+@router.post("/medikits/buy")
+async def buyMedikit(request: BuyRequest):
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken,session)
+    if obtain_player[SUCCESS] == False:
+            return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+    obtain_medikit = select(Medikit,MedikitShop).where(
+         and_(
+              MedikitShop.id == request.id,
+              MedikitShop.idMedikit == Medikit.id
+         )
+    )
+
+    result = session.exec(obtain_medikit)
+    medikitInfo = result.first()
+
+    #medikit does not exist
+    if medikitInfo == None or medikitInfo[1]==None:
+        return JSONResponse(
+            status_code = HTTP_406_NOT_ACCEPTABLE,
+            content={"message":"Required medikit sale does not exist"}
+        )
     
+    playerInfo = getPlayerData(player,session)
+    if playerInfo[SUCCESS] == False:
+        return JSONResponse(
+            status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message":"Could not find player data"}
+        )
+    
+    #too expensive 
+    playerInfo:Player = playerInfo[PLAYER]
+    if medikitInfo[1].cost > playerInfo.money:
+        return JSONResponse(
+            status_code = HTTP_402_PAYMENT_REQUIRED,
+            content={"message":"Insuffucient founds"}
+        )
+    
+    #check if player already has bullet or not
+    getMedikit = select(Medikit,PlayerMedikit).where(
+         and_(
+              PlayerMedikit.idPlayer==playerInfo.id,
+              PlayerMedikit.idMediKit==medikitInfo[0].id
+        )
+    )
+
+    result = session.exec(getMedikit)
+    medikitPlayer = result.first()
+
+    #case 1: player does not already own medikit:
+    if medikitPlayer==None:
+        try:
+            playerInfo.money-=medikitInfo[1].cost
+            playerRow = PlayerMedikit(idPlayer=player.idPlayer,idMediKit=medikitInfo[1].idMedikit,amount=medikitInfo[1].quantity)
+            session.add(playerRow)
+            session.commit()
+        except:
+            session.rollback()
+            return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR,content={"message":"error while doing purchase"})
+    #case 2: player is not buying for the first time
+    else:
+        try:
+            playerInfo.money-=medikitInfo[1].cost
+            medikitPlayer[1].amount = min(medikitPlayer[1].amount+medikitPlayer[1].amount,medikitPlayer[0].capacity)
+            session.commit()
+        except Exception as e:
+            session.rollback()
+            return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR,content={"message":"error while doing purchase"})
+
+
+    response = BuyMedikitResponse(
+        id = medikitInfo[1].id,
+        idMedikit=medikitInfo[1].idMedikit,
+        description=medikitInfo[0].description,
+        healthRecover=medikitInfo[0].healthRecover,
+        cost = medikitInfo[1].cost,
+        quantity=medikitInfo[1].quantity,
+        capacity=medikitInfo[0].capacity
+    )
+    return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))

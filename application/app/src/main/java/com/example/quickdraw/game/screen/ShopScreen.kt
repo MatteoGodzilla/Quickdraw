@@ -15,6 +15,7 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.game.GameRepository
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
+import com.example.quickdraw.game.components.HorizontalSeparator
 import com.example.quickdraw.game.dataDisplayers.ActiveContract
 import com.example.quickdraw.game.dataDisplayers.BulletShopEntry
 import com.example.quickdraw.game.dataDisplayers.MedikitEntryShop
@@ -24,10 +25,12 @@ import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
+import com.example.quickdraw.network.data.ShopMedikit
 import kotlinx.coroutines.delay
 
 interface ShopCallbacks {
     fun onBuyBullet(toBuy: ShopBullet)
+    fun onBuyMedikit(toBuy: ShopMedikit)
 }
 
 @Composable
@@ -51,6 +54,7 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository,callba
 
     BasicScreen("Shop", controller, listOf(
         ContentTab("Weapons"){
+            HorizontalSeparator()
             if(weapons.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
                     for (w in weapons.value){
@@ -60,29 +64,36 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository,callba
             }
         },
         ContentTab("Bullets"){
+            HorizontalSeparator()
             if(bullets.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
                     for (w in bullets.value){
                         val possessed = if(!possessedBullets.value.any{x->x.type==w.type}) 0 else possessedBullets.value.first { x -> x.type == w.type }.amount
-                        BulletShopEntry(w,{callbacks.onBuyBullet(w)},playerState.value!!.money>=w.cost,possessed)
+                        BulletShopEntry(w,{callbacks.onBuyBullet(w)},
+                            playerState.value!!.money>=w.cost && possessed<w.capacity,possessed)
                     }
                 }
             }
         },
         ContentTab("Medikits"){
+            HorizontalSeparator()
             if(medikits.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
                     for (w in medikits.value){
-                        MedikitEntryShop(w,{},playerState.value!!.money>=w.cost)
+                        val possessed = if(!possessedMedikits.value.any{x->x.id==w.idMedikit}) 0 else possessedMedikits.value.first { x -> x.id == w.idMedikit }.amount
+                        MedikitEntryShop(w,{callbacks.onBuyMedikit(w)},
+                            playerState.value!!.money>=w.cost && possessed < w.capacity,possessed)
                     }
                 }
             }
         },
         ContentTab("Upgrades"){
+            HorizontalSeparator()
             if(upgrades.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
                     for (w in upgrades.value){
-                        UpgradeEntryShop(w,{},playerState.value!!.money>=w.cost)
+                        UpgradeEntryShop(w,{},
+                            playerState.value!!.money>=w.cost)
                     }
                 }
             }

@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.TAG
 import com.example.quickdraw.network.api.buyBulletsAPI
+import com.example.quickdraw.network.api.buyMedikitAPI
 import com.example.quickdraw.network.api.employMercenaryAPI
 import com.example.quickdraw.network.api.getActiveContractsAPI
 import com.example.quickdraw.network.api.getAllPlayerMercenariesAPI
@@ -196,6 +197,26 @@ class GameRepository(
                     description = bullet.name,
                     amount=bullet.quantity,
                     capacity = bullet.capacity)
+                }
+            }
+        }
+    }
+
+    suspend fun buyMedikit(medikit: ShopMedikit) = runIfAuthenticated { auth->
+        val response = buyMedikitAPI(BuyRequest(id=medikit.id, authToken = auth))
+        if(response!=null){
+            player.update { x->x!!.copy(money=x.money-medikit.cost) }
+            if(medikits.value.any{x->x.id==medikit.idMedikit}){
+                medikits.update { x->x.map{y->
+                    if(y.id!=medikit.idMedikit) y.copy()
+                    else y.copy(amount=kotlin.math.min(y.amount+medikit.quantity,medikit.capacity))} }
+            }
+            else{
+                medikits.update { x->x+ InventoryMedikit(healthRecover = medikit.healthRecover,
+                    description = medikit.description,
+                    amount=medikit.quantity,
+                    capacity = medikit.capacity,
+                    id=medikit.idMedikit)
                 }
             }
         }

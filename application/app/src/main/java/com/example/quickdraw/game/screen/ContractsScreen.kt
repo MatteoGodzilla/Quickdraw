@@ -87,9 +87,10 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
             ){
                 if(selectedContract.value == -1){
                     for(contract in availableContracts.value){
-                        AvailableContract(contract){
-                            selectedContractState.update { x->contract.id }
-                        }
+                        AvailableContract(contract,
+                            {selectedContractState.update { x->contract.id }},
+                            player.value!!.money >= contract.startCost
+                        )
                     }
                 }
                 else{
