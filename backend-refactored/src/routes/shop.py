@@ -11,7 +11,7 @@ from sqlalchemy import and_, or_, func, join
 from sqlmodel import Session, select
 from starlette.status import *
 
-from Models.shop import BuyBulletResponse, BuyMedikitResponse
+from Models.shop import *
 
 session = SessionManager.global_session
 
@@ -378,5 +378,88 @@ async def buyMedikit(request: BuyRequest):
         cost = medikitInfo[1].cost,
         quantity=medikitInfo[1].quantity,
         capacity=medikitInfo[0].capacity
+    )
+    return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))
+
+
+@router.post("/weapons/buy")
+async def buyWeapon(request: BuyRequest):
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken,session)
+    if obtain_player[SUCCESS] == False:
+            return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+    obtain_weapon = select(Weapon).where(
+         and_(
+              Weapon.id == request.id
+         )
+    )
+
+    result = session.exec(obtain_weapon)
+    weaponInfo = result.first()
+
+    #weapon does not exist
+    if weaponInfo==None:
+        return JSONResponse(
+            status_code = HTTP_406_NOT_ACCEPTABLE,
+            content={"message":"Required weapon sale does not exist"}
+        )
+    
+    playerInfo = getPlayerData(player,session)
+    if playerInfo[SUCCESS] == False:
+        return JSONResponse(
+            status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message":"Could not find player data"}
+        )
+    
+    #too expensive 
+    playerInfo:Player = playerInfo[PLAYER]
+    if weaponInfo.cost > playerInfo.money:
+        return JSONResponse(
+            status_code = HTTP_402_PAYMENT_REQUIRED,
+            content={"message":"Insuffucient founds"}
+        )
+    
+    #check if player already has bullet or not
+    getWeapon = select(Weapon,PlayerWeapon).where(
+         and_(
+              PlayerWeapon.idWeapon==weaponInfo.id,
+              PlayerWeapon.idPlayer==player.idPlayer
+        )
+    )
+
+    result = session.exec(getWeapon)
+    weaponPlayer = result.first()
+
+    #case 1: player does not already own weapon:
+    if weaponPlayer==None:
+        try:
+            playerInfo.money-=weaponInfo.cost
+            playerRow = PlayerWeapon(idPlayer=player.idPlayer,idWeapon=weaponInfo.id)
+            session.add(playerRow)
+            session.commit()
+        except:
+            session.rollback()
+            return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR,content={"message":"error while doing purchase"})
+    #case 2: player already owns weapon,not allowed
+    else:
+        return JSONResponse(status_code=HTTP_406_NOT_ACCEPTABLE,content={"message":"Player already owns the weapon"})
+
+
+    response = BuyWeaponResponse(
+        id = weaponInfo.id,
+        name = weaponInfo.name,
+        damage= weaponInfo.damage,
+        cost = weaponInfo.cost
     )
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))

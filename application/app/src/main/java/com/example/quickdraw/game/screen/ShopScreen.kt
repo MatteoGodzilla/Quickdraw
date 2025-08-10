@@ -26,11 +26,13 @@ import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
+import com.example.quickdraw.network.data.ShopWeapon
 import kotlinx.coroutines.delay
 
 interface ShopCallbacks {
     fun onBuyBullet(toBuy: ShopBullet)
     fun onBuyMedikit(toBuy: ShopMedikit)
+    fun onBuyWeapon(toBuy: ShopWeapon)
 }
 
 @Composable
@@ -58,7 +60,9 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository,callba
             if(weapons.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
                     for (w in weapons.value){
-                        WeaponEntryShop(w,{},playerState.value!!.money>=w.cost)
+                        WeaponEntryShop(w,{
+                            callbacks.onBuyWeapon(w)
+                        },playerState.value!!.money>=w.cost)
                     }
                 }
             }

@@ -7,6 +7,7 @@ import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.TAG
 import com.example.quickdraw.network.api.buyBulletsAPI
 import com.example.quickdraw.network.api.buyMedikitAPI
+import com.example.quickdraw.network.api.buyWeaponAPI
 import com.example.quickdraw.network.api.employMercenaryAPI
 import com.example.quickdraw.network.api.getActiveContractsAPI
 import com.example.quickdraw.network.api.getAllPlayerMercenariesAPI
@@ -219,6 +220,15 @@ class GameRepository(
                     id=medikit.idMedikit)
                 }
             }
+        }
+    }
+
+    suspend fun buyWeapon(weapon: ShopWeapon) = runIfAuthenticated { auth->
+        val response = buyWeaponAPI(BuyRequest(id=weapon.id, authToken = auth))
+        if(response!=null){
+            player.update { x->x!!.copy(money=x.money-weapon.cost) }
+            shopWeapons.update { x->x.filter { y->y.id!=weapon.id } }
+            weapons.update { x->x+ InventoryWeapon(weapon.name,weapon.damage,weapon.cost,1) }
         }
     }
 

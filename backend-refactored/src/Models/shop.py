@@ -17,3 +17,18 @@ class BuyMedikitResponse(BaseModel):
     cost: int
     quantity: int
     capacity: int
+
+
+class BuyWeaponResponse(BaseModel):
+    id: int
+    name: str
+    damage: int
+    cost: int
+
+
+class BuyUpgradeResponse(BaseModel):
+    id: int
+    type: int
+    description: str
+    level: int
+    cost: int

@@ -34,6 +34,7 @@ import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.MercenaryHireable
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
+import com.example.quickdraw.network.data.ShopWeapon
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -87,14 +88,16 @@ class GameActivity : ComponentActivity() {
                     ShopScreen(controller, repository,object : ShopCallbacks{
                         override fun onBuyBullet(toBuy: ShopBullet) {
                             lifecycleScope.launch {
-                                LoadingScreenViewManager.showLoading()
                                 repository.buyBullet(toBuy)
-                                LoadingScreenViewManager.hideLoading()
                             }
                         }
 
                         override fun onBuyMedikit(toBuy: ShopMedikit) {
                             lifecycleScope.launch { repository.buyMedikit(toBuy) }
+                        }
+
+                        override fun onBuyWeapon(toBuy: ShopWeapon) {
+                            lifecycleScope.launch { repository.buyWeapon(toBuy) }
                         }
                     })
                 }
