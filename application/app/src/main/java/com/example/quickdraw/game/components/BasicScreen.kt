@@ -33,6 +33,7 @@ fun BasicScreen(
 ){
     val selectedTab = remember { mutableIntStateOf(0) }
     QuickdrawTheme {
+
         Scaffold (
             topBar = {
                 CenterAlignedTopAppBar(
@@ -41,7 +42,6 @@ fun BasicScreen(
                         MoneyDisplayer(money)
                     }
                 )
-
             },
             bottomBar = { BottomNavBar(navigation = controller) },
         ) { padding ->

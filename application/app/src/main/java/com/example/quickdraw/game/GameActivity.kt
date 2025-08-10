@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.lifecycle.lifecycleScope
@@ -26,6 +27,7 @@ import com.example.quickdraw.game.screen.MainScreen
 import com.example.quickdraw.game.screen.ShopCallbacks
 import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
+import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
 import com.example.quickdraw.network.api.buyBulletsAPI
 import com.example.quickdraw.network.api.toRequestBody
 import com.example.quickdraw.network.data.HireableMercenary
@@ -47,6 +49,8 @@ class GameNavigation {
     @Serializable
     object Contracts
 }
+
+
 
 class GameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -75,13 +79,18 @@ class GameActivity : ComponentActivity() {
 
         setContent {
             val controller = rememberNavController()
+            val isLoading by LoadingScreenViewManager.isLoading
 
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
                 composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository) }
                 composable<GameNavigation.Shop> {
                     ShopScreen(controller, repository,object : ShopCallbacks{
                         override fun onBuyBullet(toBuy: ShopBullet) {
-                            lifecycleScope.launch { repository.buyBullet(toBuy) }
+                            lifecycleScope.launch {
+                                LoadingScreenViewManager.showLoading()
+                                repository.buyBullet(toBuy)
+                                LoadingScreenViewManager.hideLoading()
+                            }
                         }
 
                         override fun onBuyMedikit(toBuy: ShopMedikit) {
@@ -127,7 +136,11 @@ class GameActivity : ComponentActivity() {
                         }
 
                         override fun onHireMercenary(hireable: HireableMercenary) {
-                            lifecycleScope.launch { repository.employMercenary(hireable) }
+                            lifecycleScope.launch {
+                                LoadingScreenViewManager.showLoading()
+                                repository.employMercenary(hireable)
+                                LoadingScreenViewManager.hideLoading()
+                            }
                         }
                     })
                 }
