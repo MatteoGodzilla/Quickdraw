@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
+import androidx.compose.material3.Divider
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -35,7 +37,7 @@ import java.nio.file.WatchEvent
 @Composable
 fun BasicShopEntry(price:Int,canAfford: Boolean, action:()->Unit, populateShopEntry: @Composable ()->Unit){
     Row (
-        modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
@@ -58,26 +60,29 @@ fun BasicShopEntry(price:Int,canAfford: Boolean, action:()->Unit, populateShopEn
             }
         }
     }
+    HorizontalDivider(
+        modifier = Modifier.fillMaxWidth().padding(all=0.dp),
+        thickness = 2.dp,
+        color=Color.Black
+    )
 }
 
 @Composable
-fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit,canAfford:Boolean=true){
+fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit,canAfford:Boolean=true,possessedAmount:Int = 0){
     BasicShopEntry(bullet.cost,canAfford,onBuy) {
         Text(bullet.name, fontSize = Typography.titleLarge.fontSize)
-        Text("Cost: ${bullet.cost} coins", color = if (canAfford) Color.Black  else Color.Red)
         Text("${bullet.quantity} pieces per purchase")
-        Text("You can have a maximum of ${bullet.capacity} pieces")
+        Text("Your possession: ${possessedAmount}/${bullet.capacity}",color = if(possessedAmount==bullet.capacity) Color.Red else Color.Black)
     }
 }
 
 @Composable
-fun MedikitEntryShop(medikit: ShopMedikit, onBuy: ()->Unit,canAfford:Boolean=true){
+fun MedikitEntryShop(medikit: ShopMedikit, onBuy: ()->Unit,canAfford:Boolean=true,possessedAmount:Int = 0){
     BasicShopEntry(medikit.cost,canAfford,onBuy) {
         Text(medikit.description, fontSize = Typography.titleLarge.fontSize)
         Text("Heals ${medikit.healthRecover} per use")
-        Text("Cost: ${medikit.cost} coins", color = if (canAfford) Color.Black  else Color.Red)
         Text("${medikit.quantity} pieces per purchase")
-        Text("You can use this a maximum of ${medikit.capacity} times")
+        Text("Your possession: ${possessedAmount}/${medikit.capacity}",color = if(possessedAmount==medikit.capacity) Color.Red else Color.Black)
     }
 }
 
@@ -92,9 +97,8 @@ fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit,canAfford:Boolean=true){
 @Composable
 fun UpgradeEntryShop(upgrade: ShopUpgrade, onBuy: ()->Unit,canAfford:Boolean=true){
     BasicShopEntry(upgrade.cost,canAfford,onBuy) {
-        Text("Upgrade type:${upgrade.type}",fontSize = Typography.titleLarge.fontSize)
+        Text(upgrade.description,fontSize = Typography.titleLarge.fontSize)
         Text("Level ${upgrade.level}")
-        Text(upgrade.description)
     }
 }
 

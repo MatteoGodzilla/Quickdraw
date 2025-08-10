@@ -33,12 +33,18 @@ interface ShopCallbacks {
 @Composable
 fun ShopScreen (controller: NavHostController, repository: GameRepository,callbacks: ShopCallbacks) {
 
-    //collectable states
+    //collectable states for shop
     val playerState = repository.player.collectAsState()
     val bullets = repository.shopBullets.collectAsState()
     val weapons = repository.shopWeapons.collectAsState()
     val medikits = repository.shopMedikits.collectAsState()
     val upgrades = repository.shopUpgrades.collectAsState()
+
+    //collectable states for inventory (needed for showing possessed vs max capacity
+    val possessedBullets = repository.bullets.collectAsState()
+    val possessedWeapons = repository.weapons.collectAsState()
+    val possessedMedikits = repository.medikits.collectAsState()
+    val possessedUpgrades = repository.upgrades.collectAsState()
 
     BasicScreen("Shop", controller, listOf(
         ContentTab("Weapons"){
@@ -54,7 +60,8 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository,callba
             if(bullets.value.isNotEmpty()){
                 Column (modifier = Modifier.padding(it)){
                     for (w in bullets.value){
-                        BulletShopEntry(w,{callbacks.onBuyBullet(w)},playerState.value!!.money>=w.cost)
+                        val possessed = if(!possessedBullets.value.any{x->x.type==w.type}) 0 else possessedBullets.value.first { x -> x.type == w.type }.amount
+                        BulletShopEntry(w,{callbacks.onBuyBullet(w)},playerState.value!!.money>=w.cost,possessed)
                     }
                 }
             }
