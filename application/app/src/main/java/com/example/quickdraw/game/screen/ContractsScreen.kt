@@ -32,7 +32,7 @@ import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
-import com.example.quickdraw.game.GameRepository
+import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.dataDisplayers.*
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.ui.theme.Typography
@@ -50,10 +50,10 @@ interface ContractsCallbacks {
 @Composable
 fun ContractsScreen (controller: NavHostController, repository: GameRepository, callbacks: ContractsCallbacks) {
     //mutable states for mercenaries
-    val unassigned by repository.unAssignedMercenaries.collectAsState()
-    val employedAll by repository.playerEmployedMercenaries.collectAsState()
-    val hireable by repository.hireableMercenaries.collectAsState()
-    val unlockable by repository.nextUnlockablesMercenaries.collectAsState()
+    val unassigned by repository.mercenaries.unAssigned.collectAsState()
+    val employedAll by repository.mercenaries.playerEmployed.collectAsState()
+    val hireable by repository.mercenaries.hireable.collectAsState()
+    val unlockable by repository.mercenaries.nextUnlockables.collectAsState()
 
     //mutable states for contracts starting (selectedMercenariesState pair is id and power)
     val selectedContractState = MutableStateFlow(-1)
@@ -62,11 +62,11 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
     val selectedMercenaries = selectedMercenariesState.collectAsState()
 
     //mutable states for contracts
-    val activeContracts = repository.activeContracts.collectAsState()
-    val availableContracts = repository.availableContracts.collectAsState()
+    val activeContracts = repository.contracts.active.collectAsState()
+    val availableContracts = repository.contracts.available.collectAsState()
 
     //for mercenaries shop
-    val player = repository.player.collectAsState()
+    val player = repository.player.status.collectAsState()
 
     BasicScreen("Contracts", controller, listOf(
         ContentTab("Active"){

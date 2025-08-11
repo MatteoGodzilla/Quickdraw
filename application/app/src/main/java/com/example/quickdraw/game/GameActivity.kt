@@ -5,12 +5,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.modifier.modifierLocalMapOf
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -19,6 +15,7 @@ import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
+import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.ContractsCallbacks
 import com.example.quickdraw.game.screen.ContractsScreen
 import com.example.quickdraw.network.data.ActiveContract
@@ -28,10 +25,7 @@ import com.example.quickdraw.game.screen.ShopCallbacks
 import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
 import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
-import com.example.quickdraw.network.api.buyBulletsAPI
-import com.example.quickdraw.network.api.toRequestBody
 import com.example.quickdraw.network.data.HireableMercenary
-import com.example.quickdraw.network.data.MercenaryHireable
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
 import com.example.quickdraw.network.data.ShopWeapon
@@ -51,8 +45,6 @@ class GameNavigation {
     object Contracts
 }
 
-
-
 class GameActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -61,22 +53,7 @@ class GameActivity : ComponentActivity() {
 
         //TODO: run repository fetch when it changes screen, not just at start
 
-        lifecycleScope.launch {
-            repository.getStatus()
-            repository.getLevels()
-            repository.getInventory()
-            repository.getContracts()
-            repository.getShopWeapons()
-            repository.getShopBullets()
-            repository.getShopMedikits()
-            repository.getShopUpgrades()
-            repository.getFriendLeaderboard()
-            repository.getGlobalLeaderboard()
-            repository.getHireableMercenaries()
-            repository.getNextToUnlockMercenaries()
-            repository.getPlayerEmployedMercenaries()
-            repository.getUnassignedMercenaries()
-        }
+        lifecycleScope.launch { repository.firstLoad() }
 
         setContent {
             val controller = rememberNavController()
@@ -88,16 +65,16 @@ class GameActivity : ComponentActivity() {
                     ShopScreen(controller, repository, object : ShopCallbacks{
                         override fun onBuyBullet(toBuy: ShopBullet) {
                             lifecycleScope.launch {
-                                repository.buyBullet(toBuy)
+                                repository.shop.buyBullet(toBuy)
                             }
                         }
 
                         override fun onBuyMedikit(toBuy: ShopMedikit) {
-                            lifecycleScope.launch { repository.buyMedikit(toBuy) }
+                            lifecycleScope.launch { repository.shop.buyMedikit(toBuy) }
                         }
 
                         override fun onBuyWeapon(toBuy: ShopWeapon) {
-                            lifecycleScope.launch { repository.buyWeapon(toBuy) }
+                            lifecycleScope.launch { repository.shop.buyWeapon(toBuy) }
                         }
                     })
                 }
@@ -110,15 +87,15 @@ class GameActivity : ComponentActivity() {
                 composable<GameNavigation.BountyBoard> {
                     BasicScreen("Bounty Board", controller, listOf(
                         ContentTab("Friends"){
-                            if(repository.friendLeaderboard.isNotEmpty()){
-                                for(entry in repository.friendLeaderboard) {
+                            if(repository.leaderboard.friends.isNotEmpty()){
+                                for(entry in repository.leaderboard.friends) {
                                     Text(entry.toString())
                                 }
                             }
                         },
                         ContentTab("Leaderboard"){
-                            if(repository.globalLeaderboard.isNotEmpty()){
-                                for(entry in repository.globalLeaderboard) {
+                            if(repository.leaderboard.global.isNotEmpty()){
+                                for(entry in repository.leaderboard.global) {
                                     Text(entry.toString())
                                 }
                             }
@@ -128,16 +105,16 @@ class GameActivity : ComponentActivity() {
                 composable<GameNavigation.Contracts> {
                     ContractsScreen(controller, repository, object : ContractsCallbacks {
                         override fun onRedeemContract(activeContract: ActiveContract) {
-                            lifecycleScope.launch { repository.redeemContract(activeContract) }
+                            lifecycleScope.launch { repository.contracts.redeem(activeContract) }
                         }
                         override fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>) {
-                            lifecycleScope.launch { repository.startContract(availableContract,mercenaries) }
+                            lifecycleScope.launch { repository.contracts.start(availableContract,mercenaries) }
                         }
 
                         override fun onHireMercenary(hireable: HireableMercenary) {
                             lifecycleScope.launch {
                                 LoadingScreenViewManager.showLoading()
-                                repository.employMercenary(hireable)
+                                repository.mercenaries.employ(hireable)
                                 LoadingScreenViewManager.hideLoading()
                             }
                         }

@@ -44,8 +44,8 @@ class LoginScreenVM(
             val response = client.newCall(request).execute()
             if(response.code != 200){
                 showInvalidCombo.value = true;
-            } else if(response.body != null) {
-                val responseVal = Json.decodeFromString<LoginResponse>(response.body!!.string())
+            } else {
+                val responseVal = Json.decodeFromString<LoginResponse>(response.body.string())
                 Log.i(TAG, responseVal.toString())
                 dataStore.edit { preferences ->
                     preferences[PrefKeys.authToken] = responseVal.authToken

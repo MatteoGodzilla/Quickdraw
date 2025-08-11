@@ -20,14 +20,14 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
-import com.example.quickdraw.game.GameRepository
+import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.components.BottomNavBar
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
 
 @Composable
-fun MainScreen(controller: NavHostController, repository: GameRepository ,onScan: ()->Unit){
+fun MainScreen(controller: NavHostController, repository: GameRepository, onScan: ()->Unit){
     QuickdrawTheme {
         Scaffold(
             topBar = { TopBar(repository) },

@@ -25,7 +25,7 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
-import com.example.quickdraw.game.GameRepository
+import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.ui.theme.Typography
 
 
@@ -33,11 +33,11 @@ import com.example.quickdraw.ui.theme.Typography
 fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
 
     //stateflows
-    val weapons = repository.weapons.collectAsState()
-    val medikits = repository.medikits.collectAsState()
-    val upgrades = repository.upgrades.collectAsState()
-    val bullets = repository.bullets.collectAsState()
-    val player = repository.player.collectAsState()
+    val weapons = repository.inventory.weapons.collectAsState()
+    val medikits = repository.inventory.medikits.collectAsState()
+    val upgrades = repository.inventory.upgrades.collectAsState()
+    val bullets = repository.inventory.bullets.collectAsState()
+    val player = repository.player.status.collectAsState()
 
     BasicScreen("Your Place", controller, listOf(
         ContentTab("Stats") {
@@ -48,8 +48,8 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
         },
         ContentTab("Inventory") {
                 //Weapons
-                if(weapons.value != null){
-                    CollapsableList(true, "Weapons", weapons.value!!) { weapon ->
+                if(weapons.value.isNotEmpty()){
+                    CollapsableList(true, "Weapons", weapons.value) { weapon ->
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -60,8 +60,8 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                     }
                 }
                 //Bullets
-                if(bullets.value != null){
-                    CollapsableList(true, "Bullets", bullets.value!!) { bullet ->
+                if(bullets.value.isNotEmpty()){
+                    CollapsableList(true, "Bullets", bullets.value) { bullet ->
                         Row(
                             modifier = Modifier.fillMaxWidth().padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -72,8 +72,8 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                     }
                 }
                 //Medikits
-                if(medikits.value != null){
-                    CollapsableList(true, "Medikits", medikits.value!!) { medikit ->
+                if(medikits.value.isNotEmpty()){
+                    CollapsableList(true, "Medikits", medikits.value) { medikit ->
                         Text(
                             medikit.description,
                             fontSize = Typography.titleLarge.fontSize,
@@ -89,8 +89,8 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                     }
                 }
                 //Upgrades
-                if(upgrades.value!= null){
-                    CollapsableList(true, "Upgrades", upgrades.value!!) { upgrade ->
+                if(upgrades.value.isNotEmpty()){
+                    CollapsableList(true, "Upgrades", upgrades.value) { upgrade ->
                         Row (
                             modifier = Modifier.fillMaxWidth().padding(8.dp),
                             verticalAlignment = Alignment.CenterVertically,

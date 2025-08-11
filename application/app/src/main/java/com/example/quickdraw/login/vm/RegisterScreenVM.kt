@@ -48,8 +48,8 @@ class RegisterScreenVM(
             val response = client.newCall(request).execute()
             if(response.code != 200){
                 Log.e("QUICKDRAW", response.code.toString())
-            } else if(response.body != null){
-                val responseVal = Json.decodeFromString<LoginResponse>(response.body!!.string())
+            } else {
+                val responseVal = Json.decodeFromString<LoginResponse>(response.body.string())
                 dataStore.edit { preferences ->
                     preferences[PrefKeys.authToken] = responseVal.authToken
                 }
