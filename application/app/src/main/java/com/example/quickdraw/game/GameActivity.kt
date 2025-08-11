@@ -85,7 +85,7 @@ class GameActivity : ComponentActivity() {
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
                 composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository) }
                 composable<GameNavigation.Shop> {
-                    ShopScreen(controller, repository,object : ShopCallbacks{
+                    ShopScreen(controller, repository, object : ShopCallbacks{
                         override fun onBuyBullet(toBuy: ShopBullet) {
                             lifecycleScope.launch {
                                 repository.buyBullet(toBuy)
@@ -111,19 +111,15 @@ class GameActivity : ComponentActivity() {
                     BasicScreen("Bounty Board", controller, listOf(
                         ContentTab("Friends"){
                             if(repository.friendLeaderboard.isNotEmpty()){
-                                Column (modifier = Modifier.padding(it)){
-                                    for(entry in repository.friendLeaderboard) {
-                                        Text(entry.toString())
-                                    }
+                                for(entry in repository.friendLeaderboard) {
+                                    Text(entry.toString())
                                 }
                             }
                         },
                         ContentTab("Leaderboard"){
                             if(repository.globalLeaderboard.isNotEmpty()){
-                                Column (modifier = Modifier.padding(it)){
-                                    for(entry in repository.globalLeaderboard) {
-                                        Text(entry.toString())
-                                    }
+                                for(entry in repository.globalLeaderboard) {
+                                    Text(entry.toString())
                                 }
                             }
                         }

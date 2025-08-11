@@ -41,15 +41,12 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
 
     BasicScreen("Your Place", controller, listOf(
         ContentTab("Stats") {
-            Text("Main", modifier = Modifier.padding(it))
+            Text("Main")
         },
         ContentTab("Memories") {
-            Text("Memories", modifier = Modifier.padding(it))
+            Text("Memories")
         },
         ContentTab("Inventory") {
-            Column(
-                modifier = Modifier.padding(it)
-            ) {
                 //Weapons
                 if(weapons.value != null){
                     CollapsableList(true, "Weapons", weapons.value!!) { weapon ->
@@ -104,7 +101,6 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository){
                         }
                     }
                 }
-            }
         },
         ContentTab("Settings") {
 

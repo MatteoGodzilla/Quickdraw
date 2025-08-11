@@ -70,135 +70,118 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
 
     BasicScreen("Contracts", controller, listOf(
         ContentTab("Active"){
-            Column (
-                modifier = Modifier.padding(it)
-            ){
-                var timeSeconds by remember { mutableLongStateOf(0L) }
-                for(contract in activeContracts.value){
-                    ActiveContract(contract, timeSeconds) {
-                        callbacks.onRedeemContract(contract)
-                    }
+            var timeSeconds by remember { mutableLongStateOf(0L) }
+            for(contract in activeContracts.value){
+                ActiveContract(contract, timeSeconds) {
+                    callbacks.onRedeemContract(contract)
                 }
-                LaunchedEffect(activeContracts.value) {
-                    while(true){
-                        timeSeconds = System.currentTimeMillis() / 1000
-                        delay(500)
-                    }
+            }
+            LaunchedEffect(activeContracts.value) {
+                while(true){
+                    timeSeconds = System.currentTimeMillis() / 1000
+                    delay(500)
                 }
             }
         },
         ContentTab("Available"){
-            Column (
-                modifier = Modifier.padding(it)
-            ){
-                if(selectedContract.value == -1){
-                    for(contract in availableContracts.value){
-                        AvailableContract(contract,
-                            {selectedContractState.update { x->contract.id }},
-                            player.value!!.money >= contract.startCost
-                        )
-                    }
+            if(selectedContract.value == -1){
+                for(contract in availableContracts.value){
+                    AvailableContract(contract,
+                        {selectedContractState.update { x->contract.id }},
+                        player.value!!.money >= contract.startCost
+                    )
                 }
-                else{
-                        Box(modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
-                        ){
-                            Button(
-                                modifier = Modifier.padding(horizontal = 10.dp)
-                                    .align(Alignment.CenterStart),
-                                onClick = {selectedContractState.update { x->-1 }
-                                    selectedMercenariesState.update { x->listOf() }
-                                }) {
-                                Icon(
-                                    imageVector = ImageVector.vectorResource(R.drawable.home_24px),
-                                    "",
-                                    tint = Color.Black,
-                                )
-                            }
-                            Text("Select mercenaries",
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 15.dp).align(Alignment.Center),
-                                fontSize = Typography.titleLarge.fontSize,
-                                textAlign = TextAlign.Center,
+            } else{
+                    Box(modifier = Modifier.fillMaxWidth(),
+                        contentAlignment = Alignment.Center
+                    ){
+                        Button(
+                            modifier = Modifier.padding(horizontal = 10.dp)
+                                .align(Alignment.CenterStart),
+                            onClick = {selectedContractState.update { x->-1 }
+                                selectedMercenariesState.update { x->listOf() }
+                            }) {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(R.drawable.home_24px),
+                                "",
+                                tint = Color.Black,
                             )
                         }
-
-                    val selected = availableContracts.value.filter { x->x.id == selectedContract.value }
-                    if(selected.isEmpty()){
-                        selectedContractState.update { x->-1 }
+                        Text("Select mercenaries",
+                            modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 15.dp).align(Alignment.Center),
+                            fontSize = Typography.titleLarge.fontSize,
+                            textAlign = TextAlign.Center,
+                        )
                     }
-                    else{
-                        //Data
-                        val currentContract = selected.first()
-                        val notTooMany = selectedMercenaries.value.size<=currentContract.maxMercenaries
-                        val atLeastOne = selectedMercenaries.value.isNotEmpty()
-                        var successRate = 100.0
-                        if(currentContract.requiredPower>0){
-                            successRate =
-                                kotlin.math.round((selectedMercenaries.value.sumOf { x -> x.second }
-                                    .toDouble() / (currentContract.requiredPower).toDouble()) * 100)
-                                    .coerceAtMost(100.0)
+
+                val selected = availableContracts.value.filter { x->x.id == selectedContract.value }
+                if(selected.isEmpty()){
+                    selectedContractState.update { x->-1 }
+                }
+                else{
+                    //Data
+                    val currentContract = selected.first()
+                    val notTooMany = selectedMercenaries.value.size<=currentContract.maxMercenaries
+                    val atLeastOne = selectedMercenaries.value.isNotEmpty()
+                    var successRate = 100.0
+                    if(currentContract.requiredPower>0){
+                        successRate =
+                            kotlin.math.round((selectedMercenaries.value.sumOf { x -> x.second }
+                                .toDouble() / (currentContract.requiredPower).toDouble()) * 100)
+                                .coerceAtMost(100.0)
+                    }
+
+                    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally) {
+
+                        Text("Start cost:${currentContract.startCost}", fontSize = Typography.bodyLarge.fontSize )
+                        Text("Completion time:${currentContract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
+                        Text("Chance of success:${successRate}%", fontSize = Typography.bodyLarge.fontSize)
+                        Text("Selected :${selectedMercenaries.value.size}/${currentContract.maxMercenaries} mercenaries"
+                            , fontSize = Typography.bodyLarge.fontSize, color = if(notTooMany) Color.Black else Color.Red)
+                    }
+
+                    //display mercenaries
+                    HorizontalDivider()
+                    for(merc in unassigned){
+                        val checkBoxSelectable = selectedMercenaries.value.any{x->x.first==merc.idEmployment} || selectedMercenaries.value.size<currentContract.maxMercenaries
+                        AssignableMercenary(merc,selectedMercenariesState,checkBoxSelectable)
+                    }
+
+                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)){
+
+                        Spacer(modifier = Modifier.weight(0.5f).fillMaxWidth())
+                        Button(enabled = notTooMany && atLeastOne,
+                            modifier = Modifier.padding(horizontal = 10.dp),
+                            onClick = {
+                                callbacks.onStartContract(currentContract,selectedMercenaries.value.map{x->x.first})
+                                selectedMercenariesState.update { x->listOf() }
+                                selectedContractState.update { x->-1 }
+                            }) {
+                            Text("Start contract", textAlign = TextAlign.Center,
+                                modifier= Modifier.fillMaxWidth())
                         }
-
-                        Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
-                            horizontalAlignment = Alignment.CenterHorizontally) {
-
-                            Text("Start cost:${currentContract.startCost}", fontSize = Typography.bodyLarge.fontSize )
-                            Text("Completion time:${currentContract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
-                            Text("Chance of success:${successRate}%", fontSize = Typography.bodyLarge.fontSize)
-                            Text("Selected :${selectedMercenaries.value.size}/${currentContract.maxMercenaries} mercenaries"
-                                , fontSize = Typography.bodyLarge.fontSize, color = if(notTooMany) Color.Black else Color.Red)
-                        }
-
-                        //display mercenaries
-                        HorizontalDivider()
-                        for(merc in unassigned){
-                            val checkBoxSelectable = selectedMercenaries.value.any{x->x.first==merc.idEmployment} || selectedMercenaries.value.size<currentContract.maxMercenaries
-                            AssignableMercenary(merc,selectedMercenariesState,checkBoxSelectable)
-                        }
-
-                        Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)){
-
-                            Spacer(modifier = Modifier.weight(0.5f).fillMaxWidth())
-                            Button(enabled = notTooMany && atLeastOne,
-                                modifier = Modifier.padding(horizontal = 10.dp),
-                                onClick = {
-                                    callbacks.onStartContract(currentContract,selectedMercenaries.value.map{x->x.first})
-                                    selectedMercenariesState.update { x->listOf() }
-                                    selectedContractState.update { x->-1 }
-                                }) {
-                                Text("Start contract", textAlign = TextAlign.Center,
-                                    modifier= Modifier.fillMaxWidth())
-                            }
-                        }
-
                     }
 
                 }
+
             }
         },
         ContentTab("Mercenary"){
-            Column(
-                modifier = Modifier.padding(it)
-            ){
-                for(playerMercenary in employedAll){
-                    EmployedMercenaryPost(playerMercenary,
-                        (unassigned.any{x->x.idEmployment == playerMercenary.idEmployment})
-                    )
-                }
+            for(playerMercenary in employedAll){
+                EmployedMercenaryPost(playerMercenary,
+                    (unassigned.any{x->x.idEmployment == playerMercenary.idEmployment})
+                )
             }
         },
         ContentTab("Employ"){
-            Column (
-                modifier = Modifier.padding(it)
-            ){
-                for(mercenary in hireable){
-                    MercenaryShopEntry(mercenary,{callbacks.onHireMercenary(mercenary)},player.value!!.money>=mercenary.cost)
-                }
-                for(mercenary in unlockable){
-                    LockedMercenaryPost(mercenary)
-                }
+            for(mercenary in hireable){
+                MercenaryShopEntry(mercenary,{callbacks.onHireMercenary(mercenary)},player.value!!.money>=mercenary.cost)
+            }
+            for(mercenary in unlockable){
+                LockedMercenaryPost(mercenary)
             }
         }
-    ), money = player.value!!.money)
+    ), money = player.value!!.money, showMoney = true)
 }
 

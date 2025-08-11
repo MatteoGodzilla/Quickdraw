@@ -6,12 +6,18 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.currentCompositionLocalContext
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.PreviewActivity
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
+import com.example.quickdraw.dataStore
+import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.GameRepository
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
@@ -56,51 +62,39 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository,callba
 
     BasicScreen("Shop", controller, listOf(
         ContentTab("Weapons"){
-            HorizontalSeparator()
             if(weapons.value.isNotEmpty()){
-                Column (modifier = Modifier.padding(it)){
-                    for (w in weapons.value){
-                        WeaponEntryShop(w,{
-                            callbacks.onBuyWeapon(w)
-                        },playerState.value!!.money>=w.cost)
-                    }
+                for (w in weapons.value){
+                    WeaponEntryShop(w,{
+                        callbacks.onBuyWeapon(w)
+                    },playerState.value!!.money>=w.cost)
                 }
             }
         },
         ContentTab("Bullets"){
-            HorizontalSeparator()
             if(bullets.value.isNotEmpty()){
-                Column (modifier = Modifier.padding(it)){
-                    for (w in bullets.value){
-                        val possessed = if(!possessedBullets.value.any{x->x.type==w.type}) 0 else possessedBullets.value.first { x -> x.type == w.type }.amount
-                        BulletShopEntry(w,{callbacks.onBuyBullet(w)},
-                            playerState.value!!.money>=w.cost && possessed<w.capacity,possessed)
-                    }
+                for (w in bullets.value){
+                    val possessed = if(!possessedBullets.value.any{x->x.type==w.type}) 0 else possessedBullets.value.first { x -> x.type == w.type }.amount
+                    BulletShopEntry(w,{callbacks.onBuyBullet(w)},
+                        playerState.value!!.money>=w.cost && possessed<w.capacity,possessed)
                 }
             }
         },
         ContentTab("Medikits"){
-            HorizontalSeparator()
             if(medikits.value.isNotEmpty()){
-                Column (modifier = Modifier.padding(it)){
-                    for (w in medikits.value){
-                        val possessed = if(!possessedMedikits.value.any{x->x.id==w.idMedikit}) 0 else possessedMedikits.value.first { x -> x.id == w.idMedikit }.amount
-                        MedikitEntryShop(w,{callbacks.onBuyMedikit(w)},
-                            playerState.value!!.money>=w.cost && possessed < w.capacity,possessed)
-                    }
+                for (w in medikits.value){
+                    val possessed = if(!possessedMedikits.value.any{x->x.id==w.idMedikit}) 0 else possessedMedikits.value.first { x -> x.id == w.idMedikit }.amount
+                    MedikitEntryShop(w,{callbacks.onBuyMedikit(w)},
+                        playerState.value!!.money>=w.cost && possessed < w.capacity,possessed)
                 }
             }
         },
         ContentTab("Upgrades"){
-            HorizontalSeparator()
             if(upgrades.value.isNotEmpty()){
-                Column (modifier = Modifier.padding(it)){
-                    for (w in upgrades.value){
-                        UpgradeEntryShop(w,{},
-                            playerState.value!!.money>=w.cost)
-                    }
+                for (w in upgrades.value){
+                    UpgradeEntryShop(w,{},
+                        playerState.value!!.money>=w.cost)
                 }
             }
         }
-    ), money = player.value!!.money)
+    ), money = player.value!!.money, showMoney = true)
 }
