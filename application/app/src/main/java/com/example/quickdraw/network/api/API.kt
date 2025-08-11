@@ -1,6 +1,5 @@
 package com.example.quickdraw.network.api
 
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody

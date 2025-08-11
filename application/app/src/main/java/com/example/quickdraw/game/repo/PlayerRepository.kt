@@ -2,6 +2,8 @@ package com.example.quickdraw.game.repo
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.network.api.getLevelsAPI
 import com.example.quickdraw.network.api.getStatusAPI
 import com.example.quickdraw.network.data.PlayerStatus
@@ -9,9 +11,9 @@ import com.example.quickdraw.runIfAuthenticated
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-//This class should not be accessed directly, but through GameRepository
 class PlayerRepository(
     private val dataStore: DataStore<Preferences>
 ) {
@@ -30,13 +32,20 @@ class PlayerRepository(
 
     suspend fun getStatus() = runIfAuthenticated (dataStore){ auth ->
         val response = getStatusAPI(auth)
-        status.update { response }
-        level.update { getPlayerLevel() }
+        if(response != null){
+            status.update { response }
+            runBlocking { dataStore.edit { it[PrefKeys.username] = response.username } }
+            val lvl = getPlayerLevel()
+            level.update { lvl }
+            runBlocking { dataStore.edit { it[PrefKeys.level] = lvl.toString() } }
+        }
     }
 
     suspend fun getLevels() = withContext(Dispatchers.IO) {
         levels = getLevelsAPI()
-        level.value = getPlayerLevel()
+        val lvl = getPlayerLevel()
+        level.update { lvl }
+        runBlocking { dataStore.edit { it[PrefKeys.level] = lvl.toString() } }
     }
 
     private fun getPlayerLevel(): Int {

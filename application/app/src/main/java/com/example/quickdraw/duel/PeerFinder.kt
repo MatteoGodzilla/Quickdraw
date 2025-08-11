@@ -29,19 +29,17 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.quickdraw.TAG
-
+import java.net.InetAddress
 
 data class Peer(
-    val srcDevice: WifiP2pDevice,
-    val instanceName: String,
-    val registrationType: String,
-    val fullDomainName: String,
-    val txtRecordMap: Map<String, String>
+    val username: String,
+    val level: Int
 )
 
 interface PeerFinderCallbacks {
     fun onScanningChange(scanning: Boolean)
     fun onPeerChange(newPeersList: List<Peer>)
+    fun onConnection(groupOwner: Boolean, groupOwnerAddress: InetAddress)
 }
 
 //Class responsible for finding other players nearby
@@ -49,37 +47,25 @@ interface PeerFinderCallbacks {
 class PeerFinder (
     private val activity: Activity,
     private val callbacks: PeerFinderCallbacks
-) : DnsSdTxtRecordListener, DnsSdServiceResponseListener, WifiP2pManager.ConnectionInfoListener {
+) : DnsSdTxtRecordListener, DnsSdServiceResponseListener, ConnectionInfoListener {
 
-    private var peers: List<Peer> = listOf()
-        set(value) { callbacks.onPeerChange(value) }
+    private var rawPeers: List<RawPeer> = listOf()
     private var scanning: Boolean = false
-        set(value) { callbacks.onScanningChange(value) }
 
     private var p2pManager: WifiP2pManager = activity.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
     private var channel: Channel
+    //This is awful, i know
+    private var peerToRaw: MutableMap<Peer, WifiP2pDevice> = mutableMapOf()
     private var deviceToTxt: MutableMap<WifiP2pDevice, Pair<String,Map<String, String>>> = mutableMapOf()
     private var deviceToService: MutableMap<WifiP2pDevice, Pair<String,String>> = mutableMapOf()
     private var peerFinderBroadcastReceiver : PeerFinderBroadcastReceiver
+
+    private var playerServiceInfo: WifiP2pServiceInfo? = null
 
     init {
         Log.i(TAG, "manager: $p2pManager")
         channel = p2pManager.initialize(activity, activity.mainLooper, null)
         Log.i(TAG, "Channel: $channel")
-
-        val serviceInfo: WifiP2pServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(
-            QUICKDRAW_INSTANCE_NAME,
-            QUICKDRAW_SERVICE_TYPE,
-            mapOf() //TODO: game data to send to other devices
-        )
-        p2pManager.addLocalService(channel, serviceInfo, object: ActionListener {
-            override fun onSuccess() {
-                Log.i(TAG, "[PeerFinder] Successfully added Quickdraw service")
-            }
-            override fun onFailure(reason: Int) {
-                Log.i(TAG, "[PeerFinder] there was a problem adding Quickdraw service: $reason")
-            }
-        })
 
         peerFinderBroadcastReceiver = PeerFinderBroadcastReceiver(p2pManager, channel, this)
 
@@ -97,7 +83,7 @@ class PeerFinder (
         })
     }
 
-    fun startScanning(){
+    fun startScanning(self: Peer){
         if(scanning)
             return
         Log.i(TAG, "[PeerFinder] Started scanning")
@@ -111,21 +97,47 @@ class PeerFinder (
             ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
+        playerServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(
+            QUICKDRAW_INSTANCE_NAME,
+            QUICKDRAW_SERVICE_TYPE,
+            mapOf(
+                USERNAME_KEY to self.username,
+                LEVEL_KEY to self.level.toString()
+            )
+        )
+        p2pManager.addLocalService(channel, playerServiceInfo, object: ActionListener {
+            override fun onSuccess() {
+                Log.i(TAG, "[PeerFinder] Successfully added Quickdraw service")
+            }
+            override fun onFailure(reason: Int) {
+                Log.i(TAG, "[PeerFinder] there was a problem adding Quickdraw service: $reason")
+            }
+        })
+
         p2pManager.discoverServices(channel, object : ActionListener {
             override fun onSuccess() {
                 Log.i(TAG, "Successfully started discovering peers")
-                scanning = true
             }
             override fun onFailure(reason: Int) {
                 Log.i(TAG, "There was an error discovering peers: $reason")
-                scanning = false
             }
         })
+        scanning = true
+        callbacks.onScanningChange(scanning)
     }
 
     fun stopScanning(){
+        Log.i(TAG, "Attempting to stop scanning: $scanning")
         if(!scanning)
             return
+        p2pManager.removeLocalService(channel, playerServiceInfo!!, object : ActionListener {
+            override fun onSuccess() {
+                Log.i(TAG, "Removed local service")
+            }
+            override fun onFailure(reason: Int) {
+                Log.i(TAG, "There was an error removing local service: $reason")
+            }
+        })
         activity.unregisterReceiver(peerFinderBroadcastReceiver)
         p2pManager.stopPeerDiscovery(channel, object: ActionListener {
             override fun onSuccess() {
@@ -139,12 +151,14 @@ class PeerFinder (
             override fun onSuccess() { }
             override fun onFailure(reason: Int) { }
         })
+        scanning = false
+        callbacks.onScanningChange(scanning)
     }
 
     fun startMatchWithPeer(peer: Peer) {
         Log.i(TAG, "[PeerFinder] Started match with peer $peer")
         val config = WifiP2pConfig()
-        config.deviceAddress = peer.srcDevice.deviceAddress
+        config.deviceAddress = peerToRaw[peer]!!.deviceAddress
         config.wps.setup = WpsInfo.PBC
 
         p2pManager.connect(channel, config, object: ActionListener {
@@ -181,12 +195,12 @@ class PeerFinder (
     }
 
     private fun updatePeers() {
-        val list: MutableList<Peer> = mutableListOf()
+        val list: MutableList<RawPeer> = mutableListOf()
         for(dev in deviceToService.keys) {
             if(deviceToTxt.containsKey(dev)){
                 //check that it's actually the quickdraw service
                 if(deviceToService[dev]!!.first == QUICKDRAW_INSTANCE_NAME){
-                    list.add(Peer(
+                    list.add(RawPeer(
                         dev,
                         instanceName = deviceToService[dev]!!.first,
                         registrationType = deviceToService[dev]!!.second,
@@ -196,7 +210,19 @@ class PeerFinder (
                 }
             }
         }
-        peers = list
+        peerToRaw.clear()
+        val peers: List<Peer> = list.map { raw ->
+            val dictionary = deviceToTxt[raw.srcDevice]?.second
+            val username: String = dictionary?.get(USERNAME_KEY) ?: ""
+            val level = dictionary?.get(LEVEL_KEY)?.toInt() ?: 0
+            val peer = Peer(username, level)
+            peerToRaw[peer] = raw.srcDevice
+            peer
+        }
+        callbacks.onPeerChange(peers)
+
+        rawPeers = list
+
     }
 
     //Callbacks to receive data from android system
@@ -218,17 +244,15 @@ class PeerFinder (
         Log.i(TAG, "[PeerServiceCallbacks] Connect info: $info")
         if(info == null || !info.groupFormed)
             return
-        if(info.isGroupOwner){
-            //Start server
-        } else {
-            //Start client
-            val serverAddress = info.groupOwnerAddress
-        }
+        callbacks.onConnection(info.isGroupOwner, info.groupOwnerAddress)
     }
 
     companion object {
         const val QUICKDRAW_SERVICE_TYPE = "_quickdraw_tcp"
         const val QUICKDRAW_INSTANCE_NAME = "Quickdraw"
+
+        const val USERNAME_KEY = "username"
+        const val LEVEL_KEY = "level"
     }
 
     private class PeerFinderBroadcastReceiver(
@@ -252,4 +276,11 @@ class PeerFinder (
             }
         }
     }
+    private data class RawPeer(
+        val srcDevice: WifiP2pDevice,
+        val instanceName: String,
+        val registrationType: String,
+        val fullDomainName: String,
+        val txtRecordMap: Map<String, String>
+    )
 }

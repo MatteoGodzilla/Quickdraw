@@ -32,6 +32,12 @@ class MainActivity : ComponentActivity() {
             val tokenId = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.authToken] }
                 .firstOrNull()
             Log.i(TAG, "Stored Token = $tokenId")
+            val username = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.username] }
+                .firstOrNull()
+            Log.i(TAG, "Stored Username = $username")
+            val level = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.level] }
+                .firstOrNull()
+            Log.i(TAG, "Stored Level = $level")
 
             if(tokenId != null){
                 val client = OkHttpClient()

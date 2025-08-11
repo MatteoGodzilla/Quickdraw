@@ -1,7 +1,7 @@
 package com.example.quickdraw.game
 
-import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,8 +11,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
-import com.example.quickdraw.duel.DuelActivity
+import com.example.quickdraw.duel.Peer
+import com.example.quickdraw.duel.PeerFinder
+import com.example.quickdraw.duel.PeerFinderCallbacks
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.repo.GameRepository
@@ -32,6 +35,7 @@ import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import java.net.InetAddress
 
 class GameNavigation {
     @Serializable
@@ -46,15 +50,16 @@ class GameNavigation {
     object Contracts
 }
 
-class GameActivity : ComponentActivity() {
+class GameActivity : ComponentActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val repository = GameRepository(dataStore)
 
         //TODO: run repository fetch when it changes screen, not just at start
-
-        lifecycleScope.launch { repository.firstLoad() }
+        lifecycleScope.launch {
+            repository.firstLoad()
+        }
 
         setContent {
             val controller = rememberNavController()
@@ -84,9 +89,32 @@ class GameActivity : ComponentActivity() {
                     })
                 }
                 composable<GameNavigation.Map> {
-                    MainScreen(controller, repository){
-                        val intent = Intent(this@GameActivity, DuelActivity::class.java)
-                        startActivity(intent)
+                    //TODO: pretty sure this will need to be kept alive between activities using Application
+                    val peerFinder = PeerFinder(this@GameActivity, object : PeerFinderCallbacks{
+                        override fun onScanningChange(scanning: Boolean) {
+                            Log.i(TAG, "ASDFASDFA SDF $scanning")
+                            repository.peer.scanning.value = scanning
+                        }
+                        override fun onPeerChange(newPeersList: List<Peer>) {
+                            repository.peer.peers.value = newPeersList
+                        }
+                        override fun onConnection( groupOwner: Boolean, groupOwnerAddress: InetAddress ) {
+                            if(groupOwner){
+                                //Start as server
+                            } else {
+                                //Start as client
+                            }
+                        }
+                    })
+                    MainScreen(controller, repository, peerFinder){
+                        if(repository.peer.scanning.value){
+                            peerFinder.stopScanning()
+                        } else {
+                            peerFinder.startScanning(Peer(
+                                repository.player.status.value?.username ?: "ERROR",
+                                repository.player.level.value)
+                            )
+                        }
                     }
                 }
                 composable<GameNavigation.BountyBoard> {
