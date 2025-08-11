@@ -30,6 +30,7 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
+import com.example.quickdraw.game.components.RowDevider
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.repo.GameRepository
@@ -95,7 +96,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                     Box(modifier = Modifier.fillMaxWidth(),
                         contentAlignment = Alignment.Center
                     ){
-                        Button(
+                        /**Button(
                             modifier = Modifier.padding(horizontal = 10.dp)
                                 .align(Alignment.CenterStart),
                             onClick = {selectedContractState.update { x->-1 }
@@ -106,7 +107,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                                 "",
                                 tint = Color.Black,
                             )
-                        }
+                        }**/
                         Text("Select mercenaries",
                             modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 15.dp).align(Alignment.Center),
                             fontSize = Typography.titleLarge.fontSize,
@@ -134,7 +135,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                     Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
                         horizontalAlignment = Alignment.CenterHorizontally) {
 
-                        Text("Start cost:${currentContract.startCost}", fontSize = Typography.bodyLarge.fontSize )
+
                         Text("Completion time:${currentContract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
                         Text("Chance of success:${successRate}%", fontSize = Typography.bodyLarge.fontSize)
                         Text("Selected :${selectedMercenaries.value.size}/${currentContract.maxMercenaries} mercenaries"
@@ -142,7 +143,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                     }
 
                     //display mercenaries
-                    HorizontalDivider()
+                    RowDevider()
                     for(merc in unassigned){
                         val checkBoxSelectable = selectedMercenaries.value.any{x->x.first==merc.idEmployment} || selectedMercenaries.value.size<currentContract.maxMercenaries
                         AssignableMercenary(merc,selectedMercenariesState,checkBoxSelectable)
@@ -158,7 +159,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                                 selectedMercenariesState.update { x->listOf() }
                                 selectedContractState.update { x->-1 }
                             }) {
-                            Text("Start contract", textAlign = TextAlign.Center,
+                            Text("Start contract (${currentContract.startCost})", textAlign = TextAlign.Center,
                                 modifier= Modifier.fillMaxWidth())
                         }
                     }

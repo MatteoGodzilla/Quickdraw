@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -18,7 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.quickdraw.R
-import com.example.quickdraw.game.components.HorizontalSeparator
+import com.example.quickdraw.game.components.RowDevider
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
@@ -54,7 +53,7 @@ fun BasicShopEntry(price:Int, purchasable: Boolean, action:()->Unit, populateSho
             }
         }
     }
-    HorizontalSeparator()
+    RowDevider()
 }
 
 @Composable

@@ -463,3 +463,107 @@ async def buyWeapon(request: BuyRequest):
         cost = weaponInfo.cost
     )
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))
+
+@router.post("/upgrades/buy")
+async def buyUpgrade(request: BuyRequest):
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken,session)
+    if obtain_player[SUCCESS] == False:
+            return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+    obtain_upgrade = select(UpgradeShop).where(
+         and_(
+              UpgradeShop.idUpgrade == request.id
+         )
+    )
+
+    result = session.exec(obtain_upgrade)
+    upgradeInfo = result.first()
+
+    #weapon does not exist
+    if upgradeInfo==None:
+        return JSONResponse(
+            status_code = HTTP_406_NOT_ACCEPTABLE,
+            content={"message":"Required upgrade sale does not exist"}
+        )
+    
+    playerInfo = getPlayerData(player,session)
+    if playerInfo[SUCCESS] == False:
+        return JSONResponse(
+            status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message":"Could not find player data"}
+        )
+    
+    #too expensive 
+    playerInfo:Player = playerInfo[PLAYER]
+    if upgradeInfo.cost > playerInfo.money:
+        return JSONResponse(
+            status_code = HTTP_402_PAYMENT_REQUIRED,
+            content={"message":"Insuffucient founds"}
+        )
+    
+    #check player owns previous levels
+    if(upgradeInfo.level>1):
+         possessesPrevious = select(PlayerUpgrade,UpgradeShop).where(
+              and_(
+                   PlayerUpgrade.idUpgrade == UpgradeShop.idUpgrade,
+                   PlayerUpgrade.idPlayer == playerInfo.id,
+                   UpgradeShop.level == upgradeInfo.level-1
+              )
+         )
+         result = session.exec(possessesPrevious)
+         if result.first() == None:
+            return JSONResponse(status_code=HTTP_401_UNAUTHORIZED,content={"message":"Player does not own previous level of this upgrade"})
+
+    getUpgrade = select(PlayerUpgrade).where(
+         and_(
+              PlayerUpgrade.idUpgrade==upgradeInfo.idUpgrade,
+              PlayerUpgrade.idPlayer==player.idPlayer
+        )
+    )
+
+    result = session.exec(getUpgrade)
+    upgradePlayer = result.first()
+
+    #case 1: player does not already own upgrade:
+    if upgradePlayer==None:
+        try:
+            playerInfo.money-=upgradeInfo.cost
+            playerRow = PlayerUpgrade(idPlayer=player.idPlayer,idUpgrade=upgradeInfo.idUpgrade)
+            #TODO: should player upgrade be applied here or on information loading of player?
+            session.add(playerRow)
+            session.commit()
+        except:
+            session.rollback()
+            return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR,content={"message":"error while doing purchase"})
+    #case 2: player already owns upgrade,not allowed
+    else:
+        return JSONResponse(status_code=HTTP_406_NOT_ACCEPTABLE,content={"message":"Player already owns the upgrade"})
+
+
+    #query to obtain upgrade description
+    getUpgradeDescription = select(UpgradeTypes.description).where(UpgradeTypes.id==upgradeInfo.idUpgrade)
+    result = session.exec(getUpgradeDescription)
+    desc = result.first()
+    if desc == None:
+         desc=""
+
+    response = BuyUpgradeResponse(
+        id = upgradeInfo.idUpgrade,
+        type = upgradeInfo.type,
+        description= desc,
+        level = upgradeInfo.level,
+        cost = upgradeInfo.cost
+    )
+    
+    return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))

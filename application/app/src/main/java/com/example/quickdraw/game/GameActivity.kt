@@ -28,6 +28,7 @@ import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
+import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -75,6 +76,10 @@ class GameActivity : ComponentActivity() {
 
                         override fun onBuyWeapon(toBuy: ShopWeapon) {
                             lifecycleScope.launch { repository.shop.buyWeapon(toBuy) }
+                        }
+
+                        override fun onBuyUpgrade(toBuy: ShopUpgrade) {
+                            lifecycleScope.launch { repository.shop.buyUpgrade(toBuy) }
                         }
                     })
                 }

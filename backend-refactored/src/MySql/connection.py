@@ -9,10 +9,9 @@ def create_db_connection():
     username = os.getenv("db_username")
     password = os.getenv("password")
     database_name = os.getenv("database")
-    print(hostname)
     #create database
     connection_url = f"mysql+pymysql://{username}:{password}@{hostname}/{database_name}"
-    engine = create_engine(connection_url,echo=True,query_cache_size=0)
+    engine = create_engine(connection_url,echo=True)
     return engine
 
 def rebuild_tables():
@@ -24,6 +23,7 @@ def rebuild_tables():
     database_name = os.getenv("database")
     #create database and clear metadata
     connection_url = f"mysql+pymysql://{username}:{password}@{hostname}/{database_name}"
-    engine = create_engine(connection_url,echo=True,query_cache_size=0)
+    engine = create_engine(connection_url,echo=True)
     SQLModel.metadata.clear()
     SQLModel.metadata.create_all(engine)
+    engine.dispose()

@@ -6,6 +6,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
+//private const val BASE_URL = "http://192.168.1.63:8000"
 private const val BASE_URL = "http://10.10.10.130:8000"
 
 const val LOGIN_ENDPOINT = "$BASE_URL/auth/login"
@@ -28,6 +29,7 @@ const val SHOP_UPGRADES = "$BASE_URL/shop/upgrades"
 const val SHOP_BUY_BULLETS = "$SHOP_BULLETS/buy"
 const val SHOP_BUY_MEDIKIT = "$SHOP_MEDIKITS/buy"
 const val SHOP_BUY_WEAPON = "$SHOP_WEAPONS/buy"
+const val SHOP_BUY_UPGRADE = "$SHOP_UPGRADES/buy"
 
 const val BOUNTY_FRIENDS = "$BASE_URL/bounty/friends"
 const val BOUNTY_LEADERBOARD = "$BASE_URL/bounty/leaderboard"

@@ -4,6 +4,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.example.quickdraw.network.api.buyBulletsAPI
 import com.example.quickdraw.network.api.buyMedikitAPI
+import com.example.quickdraw.network.api.buyUpgradeAPI
 import com.example.quickdraw.network.api.buyWeaponAPI
 import com.example.quickdraw.network.api.getShopBulletsAPI
 import com.example.quickdraw.network.api.getShopMedikitsAPI
@@ -12,6 +13,7 @@ import com.example.quickdraw.network.api.getShopWeaponsAPI
 import com.example.quickdraw.network.data.BuyRequest
 import com.example.quickdraw.network.data.InventoryBullet
 import com.example.quickdraw.network.data.InventoryMedikit
+import com.example.quickdraw.network.data.InventoryUpgrade
 import com.example.quickdraw.network.data.InventoryWeapon
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
@@ -124,6 +126,15 @@ class ShopRepository(
             playerRepository.status.update { x -> x!!.copy(money = x.money - weapon.cost) }
             weapons.update { x -> x.filter { y -> y.id != weapon.id } }
             inventoryRepository.weapons.update { x -> x + InventoryWeapon(weapon.name, weapon.damage, weapon.cost, 1) }
+        }
+    }
+
+    suspend fun buyUpgrade(upgrade: ShopUpgrade) = runIfAuthenticated( dataStore ) { auth ->
+        val response = buyUpgradeAPI(BuyRequest(id = upgrade.id, authToken = auth))
+        if(response!=null){
+            playerRepository.status.update { x -> x!!.copy(money = x.money - upgrade.cost) }
+            upgrades.update { x-> x.filter { y -> y.id != upgrade.id } }
+            inventoryRepository.upgrades.update { x -> x + InventoryUpgrade(upgrade.id, upgrade.description, upgrade.type, upgrade.level) }
         }
     }
 }

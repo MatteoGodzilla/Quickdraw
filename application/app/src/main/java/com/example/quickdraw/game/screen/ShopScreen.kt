@@ -12,12 +12,14 @@ import com.example.quickdraw.game.dataDisplayers.UpgradeEntryShop
 import com.example.quickdraw.game.dataDisplayers.WeaponEntryShop
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
+import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
 
 interface ShopCallbacks {
     fun onBuyBullet(toBuy: ShopBullet)
     fun onBuyMedikit(toBuy: ShopMedikit)
     fun onBuyWeapon(toBuy: ShopWeapon)
+    fun onBuyUpgrade(toBuy: ShopUpgrade)
 }
 
 @Composable
@@ -70,7 +72,7 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository, callb
         ContentTab("Upgrades"){
             if(upgrades.value.isNotEmpty()){
                 for (w in upgrades.value){
-                    UpgradeEntryShop(w,{},
+                    UpgradeEntryShop(w,{callbacks.onBuyUpgrade(w)},
                         playerState.value!!.money>=w.cost)
                 }
             }

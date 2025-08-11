@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,21 +22,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.quickdraw.R
+import com.example.quickdraw.game.components.RowDevider
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.network.data.EmployedMercenary
-import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.LockedMercenary
 import com.example.quickdraw.ui.theme.Typography
-import com.example.quickdraw.ui.theme.availableMercenaryStatusColor
 import com.example.quickdraw.ui.theme.lockedShopEntry
-import com.example.quickdraw.ui.theme.unavailableMercenaryStatusColor
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.collections.plus
@@ -114,6 +110,7 @@ fun LockedMercenaryPost(mercenary: LockedMercenary){
             Text("Unlock at level ${mercenary.levelRequired}")
         }
     }
+    RowDevider()
 }
 
 @Composable
@@ -127,20 +124,16 @@ fun EmployedMercenaryPost(mercenary: EmployedMercenary,available: Boolean = true
             Text(mercenary.name, fontSize = Typography.titleLarge.fontSize)
             Text("Power: ${mercenary.power}")
         }
-
         if(available){
-            Text("Available for contract", textAlign = TextAlign.Center,
-                modifier = Modifier.width(110.dp).height(60.dp)
-                    .background(availableMercenaryStatusColor,shape = RectangleShape))
+            Text("Available", textAlign = TextAlign.Center, color = Color.Green,
+                modifier = Modifier.width(110.dp).height(60.dp))
         }
         else{
-            Text("Already assigned", textAlign = TextAlign.Center,
-                modifier = Modifier.width(110.dp).height(60.dp)
-                    .background(unavailableMercenaryStatusColor,shape = RectangleShape))
+            Text("Occupied", textAlign = TextAlign.Center, color = Color.Gray,
+                modifier = Modifier.width(110.dp).height(60.dp))
         }
-
-
     }
+    RowDevider()
 }
 
 @Composable
@@ -168,5 +161,5 @@ fun AssignableMercenary(mercenary: EmployedMercenary,stateArray: MutableStateFlo
             , checked = checked
         )
     }
-    HorizontalDivider()
+    RowDevider()
 }
