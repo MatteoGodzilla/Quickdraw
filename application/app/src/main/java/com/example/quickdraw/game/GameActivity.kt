@@ -1,7 +1,7 @@
 package com.example.quickdraw.game
 
+import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -11,11 +11,11 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.quickdraw.TAG
+import com.example.quickdraw.Game2Duel
+import com.example.quickdraw.QuickdrawApplication
 import com.example.quickdraw.dataStore
+import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
-import com.example.quickdraw.duel.PeerFinder
-import com.example.quickdraw.duel.PeerFinderCallbacks
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.repo.GameRepository
@@ -36,7 +36,6 @@ import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
-import java.net.InetAddress
 
 class GameNavigation {
     @Serializable
@@ -60,6 +59,14 @@ class GameActivity : ComponentActivity(){
         //TODO: run repository fetch when it changes screen, not just at start
         lifecycleScope.launch {
             repository.firstLoad()
+        }
+
+        val qdapp = application as QuickdrawApplication
+        qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
+            val intent = Intent(this, DuelActivity::class.java)
+            intent.putExtra(Game2Duel.groupOwnerKey, groupOwner)
+            intent.putExtra(Game2Duel.groupOwnerAddressKey, groupOwnerAddress)
+            startActivity(intent)
         }
 
         setContent {
@@ -91,30 +98,14 @@ class GameActivity : ComponentActivity(){
                 }
                 composable<GameNavigation.Map> {
                     //TODO: pretty sure this will need to be kept alive between activities using Application
-                    val peerFinder = PeerFinder(this@GameActivity, object : PeerFinderCallbacks{
-                        override fun onScanningChange(scanning: Boolean) {
-                            Log.i(TAG, "ASDFASDFA SDF $scanning")
-                            repository.peer.scanning.value = scanning
-                        }
-                        override fun onPeerChange(newPeersList: List<Peer>) {
-                            repository.peer.peers.value = newPeersList
-                        }
-                        override fun onConnection( groupOwner: Boolean, groupOwnerAddress: InetAddress ) {
-                            if(groupOwner){
-                                //Start as server
-                            } else {
-                                //Start as client
-                            }
-                        }
-                    })
-                    MainScreen(controller, repository, peerFinder){
-                        if(repository.peer.scanning.value){
-                            peerFinder.stopScanning()
+                    MainScreen(controller, repository, qdapp.peerFinderSingleton){
+                        if(qdapp.peerFinderSingleton.scanning.value){
+                            qdapp.peerFinderSingleton.stopScanning()
                         } else {
-                            peerFinder.startScanning(Peer(
+                            qdapp.peerFinderSingleton.startScanning(Peer(
                                 repository.player.status.value?.username ?: "ERROR",
-                                repository.player.level.value)
-                            )
+                                repository.player.level.value
+                            ), this@GameActivity)
                         }
                     }
                 }

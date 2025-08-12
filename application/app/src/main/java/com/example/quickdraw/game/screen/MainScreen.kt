@@ -22,6 +22,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.currentCompositionLocalContext
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.R
+import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.PeerFinder
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.components.BottomNavBar
@@ -51,11 +53,10 @@ fun MainScreen(controller: NavHostController, repository: GameRepository, peerFi
                 top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
             )
         ) { padding ->
-            val peers = repository.peer.peers.collectAsState()
             Column (
                 modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())
             ){
-                for (p in peers.value) {
+                for (p in peerFinder.peers.collectAsState().value) {
                     Row (
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
@@ -86,7 +87,7 @@ fun MainScreen(controller: NavHostController, repository: GameRepository, peerFi
                         .fillMaxWidth()
                 ) {
                     Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
-                    if(repository.peer.scanning.collectAsState().value){
+                    if(peerFinder.scanning.collectAsState().value){
                         Text("Stop scouting", fontSize = Typography.titleLarge.fontSize)
                     } else {
                         Text("Start scouting", fontSize = Typography.titleLarge.fontSize)

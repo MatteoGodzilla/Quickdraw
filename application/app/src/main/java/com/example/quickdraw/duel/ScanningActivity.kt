@@ -38,22 +38,15 @@ class ScanningActivity : ComponentActivity() {
         val scanningFlow = MutableStateFlow(false)
         val peersFlow = MutableStateFlow<List<Peer>>(listOf())
 
-        peerFinder = PeerFinder(this@ScanningActivity, object : PeerFinderCallbacks{
-            override fun onScanningChange(scanning: Boolean) {
-                scanningFlow.value = scanning
+        peerFinder = PeerFinder(this@ScanningActivity)
+        peerFinder.onConnection { groupOwner, groupOwnerAddress ->
+            if(groupOwner){
+                //start as server
+            } else {
+                //start as client
             }
-            override fun onPeerChange(newPeersList: List<Peer>) {
-                peersFlow.value = newPeersList
-            }
+        }
 
-            override fun onConnection(groupOwner: Boolean, groupOwnerAddress: InetAddress) {
-                if(groupOwner){
-                    //start as server
-                } else {
-                    //start as client
-                }
-            }
-        })
         lifecycleScope.launch {
             //TODO: randomize name
             username = this@ScanningActivity.dataStore.data.map { pref -> pref[PrefKeys.username] }.firstOrNull() ?: "Guest"
@@ -81,7 +74,7 @@ class ScanningActivity : ComponentActivity() {
 
     override fun onResume() {
         super.onResume()
-        peerFinder.startScanning(Peer(username, level))
+        peerFinder.startScanning(Peer(username, level), this@ScanningActivity)
     }
 
     override fun onStop() {

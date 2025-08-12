@@ -32,3 +32,8 @@ suspend fun runIfAuthenticated(dataStore: DataStore<Preferences>, block: (authTo
             Log.e(TAG, "There was a problem retrieving the authToken")
         }
     }
+
+object Game2Duel{
+    val groupOwnerKey = "groupOwner"
+    val groupOwnerAddressKey = "groupOwnerAddress"
+}
