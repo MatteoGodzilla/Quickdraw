@@ -21,6 +21,7 @@ import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.ContractsCallbacks
 import com.example.quickdraw.game.screen.ContractsScreen
+import com.example.quickdraw.game.screen.LeaderBoardScreen
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
@@ -118,22 +119,7 @@ class GameActivity : ComponentActivity(){
                     }
                 }
                 composable<GameNavigation.BountyBoard> {
-                    BasicScreen("Bounty Board", controller, listOf(
-                        ContentTab("Friends"){
-                            if(repository.leaderboard.friends.isNotEmpty()){
-                                for(entry in repository.leaderboard.friends) {
-                                    Text(entry.toString())
-                                }
-                            }
-                        },
-                        ContentTab("Leaderboard"){
-                            if(repository.leaderboard.global.isNotEmpty()){
-                                for(entry in repository.leaderboard.global) {
-                                    Text(entry.toString())
-                                }
-                            }
-                        }
-                    ))
+                    LeaderBoardScreen(controller,repository)
                 }
                 composable<GameNavigation.Contracts> {
                     ContractsScreen(controller, repository, object : ContractsCallbacks {

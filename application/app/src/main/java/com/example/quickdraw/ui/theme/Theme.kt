@@ -59,6 +59,16 @@ val bottomBarButtonColors = { enabled:Boolean ->
     )
 }
 
+object MedalColors  {
+    val Gold = Color(0xFFD4AF37)
+    val Silver = Color(0xFFC0C0C0)
+    val Bronze = Color(0xFFCD7F32)
+
+    val BackGroundGold = Color(0xFFF3CB68)
+    val BackGroundSilver = Color(0xFFDADADA)
+    val BackGroundBronze = Color(0xFFF59E4F)
+}
+
 @Composable
 fun QuickdrawTheme(
     content: @Composable () -> Unit

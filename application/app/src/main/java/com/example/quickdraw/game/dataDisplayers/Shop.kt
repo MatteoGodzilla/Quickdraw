@@ -60,7 +60,6 @@ fun BasicShopEntry(price:Int, purchasable: Boolean, action:()->Unit, populateSho
 fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit, purchasable:Boolean=true, possessedAmount:Int = 0){
     BasicShopEntry(bullet.cost,purchasable,onBuy) {
         Text(bullet.name, fontSize = Typography.titleLarge.fontSize)
-        Text("${bullet.quantity} pieces per purchase")
         Text("Your possession: ${possessedAmount}/${bullet.capacity}",color = if(possessedAmount==bullet.capacity) fulledEntry else Color.Black)
     }
 }

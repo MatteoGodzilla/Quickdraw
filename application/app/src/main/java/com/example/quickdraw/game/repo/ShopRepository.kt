@@ -124,7 +124,7 @@ class ShopRepository(
         val response = buyWeaponAPI(BuyRequest(id = weapon.id, authToken = auth))
         if (response != null) {
             playerRepository.status.update { x -> x!!.copy(money = x.money - weapon.cost) }
-            weapons.update { x -> x.filter { y -> y.id != weapon.id } }
+            weapons.update { it.filter { w -> w.id != weapon.id } }
             inventoryRepository.weapons.update { x -> x + InventoryWeapon(weapon.name, weapon.damage, weapon.cost, 1) }
         }
     }
@@ -134,6 +134,7 @@ class ShopRepository(
         if(response!=null){
             playerRepository.status.update { x -> x!!.copy(money = x.money - upgrade.cost) }
             upgrades.update { x-> x.filter { y -> y.id != upgrade.id } }
+            inventoryRepository.upgrades.update{it.filter{u->u.type!=upgrade.type}}
             inventoryRepository.upgrades.update { x -> x + InventoryUpgrade(upgrade.id, upgrade.description, upgrade.type, upgrade.level) }
         }
     }
