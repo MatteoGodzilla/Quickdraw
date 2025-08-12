@@ -2,6 +2,7 @@ package com.example.quickdraw.network.api
 
 import android.util.Log
 import com.example.quickdraw.TAG
+import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.ActiveContractResponse
 import com.example.quickdraw.network.data.AvailableContract
@@ -15,77 +16,63 @@ import com.example.quickdraw.network.data.TokenRequest
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
+import okhttp3.RequestBody
 import okhttp3.Response
 
 fun redeemContractAPI(authToken: String, contract: ActiveContract) : ContractRedeemResponse {
-    val client = OkHttpClient()
-    val request = Request.Builder()
-        .url(CONTRACTS_REDEEM)
-        .post(ContractRedeemRequest(authToken, contract.activeId).toRequestBody())
-        .build()
-
-    val response = client.newCall(request).execute()
-    Log.i(TAG, response.code.toString())
-    if(response.code == 200){
-        val body = response.body!!.string()
-        Log.i(TAG, body)
-        val obj = Json.decodeFromString<ContractRedeemResponse>(body)
-        return obj
+    val requestBody: RequestBody = ContractRedeemRequest(authToken, contract.activeId).toRequestBody()
+    val response = ConnectionManager.AttemptQuery(requestBody,CONTRACTS_REDEEM)
+    if(response!=null){
+        Log.i(TAG, response.code.toString())
+        if(response.code == 200){
+            val body = response.body!!.string()
+            Log.i(TAG, body)
+            val obj = Json.decodeFromString<ContractRedeemResponse>(body)
+            return obj
+        }
     }
     return ContractRedeemResponse(success = false, reward = 0, returnableContract = AvailableContract(0,"",0,0,0,0,))
 }
 
 fun startContractAPI(authToken: String, contract: AvailableContract,mercenaries:List<Int>): ContractStartResponse{
-    val client = OkHttpClient()
-    val request = Request.Builder()
-        .url(CONTRACTS_START)
-        .post(ContractStartRequest(authToken, contract.id, mercenaries).toRequestBody())
-        .build()
-    Log.i(TAG,mercenaries.toString())
-    val response = client.newCall(request).execute()
-    Log.i(TAG, response.code.toString())
-    val body = response.body!!.string()
-    Log.i(TAG, body)
-    if(response.code == 200){
-        //it should always be 200, otherwise there is a problem with the auth token
-        Log.i(TAG, body)
-        return Json.decodeFromString<ContractStartResponse>(body)
+    val requestBody: RequestBody = ContractStartRequest(authToken, contract.id, mercenaries).toRequestBody()
+    val response = ConnectionManager.AttemptQuery(requestBody,CONTRACTS_START)
+    if(response!=null){
+        if(response.code == 200){
+            //it should always be 200, otherwise there is a problem with the auth token
+            val body = response.body!!.string()
+            Log.i(TAG, body)
+            return Json.decodeFromString<ContractStartResponse>(body)
+        }
     }
     return ContractStartResponse(success = false, contractInfo = StartedContract(0,0))
 }
 
 fun getActiveContractsAPI(authToken: String): List<ActiveContract>{
-    val client = OkHttpClient()
-    val request = Request.Builder()
-        .url(CONTRACTS_ACTIVE_ENDPOINT)
-        .post(TokenRequest(authToken).toRequestBody())
-        .build()
-
-    val response = client.newCall(request).execute()
-    Log.i(TAG, response.code.toString())
-    if(response.code == 200){
-        //it should always be 200, otherwise there is a problem with the auth token
-        val result = response.body!!.string()
-        Log.i(TAG, result)
-        return Json.decodeFromString<ActiveContractResponse>(result).contracts
+    val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
+    val response = ConnectionManager.AttemptQuery(requestBody,CONTRACTS_ACTIVE_ENDPOINT)
+    if(response!=null){
+        if(response.code == 200){
+            //it should always be 200, otherwise there is a problem with the auth token
+            val result = response.body!!.string()
+            Log.i(TAG, result)
+            return Json.decodeFromString<ActiveContractResponse>(result).contracts
+        }
     }
     return listOf()
 }
 
 fun getAvailableContractsAPI(authToken: String): List<AvailableContract> {
-    val client = OkHttpClient()
-    val request = Request.Builder()
-        .url(CONTRACTS_AVAILABLE_ENDPOINT)
-        .post(TokenRequest(authToken).toRequestBody())
-        .build()
+    val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
+    val response = ConnectionManager.AttemptQuery(requestBody,CONTRACTS_AVAILABLE_ENDPOINT)
 
-    val response = client.newCall(request).execute()
-    Log.i(TAG, response.code.toString())
-    if(response.code == 200){
-        //it should always be 200, otherwise there is a problem with the auth token
-        val result = response.body!!.string()
-        Log.i(TAG, result)
-        return Json.decodeFromString<AvailableContractResponse>(result).contracts
+    if(response!=null){
+        if(response.code == 200){
+            //it should always be 200, otherwise there is a problem with the auth token
+            val result = response.body!!.string()
+            Log.i(TAG, result)
+            return Json.decodeFromString<AvailableContractResponse>(result).contracts
+        }
     }
     return listOf()
 }

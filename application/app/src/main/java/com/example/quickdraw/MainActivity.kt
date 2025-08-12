@@ -13,6 +13,8 @@ import com.example.quickdraw.network.data.TokenRequest
 import com.example.quickdraw.network.api.toRequestBody
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.login.LoginActivity
+import com.example.quickdraw.network.ConnectionManager
+import com.example.quickdraw.network.NoConnectionActivity
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -38,29 +40,31 @@ class MainActivity : ComponentActivity() {
             val level = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.level] }
                 .firstOrNull()
             Log.i(TAG, "Stored Level = $level")
-
             if(tokenId != null){
-                val client = OkHttpClient()
-                val request = Request.Builder()
-                    .url(TOKEN_LOGIN_ENDPOINT)
-                    .post(TokenRequest(tokenId).toRequestBody())
-                    .build()
-
                 try {
-                    val response = client.newCall(request).execute()
-                    Log.i(TAG, "Token login returned with code ${response.code}")
-                    if(response.code == 200){
-                        val responseVal = Json.decodeFromString<LoginResponse>(response.body!!.string())
-                        Log.i(TAG, "New valid token: $responseVal")
-                        dataStore.edit { preferences ->
-                            preferences[PrefKeys.authToken] = responseVal.authToken
-                        }
-                        response.close()
-                        Log.i(TAG, "Sending from Main to Game Activity")
-                        val intent = Intent(this@MainActivity, GameActivity::class.java)
+                    val response = ConnectionManager.AttemptQuery(TokenRequest(tokenId).toRequestBody(),TOKEN_LOGIN_ENDPOINT)
+                    if(response == null){
+                        //no connection available,send to no connection activity
+                        val intent = Intent(this@MainActivity, NoConnectionActivity::class.java)
                         startActivity(intent)
                         return@launch;
                     }
+                    else{
+                        Log.i(TAG, "Token login returned with code ${response.code}")
+                        if(response.code == 200){
+                            val responseVal = Json.decodeFromString<LoginResponse>(response.body!!.string())
+                            Log.i(TAG, "New valid token: $responseVal")
+                            dataStore.edit { preferences ->
+                                preferences[PrefKeys.authToken] = responseVal.authToken
+                            }
+                            response.close()
+                            Log.i(TAG, "Sending from Main to Game Activity")
+                            val intent = Intent(this@MainActivity, GameActivity::class.java)
+                            startActivity(intent)
+                            return@launch;
+                        }
+                    }
+
                 } catch (e: IOException){
                     Log.e(TAG, "there was an exception getting the url")
                     Log.e(TAG, e.toString())

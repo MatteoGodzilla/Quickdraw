@@ -44,6 +44,10 @@
             android:label="@string/title_activity_main"
             android:theme="@style/Theme.Quickdraw">
         </activity>
+        <activity android:name=".network.NoConnectionActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Quickdraw">
+        </activity>
         <activity
             android:name=".login.LoginActivity"
             android:exported="false"
