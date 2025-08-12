@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -125,7 +126,7 @@ fun EmployedMercenaryPost(mercenary: EmployedMercenary,available: Boolean = true
             Text("Power: ${mercenary.power}")
         }
         if(available){
-            Text("Available", textAlign = TextAlign.Center, color = Color.Green,
+            Text("Available", textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.width(110.dp).height(60.dp))
         }
         else{

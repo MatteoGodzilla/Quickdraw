@@ -28,7 +28,7 @@ import com.example.quickdraw.ui.theme.fulledEntry
 
 
 @Composable
-fun BasicShopEntry(price:Int, purchasable: Boolean, action:()->Unit, populateShopEntry: @Composable ()->Unit){
+fun BasicShopEntry(price:String, purchasable: Boolean, action:()->Unit, populateShopEntry: @Composable ()->Unit){
     Row (
         modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -43,9 +43,8 @@ fun BasicShopEntry(price:Int, purchasable: Boolean, action:()->Unit, populateSho
                 onClick = action,
                 modifier = Modifier.fillMaxWidth().height(72.dp)
             ) {
-                Text(price.toString(),fontSize = Typography.titleLarge.fontSize)
+                Text(price,fontSize = Typography.titleLarge.fontSize)
                 Icon(
-
                     imageVector = ImageVector.vectorResource(R.drawable.money_bag_24px_1_),
                     "",
                     tint = Color.Black,
@@ -58,25 +57,26 @@ fun BasicShopEntry(price:Int, purchasable: Boolean, action:()->Unit, populateSho
 
 @Composable
 fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit, purchasable:Boolean=true, possessedAmount:Int = 0){
-    BasicShopEntry(bullet.cost,purchasable,onBuy) {
-        Text(bullet.name, fontSize = Typography.titleLarge.fontSize)
-        Text("Your possession: ${possessedAmount}/${bullet.capacity}",color = if(possessedAmount==bullet.capacity) fulledEntry else Color.Black)
+    val isFull = possessedAmount==bullet.capacity
+    BasicShopEntry(if(isFull) "Full" else bullet.cost.toString(),purchasable,onBuy) {
+        Text("${bullet.name} (${bullet.quantity}x)", fontSize = Typography.titleLarge.fontSize)
+        Text("Your possession: ${possessedAmount}/${bullet.capacity}",color = if(isFull) fulledEntry else Color.Black)
     }
 }
 
 @Composable
 fun MedikitEntryShop(medikit: ShopMedikit, onBuy: ()->Unit, purchasable:Boolean=true, possessedAmount:Int = 0){
-    BasicShopEntry(medikit.cost,purchasable,onBuy) {
-        Text(medikit.description, fontSize = Typography.titleLarge.fontSize)
+    val isFull = possessedAmount==medikit.capacity
+    BasicShopEntry(if(isFull) "Full" else medikit.cost.toString(),purchasable,onBuy) {
+        Text("${medikit.description} (${medikit.quantity}x)", fontSize = Typography.titleLarge.fontSize)
         Text("Heals ${medikit.healthRecover} per use")
-        Text("${medikit.quantity} pieces per purchase")
-        Text("Your possession: ${possessedAmount}/${medikit.capacity}",color = if(possessedAmount==medikit.capacity) fulledEntry else Color.Black)
+        Text("Your possession: ${possessedAmount}/${medikit.capacity}",color = if(isFull) fulledEntry else Color.Black)
     }
 }
 
 @Composable
 fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit, purchasable:Boolean=true){
-    BasicShopEntry(weapon.cost,purchasable,onBuy) {
+    BasicShopEntry(weapon.cost.toString(),purchasable,onBuy) {
         Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
         Text("${weapon.damage} damage per hit")
     }
@@ -84,7 +84,7 @@ fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit, purchasable:Boolean=tru
 
 @Composable
 fun UpgradeEntryShop(upgrade: ShopUpgrade, onBuy: ()->Unit, purchasable:Boolean=true){
-    BasicShopEntry(upgrade.cost,purchasable,onBuy) {
+    BasicShopEntry(upgrade.cost.toString(),purchasable,onBuy) {
         Text(upgrade.description,fontSize = Typography.titleLarge.fontSize)
         Text("Level ${upgrade.level}")
     }
@@ -92,7 +92,7 @@ fun UpgradeEntryShop(upgrade: ShopUpgrade, onBuy: ()->Unit, purchasable:Boolean=
 
 @Composable
 fun MercenaryShopEntry(mercenary: HireableMercenary, onBuy: ()->Unit,canAfford:Boolean=true){
-    BasicShopEntry(mercenary.cost,canAfford,onBuy) {
+    BasicShopEntry(mercenary.cost.toString(),canAfford,onBuy) {
         Text(mercenary.name,fontSize = Typography.titleLarge.fontSize)
         Text("Power:${mercenary.power}")
     }
