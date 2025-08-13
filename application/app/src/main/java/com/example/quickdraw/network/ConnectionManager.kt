@@ -1,6 +1,11 @@
 package com.example.quickdraw.network
 
 import android.util.Log
+import androidx.core.text.util.LocalePreferences
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
+import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.TAG
 import io.ktor.http.Url
 import okhttp3.OkHttpClient
@@ -8,17 +13,19 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 import okio.IOException
-import java.net.SocketTimeoutException
-import java.util.concurrent.TimeUnit
 
 object  ConnectionManager {
     private var mainIP = "http://192.168.1.45:8000"
     private var availableIPs:List<String>  = listOf(
+        "http://10.10.1.130:8000",
         "http://192.168.1.68:8000",
         "http://192.168.1.63:8000",
-        "http://192.168.1.45:8000",
-        "http://10.10.1.130:8000"
+        "http://192.168.1.45:8000"
     )
+
+    fun getMainIP(): String {
+        return mainIP
+    }
 
     private fun query(request:Request):Response?{
         try{
@@ -31,7 +38,11 @@ object  ConnectionManager {
         }
     }
 
-    public fun AttemptQuery(bodyRequest: RequestBody, url: String): Response? {
+    fun setFavourite(ip:String){
+        mainIP = ip
+    }
+
+    fun AttemptQuery(bodyRequest: RequestBody, url: String): Response? {
         //attempt with main IP
         var request = Request.Builder().url(mainIP+url).post(bodyRequest).build()
         var response = query(request)

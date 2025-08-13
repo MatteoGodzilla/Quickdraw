@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
+            loadFavoriteServer(this@MainActivity.dataStore)
             val tokenId = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.authToken] }
                 .firstOrNull()
             Log.i(TAG, "Stored Token = $tokenId")
@@ -70,6 +71,9 @@ class MainActivity : ComponentActivity() {
                             Log.i(TAG, "New valid token: $responseVal")
                             dataStore.edit { preferences ->
                                 preferences[PrefKeys.authToken] = responseVal.authToken
+                            }
+                            dataStore.edit { preferences ->
+                                preferences[PrefKeys.server] = ConnectionManager.getMainIP()
                             }
                             response.close()
                             Log.i(TAG, "Sending from Main to Game Activity")
