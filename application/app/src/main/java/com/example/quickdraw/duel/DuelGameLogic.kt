@@ -2,9 +2,6 @@ package com.example.quickdraw.duel
 
 import android.util.Log
 import com.example.quickdraw.TAG
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.withContext
 import java.net.Socket
 import kotlin.random.Random
 
@@ -13,8 +10,7 @@ internal enum class DuelState {
     CAN_PLAY,
     READY,
     STEADY,
-    BANG,
-    RESULTS
+    BANG
 }
 
 //Higher level logic for actually handling the game part
@@ -30,11 +26,13 @@ class DuelGameLogic : MessageHandler{
             printStatus()
         }
 
-    private var selfDelay = 0.0
-    private var peerDelay = 0.0
+    //deciding when players should shoot
+    private var selfChosenDelay = 0.0
+    private var peerChosenDelay = 0.0
     private var bangTargetDelay = 0.0
-    private var selfBangDelay = 0.0
-    private var peerBangDelay = 0.0
+    //Time when players actually shot
+    private var selfBangTime = 0.0
+    private var peerBangTime = 0.0
 
     private lateinit var duelServer: DuelServer
 
@@ -65,13 +63,25 @@ class DuelGameLogic : MessageHandler{
                 }
             }
             Type.STEADY -> {
-                peerDelay = message.data.toDouble()
+                peerChosenDelay = message.data.toDouble()
                 peerState = DuelState.STEADY
                 checkSteady()
             }
-            Type.BANG -> TODO()
+            Type.BANG -> {
+                //Get time from peer and check
+                peerState = DuelState.BANG
+                checkBang()
+            }
+            Type.DAMAGE -> {
+                //apply damage from opponent if self has lost the round
+            }
+            Type.RESET -> {
+                peerState = DuelState.CAN_PLAY
+            }
         }
     }
+
+    //UI Functions
 
     suspend fun setReady() {
         selfState = DuelState.READY
@@ -87,31 +97,37 @@ class DuelGameLogic : MessageHandler{
         duelServer.enqueueOutgoing(Message(Type.BANG, delta.toString()))
     }
 
+    suspend fun nextRound(){
+        selfState = DuelState.CAN_PLAY
+        duelServer.enqueueOutgoing(Message(Type.RESET))
+    }
+
     //Stuff to do when both peers are in the same state
-    suspend fun checkReady(){
+    private suspend fun checkReady(){
         if(selfState == DuelState.READY && peerState == DuelState.READY) {
             selfState = DuelState.STEADY
             //generate random number
-            selfDelay = Random.nextDouble(5.0,10.0) //seconds
-            duelServer.enqueueOutgoing(Message(Type.STEADY, selfDelay.toString()))
+            selfChosenDelay = Random.nextDouble(5.0,10.0) //seconds
+            duelServer.enqueueOutgoing(Message(Type.STEADY, selfChosenDelay.toString()))
             checkSteady()
         }
     }
 
-    suspend fun checkSteady(){
+    private suspend fun checkSteady(){
         if(selfState == DuelState.STEADY && peerState == DuelState.STEADY){
             //set reference time
-            bangTargetDelay = (selfDelay + peerDelay) / 2
+            bangTargetDelay = (selfChosenDelay + peerChosenDelay) / 2
 
         }
     }
 
-    suspend fun checkBang() {
+    private suspend fun checkBang() {
         if(selfState == DuelState.BANG && peerState == DuelState.BANG) {
             //check who won
             //Option 1: to win the delay must be positive, but the smallest
             //Option 2: to win the absolute value of the delay must be smallest
-
+            val winning = false
+            if(winning) duelServer.enqueueOutgoing(Message(Type.DAMAGE, "datadatadata"))
         }
     }
 

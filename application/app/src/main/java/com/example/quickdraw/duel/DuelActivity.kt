@@ -82,7 +82,7 @@ fun Screen(duelServer: DuelServer, duelGameLogic: DuelGameLogic, context: Contex
                 Text("Start as client")
             }
             RowDivider()
-            Button(onClick = { scope.launch { duelGameLogic.ready() } }) {
+            Button(onClick = { scope.launch { duelGameLogic.setReady() } }) {
                 Text("Ready")
             }
         }

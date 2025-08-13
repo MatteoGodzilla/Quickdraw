@@ -4,11 +4,12 @@ import java.net.Socket
 
 enum class Type {
     ACK, //data contains type of message acknowledged
-    HELLO, //no data
+    HELLO, //for checking that the other side is a Quickdraw peer, must be acknowledged
     READY, //for notifying that a player has chosen a gun
     STEADY, //for starting the round
     BANG, //for when a player shoots a bullet
-    DAMAGE //sent from winner to loser, to mark what gun has been used (damage is derived from that)
+    DAMAGE, //sent from winner to loser, to mark what gun has been used (damage is derived from that)
+    RESET //Sent to notify that a peer wants to start a new round, so state should reset
 }
 
 data class Message (val type: Type, val data: String = ""){
