@@ -4,7 +4,9 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.MaterialTheme
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.quickdraw.network.data.LoginResponse
@@ -12,9 +14,12 @@ import com.example.quickdraw.network.api.TOKEN_LOGIN_ENDPOINT
 import com.example.quickdraw.network.data.TokenRequest
 import com.example.quickdraw.network.api.toRequestBody
 import com.example.quickdraw.game.GameActivity
+import com.example.quickdraw.game.components.ScreenLoader
+import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
 import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.NoConnectionActivity
+import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -30,6 +35,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
+        setContent{
+            QuickdrawTheme {
+                ScreenLoader(MaterialTheme.colorScheme.background)
+            }
+        }
+
         lifecycleScope.launch(Dispatchers.IO) {
             val tokenId = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.authToken] }
                 .firstOrNull()
@@ -40,11 +51,13 @@ class MainActivity : ComponentActivity() {
             val level = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.level] }
                 .firstOrNull()
             Log.i(TAG, "Stored Level = $level")
+            LoadingScreenViewManager.showLoading()
             if(tokenId != null){
                 try {
                     val response = ConnectionManager.AttemptQuery(TokenRequest(tokenId).toRequestBody(),TOKEN_LOGIN_ENDPOINT)
                     if(response == null){
                         //no connection available,send to no connection activity
+                        LoadingScreenViewManager.hideLoading()
                         val intent = Intent(this@MainActivity, NoConnectionActivity::class.java)
                         startActivity(intent)
                         return@launch;
@@ -59,6 +72,7 @@ class MainActivity : ComponentActivity() {
                             }
                             response.close()
                             Log.i(TAG, "Sending from Main to Game Activity")
+                            LoadingScreenViewManager.hideLoading()
                             val intent = Intent(this@MainActivity, GameActivity::class.java)
                             startActivity(intent)
                             return@launch;
@@ -70,6 +84,7 @@ class MainActivity : ComponentActivity() {
                     Log.e(TAG, e.toString())
                 }
             }
+            LoadingScreenViewManager.hideLoading()
             Log.i(TAG, "Sending from Main to Login Activity")
             val intent = Intent(this@MainActivity, LoginActivity::class.java)
             startActivity(intent)

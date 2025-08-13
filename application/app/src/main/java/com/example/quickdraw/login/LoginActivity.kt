@@ -14,6 +14,7 @@ import androidx.navigation.toRoute
 import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.game.GameActivity
+import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
 import com.example.quickdraw.login.screen.LoginScreen
 import com.example.quickdraw.login.screen.RegisterScreen
 import com.example.quickdraw.login.vm.LoginScreenVM
@@ -31,6 +32,7 @@ class LoginNavigation{
 class LoginActivity : ComponentActivity() {
 
     private fun onLoginFailed(){
+        LoadingScreenViewManager.hideLoading()
         val intent = Intent(this@LoginActivity, NoConnectionActivity::class.java)
         startActivity(intent)
         Log.i(TAG, "Sending from Login to No connection")
@@ -49,6 +51,7 @@ class LoginActivity : ComponentActivity() {
                     val vm = viewModel {
                         LoginScreenVM(this@LoginActivity.dataStore,{onLoginFailed()}) {
                             //On Login success
+                            LoadingScreenViewManager.hideLoading()
                             val intent = Intent(this@LoginActivity, GameActivity::class.java)
                             startActivity(intent)
                             Log.i(TAG, "Sending from Login to Game activity")
@@ -61,6 +64,7 @@ class LoginActivity : ComponentActivity() {
                     val vm = viewModel {
                         RegisterScreenVM(this@LoginActivity.dataStore){
                             //On Register success
+                            LoadingScreenViewManager.hideLoading()
                             val intent = Intent(this@LoginActivity, GameActivity::class.java)
                             startActivity(intent)
                             Log.i(TAG, "Sending from Register to Game activity")

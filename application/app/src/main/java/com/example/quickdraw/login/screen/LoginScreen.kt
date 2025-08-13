@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.login.LoginNavigation
 import com.example.quickdraw.R
+import com.example.quickdraw.game.components.ScreenLoader
 import com.example.quickdraw.login.vm.LoginScreenVM
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.primaryButtonColors
@@ -40,6 +41,7 @@ fun LoginScreen(
     navHost: NavHostController
 ){
     QuickdrawTheme {
+        ScreenLoader(MaterialTheme.colorScheme.background)
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             Column (
                 modifier = Modifier.padding(innerPadding).fillMaxSize(),

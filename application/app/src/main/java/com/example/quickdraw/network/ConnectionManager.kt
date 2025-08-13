@@ -1,5 +1,7 @@
 package com.example.quickdraw.network
 
+import android.util.Log
+import com.example.quickdraw.TAG
 import io.ktor.http.Url
 import okhttp3.OkHttpClient
 import okhttp3.Request
@@ -36,6 +38,7 @@ object  ConnectionManager {
         if(response==null){
             //attempt with fallback ids
             for(ip in availableIPs){
+                Log.i(TAG, "Attempting server:$ip")
                 if(ip!=mainIP){
                     request = Request.Builder().url(ip+url).post(bodyRequest).build()
                     response = query(request)

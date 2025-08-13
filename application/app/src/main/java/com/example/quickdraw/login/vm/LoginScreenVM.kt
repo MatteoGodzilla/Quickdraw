@@ -15,6 +15,7 @@ import com.example.quickdraw.network.api.LOGIN_ENDPOINT
 import com.example.quickdraw.network.data.LoginRequest
 import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.TAG
+import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.NoConnectionActivity
 import com.example.quickdraw.network.api.toRequestBody
@@ -42,6 +43,7 @@ class LoginScreenVM(
     fun sendLogin() = viewModelScope.launch(Dispatchers.IO) {
         val requestBody = LoginRequest(email.value, password.value).toRequestBody()
         try {
+            LoadingScreenViewManager.showLoading()
             val response=ConnectionManager.AttemptQuery(requestBody,LOGIN_ENDPOINT)
             if(response!=null){
                 if(response.code != 200){
@@ -63,6 +65,7 @@ class LoginScreenVM(
             Log.e("QUICKDRAW", "there was an exception with login")
             Log.e("QUICKDRAW", e.toString())
         }
+        LoadingScreenViewManager.hideLoading()
     }
 
 }
