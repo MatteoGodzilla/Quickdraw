@@ -12,12 +12,15 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.quickdraw.game.viewmodels.PopupViewModel
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.launch
 
@@ -44,6 +47,10 @@ fun BasicScreen(
             },
             bottomBar = { BottomNavBar(navigation = controller) },
         ) { padding ->
+            val popupIsShowing = PopupViewModel.isShowing.collectAsState()
+
+            Popup(3000L,Color.Green) { PopupViewModel.hide() }
+
             Column(
                 modifier = Modifier.padding(padding)
             ){

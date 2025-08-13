@@ -25,7 +25,7 @@ fun redeemContractAPI(authToken: String, contract: ActiveContract) : ContractRed
     if(response!=null){
         Log.i(TAG, response.code.toString())
         if(response.code == 200){
-            val body = response.body!!.string()
+            val body = response.body.string()
             Log.i(TAG, body)
             val obj = Json.decodeFromString<ContractRedeemResponse>(body)
             return obj
