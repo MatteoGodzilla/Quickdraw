@@ -28,7 +28,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.quickdraw.R
-import com.example.quickdraw.game.components.RowDevider
+import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.network.data.EmployedMercenary
@@ -111,7 +111,7 @@ fun LockedMercenaryPost(mercenary: LockedMercenary){
             Text("Unlock at level ${mercenary.levelRequired}")
         }
     }
-    RowDevider()
+    RowDivider()
 }
 
 @Composable
@@ -134,7 +134,7 @@ fun EmployedMercenaryPost(mercenary: EmployedMercenary,available: Boolean = true
                 modifier = Modifier.width(110.dp).height(60.dp))
         }
     }
-    RowDevider()
+    RowDivider()
 }
 
 @Composable
@@ -162,5 +162,5 @@ fun AssignableMercenary(mercenary: EmployedMercenary,stateArray: MutableStateFlo
             , checked = checked
         )
     }
-    RowDevider()
+    RowDivider()
 }

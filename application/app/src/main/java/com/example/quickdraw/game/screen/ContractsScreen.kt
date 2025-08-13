@@ -8,8 +8,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
-import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -22,15 +20,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.quickdraw.R
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
-import com.example.quickdraw.game.components.RowDevider
+import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.repo.GameRepository
@@ -143,7 +138,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                     }
 
                     //display mercenaries
-                    RowDevider()
+                    RowDivider()
                     for(merc in unassigned){
                         val checkBoxSelectable = selectedMercenaries.value.any{x->x.first==merc.idEmployment} || selectedMercenaries.value.size<currentContract.maxMercenaries
                         AssignableMercenary(merc,selectedMercenariesState,checkBoxSelectable)

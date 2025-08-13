@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.lifecycleScope
+import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.network.api.TOKEN_LOGIN_ENDPOINT
 import com.example.quickdraw.network.data.TokenRequest

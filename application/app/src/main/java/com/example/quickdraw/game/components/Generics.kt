@@ -32,7 +32,7 @@ import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
 
 
 @Composable
-fun RowDevider(){
+fun RowDivider(){
     HorizontalDivider(
         modifier = Modifier.fillMaxWidth().padding(all=0.dp),
         thickness = 2.dp,

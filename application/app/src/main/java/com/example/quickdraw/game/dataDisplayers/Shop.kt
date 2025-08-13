@@ -17,7 +17,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
 import com.example.quickdraw.R
-import com.example.quickdraw.game.components.RowDevider
+import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
@@ -52,7 +52,7 @@ fun BasicShopEntry(price:String, purchasable: Boolean, action:()->Unit, populate
             }
         }
     }
-    RowDevider()
+    RowDivider()
 }
 
 @Composable

@@ -22,6 +22,7 @@ import com.example.quickdraw.MainActivity
 import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
+import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.api.TOKEN_LOGIN_ENDPOINT
@@ -55,6 +56,13 @@ class NoConnectionActivity: ComponentActivity()  {
                         return@Button
                     }) {
                         Text("Try again")
+                    }
+                    Button(onClick = {
+                        val intent = Intent(this@NoConnectionActivity, DuelActivity::class.java)
+                        startActivity(intent)
+                        return@Button
+                    }) {
+                        Text("Local connection")
                     }
                 }
             }
