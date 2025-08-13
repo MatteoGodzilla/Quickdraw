@@ -3,89 +3,120 @@ package com.example.quickdraw.duel
 import android.util.Log
 import com.example.quickdraw.TAG
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.net.Socket
+import kotlin.random.Random
 
 internal enum class DuelState {
     UNKNOWN,
-    CAN_PLAY
+    CAN_PLAY,
+    READY,
+    STEADY,
+    BANG,
+    RESULTS
 }
 
+//Higher level logic for actually handling the game part
 class DuelGameLogic : MessageHandler{
-    private var serverState = DuelState.UNKNOWN
+    private var selfState = DuelState.UNKNOWN
         set(value) {
             field = value
             printStatus()
         }
-    private var clientState = DuelState.UNKNOWN
+    private var peerState = DuelState.UNKNOWN
         set(value) {
             field = value
             printStatus()
         }
-    private var isServer = false
+
+    private var selfDelay = 0.0
+    private var peerDelay = 0.0
+    private var bangTargetDelay = 0.0
+    private var selfBangDelay = 0.0
+    private var peerBangDelay = 0.0
+
     private lateinit var duelServer: DuelServer
-    
-    override suspend fun onConnection(isServer: Boolean, duelServer: DuelServer) {
-        this.isServer = isServer
+
+    override suspend fun onConnection(duelServer: DuelServer) {
         this.duelServer = duelServer
-        if(isServer){
-            duelServer.enqueueS2CMessage(Message(Type.HELLO))
-        } else {
-            duelServer.enqueueC2SMessage(Message(Type.HELLO))
-        }
+        duelServer.enqueueOutgoing(Message(Type.HELLO))
     }
 
-    override suspend fun handleC2SMessage(message: Message, client: Socket) {
+    override suspend fun handleIncoming(message: Message, other: Socket) {
         when(message.type){
             Type.ACK -> {
-                if(serverState == DuelState.UNKNOWN){
+                if(peerState == DuelState.UNKNOWN){
                     if(message.data == Type.HELLO.toString()){
-                        serverState = DuelState.CAN_PLAY
-                    }
+                        selfState = DuelState.CAN_PLAY
+                    } //otherwise it should throw something or error
                 }
             }
             Type.HELLO -> {
-                if(clientState == DuelState.UNKNOWN){
-                    clientState = DuelState.CAN_PLAY
-                    duelServer.enqueueS2CMessage(Message(Type.ACK, message.type.toString()))
+                if(peerState == DuelState.UNKNOWN){
+                    peerState = DuelState.CAN_PLAY
+                    duelServer.enqueueOutgoing(Message(Type.ACK, message.type.toString()))
                 }
             }
-            Type.READY -> TODO()
-            Type.STEADY -> TODO()
+            Type.READY -> {
+                if(peerState == DuelState.CAN_PLAY) {
+                    peerState = DuelState.READY
+                    checkReady()
+                }
+            }
+            Type.STEADY -> {
+                peerDelay = message.data.toDouble()
+                peerState = DuelState.STEADY
+                checkSteady()
+            }
             Type.BANG -> TODO()
         }
     }
 
-    override suspend fun handleS2CMessage(message: Message, server: Socket) {
-        when(message.type){
-            Type.ACK -> {
-                if(clientState == DuelState.UNKNOWN) {
-                    if(message.data == Type.HELLO.toString()){
-                        clientState = DuelState.CAN_PLAY
-                    }
-                }
-            }
-            Type.HELLO -> {
-                if(serverState == DuelState.UNKNOWN){
-                    serverState = DuelState.CAN_PLAY
-                    duelServer.enqueueC2SMessage(Message(Type.ACK, message.type.toString()))
-                }
-            }
-            Type.READY -> TODO()
-            Type.STEADY -> TODO()
-            Type.BANG -> TODO()
+    suspend fun setReady() {
+        selfState = DuelState.READY
+        duelServer.enqueueOutgoing(Message(Type.READY))
+        checkReady()
+    }
+
+
+    suspend fun bang(){
+        selfState = DuelState.BANG
+        //get delta time
+        val delta = 0.1
+        duelServer.enqueueOutgoing(Message(Type.BANG, delta.toString()))
+    }
+
+    //Stuff to do when both peers are in the same state
+    suspend fun checkReady(){
+        if(selfState == DuelState.READY && peerState == DuelState.READY) {
+            selfState = DuelState.STEADY
+            //generate random number
+            selfDelay = Random.nextDouble(5.0,10.0) //seconds
+            duelServer.enqueueOutgoing(Message(Type.STEADY, selfDelay.toString()))
+            checkSteady()
         }
     }
 
-    //STATE CHANGERS
+    suspend fun checkSteady(){
+        if(selfState == DuelState.STEADY && peerState == DuelState.STEADY){
+            //set reference time
+            bangTargetDelay = (selfDelay + peerDelay) / 2
 
-    suspend fun ready() = withContext(Dispatchers.IO){
-        if(clientState == DuelState.CAN_PLAY && serverState == DuelState.CAN_PLAY){
-            Log.i(TAG, "Poggers")
+        }
+    }
+
+    suspend fun checkBang() {
+        if(selfState == DuelState.BANG && peerState == DuelState.BANG) {
+            //check who won
+            //Option 1: to win the delay must be positive, but the smallest
+            //Option 2: to win the absolute value of the delay must be smallest
+
         }
     }
 
     private fun printStatus(){
-        Log.i(TAG, "S:$serverState\tC:$clientState")
+        Log.i(TAG, "S:$selfState\tP:$peerState")
     }
+
 }

@@ -5,9 +5,10 @@ import java.net.Socket
 enum class Type {
     ACK, //data contains type of message acknowledged
     HELLO, //no data
-    READY,
-    STEADY,
-    BANG
+    READY, //for notifying that a player has chosen a gun
+    STEADY, //for starting the round
+    BANG, //for when a player shoots a bullet
+    DAMAGE //sent from winner to loser, to mark what gun has been used (damage is derived from that)
 }
 
 data class Message (val type: Type, val data: String = ""){
@@ -25,7 +26,6 @@ data class Message (val type: Type, val data: String = ""){
 }
 
 interface MessageHandler{
-    suspend fun onConnection(isServer: Boolean, duelServer: DuelServer)
-    suspend fun handleC2SMessage(message: Message, client: Socket)
-    suspend fun handleS2CMessage(message: Message, server: Socket)
+    suspend fun onConnection(duelServer: DuelServer)
+    suspend fun handleIncoming(message: Message, other: Socket)
 }
