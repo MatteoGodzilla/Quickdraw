@@ -44,7 +44,7 @@ import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
 
 @Composable
-fun MainScreen(controller: NavHostController, repository: GameRepository, peerFinder: PeerFinder, onScan: ()->Unit){
+fun MainScreen(controller: NavHostController, repository: GameRepository, peerFinder: PeerFinder, onScan: ()->Unit, onSettings:()->Unit){
     QuickdrawTheme {
         Scaffold(
             topBar = { TopBar(repository) },
@@ -71,10 +71,26 @@ fun MainScreen(controller: NavHostController, repository: GameRepository, peerFi
                     }
                 }
             }
-            Row (
-                verticalAlignment = Alignment.Bottom,
+            Column (
+                verticalArrangement = Arrangement.Bottom,
                 modifier = Modifier.fillMaxSize().padding(padding)
             ){
+                //connection settings
+                Button(
+                    onClick = onSettings,
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContainerColor = MaterialTheme.colorScheme.primary,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Icon(imageVector = ImageVector.vectorResource(R.drawable.settings_24px),"Scout")
+                    Text("Open settings", fontSize = Typography.titleLarge.fontSize)
+                }
+                //scouting
                 Button(
                     onClick = onScan,
                     colors = ButtonColors(

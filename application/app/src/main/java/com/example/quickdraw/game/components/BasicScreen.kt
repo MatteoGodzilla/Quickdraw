@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.game.viewmodels.PopupViewModel
@@ -42,15 +43,12 @@ fun BasicScreen(
             topBar = {
                 CenterAlignedTopAppBar(
                     title = { Text(name) },
-                    actions = { if(showMoney) MoneyDisplayer(money) }
+                    actions = { if(showMoney) MoneyDisplayer(money) },
+                    modifier = Modifier.padding(0.dp)
                 )
             },
             bottomBar = { BottomNavBar(navigation = controller) },
         ) { padding ->
-            val popupIsShowing = PopupViewModel.isShowing.collectAsState()
-
-            Popup(3000L,Color.Green) { PopupViewModel.hide() }
-
             Column(
                 modifier = Modifier.padding(padding)
             ){

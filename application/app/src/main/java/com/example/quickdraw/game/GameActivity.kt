@@ -1,7 +1,11 @@
 package com.example.quickdraw.game
 
+import android.content.ActivityNotFoundException
+import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
+import android.provider.Settings.ACTION_WIFI_SETTINGS
+import android.provider.Settings.ACTION_WIRELESS_SETTINGS
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -68,6 +72,18 @@ class GameActivity : ComponentActivity(){
         }
 
         val qdapp = application as QuickdrawApplication
+
+        val onScoutingFun: ()->Unit ={
+            if(qdapp.peerFinderSingleton.scanning.value){
+                qdapp.peerFinderSingleton.stopScanning()
+            } else {
+                qdapp.peerFinderSingleton.startScanning(Peer(
+                    repository.player.status.value?.username ?: "ERROR",
+                    repository.player.level.value
+                ), this@GameActivity)
+            }
+        }
+
         qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
             val intent = Intent(this, DuelActivity::class.java)
             intent.putExtra(Game2Duel.groupOwnerKey, groupOwner)
@@ -104,14 +120,20 @@ class GameActivity : ComponentActivity(){
                 }
                 composable<GameNavigation.Map> {
                     //TODO: pretty sure this will need to be kept alive between activities using Application
-                    MainScreen(controller, repository, qdapp.peerFinderSingleton){
-                        if(qdapp.peerFinderSingleton.scanning.value){
-                            qdapp.peerFinderSingleton.stopScanning()
-                        } else {
-                            qdapp.peerFinderSingleton.startScanning(Peer(
-                                repository.player.status.value?.username ?: "ERROR",
-                                repository.player.level.value
-                            ), this@GameActivity)
+                    MainScreen(controller, repository, qdapp.peerFinderSingleton,onScoutingFun){
+                        try{
+                            //not guaranteeded to exist
+                            val i = Intent().apply {
+                                component = ComponentName(
+                                    "com.android.settings",
+                                    "com.android.settings.wifi.p2p.WifiP2pSettings"
+                                )
+                            }
+                            startActivity(i)
+                        }
+                        catch(e: ActivityNotFoundException){
+                            val i = Intent(ACTION_WIFI_SETTINGS)
+                            startActivity(i)
                         }
                     }
                 }

@@ -14,7 +14,8 @@ private val LightColorScheme = lightColorScheme(
     onSurfaceVariant = Color(0xFF2F0E02),
     secondary = Color(0XFFF2721A),
     tertiary = Color(0XFFBC5813),
-    onErrorContainer = Color(0xFF9A9A9A) //used for disabled stuff
+    onErrorContainer = Color(0xFF9A9A9A) //used for disabled stuff,
+
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
