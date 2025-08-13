@@ -48,7 +48,7 @@ fun ActiveContract(contract: ActiveContract, timeSeconds: Long, onRedeemClick: (
     ){
         val elapsed = timeSeconds - contract.startTime
         val timeRemaining = contract.requiredTime - elapsed
-        Column {
+        Column(modifier = Modifier.fillMaxWidth(0.7f)) {
             Text(contract.name, fontSize = Typography.titleLarge.fontSize)
             if(timeRemaining > 0){
                 Text("Time remaining: ${timeRemaining}s")
@@ -76,7 +76,7 @@ fun AvailableContract(contract: AvailableContract, onStartButton: ()->Unit,start
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Column {
+        Column(modifier = Modifier.fillMaxWidth(0.7f)) {
             Text(contract.name, fontSize = Typography.titleLarge.fontSize)
             Text("Required time: ${contract.requiredTime}s")
             Text("Max mercenaries allowed: ${contract.maxMercenaries}")

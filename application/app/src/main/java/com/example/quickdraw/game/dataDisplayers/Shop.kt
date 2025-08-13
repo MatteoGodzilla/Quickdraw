@@ -34,10 +34,10 @@ fun BasicShopEntry(price:String, purchasable: Boolean, action:()->Unit, populate
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Column(modifier = Modifier.fillMaxWidth(0.65f).padding(horizontal = 20.dp)) {
+        Column(modifier = Modifier.fillMaxWidth(0.6f).padding(horizontal = 20.dp)) {
             populateShopEntry()
         }
-        Column(modifier = Modifier.padding(all = 20.dp).fillMaxWidth()) {
+        Column(modifier = Modifier.padding(all = 20.dp).fillMaxWidth(0.9f)) {
             Button(
                 enabled = purchasable,
                 onClick = action,

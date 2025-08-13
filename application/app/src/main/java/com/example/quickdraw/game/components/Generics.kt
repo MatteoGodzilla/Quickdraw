@@ -6,8 +6,10 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
@@ -37,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -45,6 +49,8 @@ import com.example.quickdraw.R
 import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
 import com.example.quickdraw.game.viewmodels.PopupViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 enum class PopupType{
     SUCCESS,
@@ -64,24 +70,24 @@ fun RowDivider(){
 @Composable
 fun Popup(duration:Long,color:Color,onEnd:()->Unit){
         val message = PopupViewModel.message.collectAsState()
-        var isShowing by remember { mutableStateOf(true) }
-
-        LaunchedEffect(Unit) {
-            delay(duration)
-            if(isShowing){
-                onEnd()
+        val isShowing = PopupViewModel.isShowing.collectAsState()
+        LaunchedEffect(isShowing.value) {
+            if (isShowing.value) {
+                delay(duration)
+                PopupViewModel.hide()
             }
         }
-
+        val density = LocalDensity.current
         AnimatedVisibility(
-            visible = isShowing,
-            enter = fadeIn() + slideInVertically(initialOffsetY = { -40 }),
-            exit = fadeOut() + slideOutVertically(targetOffsetY = { -40 })
+            visible = isShowing.value,
+            enter=fadeIn(initialAlpha = 0.2f),
+            exit = fadeOut()
         ) {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    .offset(y=10.dp),
                 contentAlignment = Alignment.TopCenter
             ){
                 Surface(color = color,

@@ -26,7 +26,7 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.components.Popup
-import com.example.quickdraw.game.components.RowDevider
+import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.repo.GameRepository
@@ -65,7 +65,6 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
 
     //for mercenaries shop
     val player = repository.player.status.collectAsState()
-    val popupMsg = PopupViewModel.message.collectAsState()
 
     BasicScreen("Contracts", controller, listOf(
         ContentTab("Active"){

@@ -47,7 +47,7 @@ class NoConnectionActivity: ComponentActivity()  {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxSize().background(color= MaterialTheme.colorScheme.surfaceContainer)
+                    modifier = Modifier.fillMaxSize().background(color= MaterialTheme.colorScheme.background)
                 ){
                     Text("Could not connect to server")
                     Button(onClick = {

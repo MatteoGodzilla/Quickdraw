@@ -5,8 +5,11 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -18,6 +21,7 @@ import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
+import com.example.quickdraw.game.components.Popup
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.ContractsCallbacks
 import com.example.quickdraw.game.screen.ContractsScreen
@@ -29,11 +33,13 @@ import com.example.quickdraw.game.screen.ShopCallbacks
 import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
 import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
+import com.example.quickdraw.game.viewmodels.PopupViewModel
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
 import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
+import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
@@ -71,11 +77,11 @@ class GameActivity : ComponentActivity(){
 
         setContent {
             val controller = rememberNavController()
-            val isLoading by LoadingScreenViewManager.isLoading
-
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
+
                 composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository) }
                 composable<GameNavigation.Shop> {
+
                     ShopScreen(controller, repository, object : ShopCallbacks{
                         override fun onBuyBullet(toBuy: ShopBullet) {
                             lifecycleScope.launch {
@@ -130,6 +136,11 @@ class GameActivity : ComponentActivity(){
                         }
                     })
                 }
+            }
+            //popup for all pages
+            QuickdrawTheme {
+                Popup(3000,color = MaterialTheme.colorScheme.primary)
+                { PopupViewModel.hide() }
             }
         }
     }
