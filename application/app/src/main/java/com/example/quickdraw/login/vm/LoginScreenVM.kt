@@ -1,7 +1,10 @@
 package com.example.quickdraw.login.vm
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
+import androidx.core.content.ContextCompat.startActivity
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -12,6 +15,8 @@ import com.example.quickdraw.network.api.LOGIN_ENDPOINT
 import com.example.quickdraw.network.data.LoginRequest
 import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.TAG
+import com.example.quickdraw.network.ConnectionManager
+import com.example.quickdraw.network.NoConnectionActivity
 import com.example.quickdraw.network.api.toRequestBody
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -22,6 +27,7 @@ import java.io.IOException
 
 class LoginScreenVM(
     private val dataStore: DataStore<Preferences>,
+    private val onFailedLogin:()->Unit,
     private val onSuccessfulLogin: () -> Unit
 ) : ViewModel() {
     val email = mutableStateOf("")
@@ -34,24 +40,24 @@ class LoginScreenVM(
     }
 
     fun sendLogin() = viewModelScope.launch(Dispatchers.IO) {
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url(LOGIN_ENDPOINT)
-            .post(LoginRequest(email.value, password.value).toRequestBody())
-            .build()
-
+        val requestBody = LoginRequest(email.value, password.value).toRequestBody()
         try {
-            val response = client.newCall(request).execute()
-            if(response.code != 200){
-                showInvalidCombo.value = true;
-            } else {
-                val responseVal = Json.decodeFromString<LoginResponse>(response.body.string())
-                Log.i(TAG, responseVal.toString())
-                dataStore.edit { preferences ->
-                    preferences[PrefKeys.authToken] = responseVal.authToken
+            val response=ConnectionManager.AttemptQuery(requestBody,LOGIN_ENDPOINT)
+            if(response!=null){
+                if(response.code != 200){
+                    showInvalidCombo.value = true;
+                } else {
+                    val responseVal = Json.decodeFromString<LoginResponse>(response.body.string())
+                    Log.i(TAG, responseVal.toString())
+                    dataStore.edit { preferences ->
+                        preferences[PrefKeys.authToken] = responseVal.authToken
+                    }
+                    response.close()
+                    onSuccessfulLogin()
                 }
-                response.close()
-                onSuccessfulLogin()
+            }
+            else{
+                onFailedLogin()
             }
         } catch (e: IOException){
             Log.e("QUICKDRAW", "there was an exception with login")

@@ -18,6 +18,7 @@ import com.example.quickdraw.login.screen.LoginScreen
 import com.example.quickdraw.login.screen.RegisterScreen
 import com.example.quickdraw.login.vm.LoginScreenVM
 import com.example.quickdraw.login.vm.RegisterScreenVM
+import com.example.quickdraw.network.NoConnectionActivity
 import kotlinx.serialization.Serializable
 
 class LoginNavigation{
@@ -28,6 +29,13 @@ class LoginNavigation{
 }
 
 class LoginActivity : ComponentActivity() {
+
+    private fun onLoginFailed(){
+        val intent = Intent(this@LoginActivity, NoConnectionActivity::class.java)
+        startActivity(intent)
+        Log.i(TAG, "Sending from Login to No connection")
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -39,7 +47,7 @@ class LoginActivity : ComponentActivity() {
             NavHost(navController = navigation, startDestination = LoginNavigation.Login){
                 composable<LoginNavigation.Login> {
                     val vm = viewModel {
-                        LoginScreenVM(this@LoginActivity.dataStore) {
+                        LoginScreenVM(this@LoginActivity.dataStore,{onLoginFailed()}) {
                             //On Login success
                             val intent = Intent(this@LoginActivity, GameActivity::class.java)
                             startActivity(intent)

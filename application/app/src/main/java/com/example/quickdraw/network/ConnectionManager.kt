@@ -5,12 +5,18 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
+import okio.IOException
 import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 object  ConnectionManager {
-    private var mainIP = "http://192.168.1.63:8000"
-    private var availableIPs:List<String>  = listOf("http://192.168.1.63:8000","http://10.10.1.130:8000")
+    private var mainIP = "http://192.168.1.45:8000"
+    private var availableIPs:List<String>  = listOf(
+        "http://192.168.1.68:8000",
+        "http://192.168.1.63:8000",
+        "http://192.168.1.45:8000",
+        "http://10.10.1.130:8000"
+    )
 
     private fun query(request:Request):Response?{
         try{
@@ -18,7 +24,7 @@ object  ConnectionManager {
             val response = client.newCall(request).execute()
             return response
         }
-        catch(exception: SocketTimeoutException){
+        catch(exception: IOException){
             return null
         }
     }

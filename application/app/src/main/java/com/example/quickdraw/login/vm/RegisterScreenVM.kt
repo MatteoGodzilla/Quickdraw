@@ -8,6 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quickdraw.PrefKeys
+import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.network.api.REGISTER_ENDPOINT
 import com.example.quickdraw.network.data.RegisterRequest
@@ -38,24 +39,22 @@ class RegisterScreenVM(
     }
 
     fun register() = viewModelScope.launch(Dispatchers.IO){
-        val client = OkHttpClient()
-        val request = Request.Builder()
-            .url(REGISTER_ENDPOINT)
-            .post(RegisterRequest(email.value, password.value, username.value).toRequestBody())
-            .build()
+        val reqBody = RegisterRequest(email.value, password.value, username.value).toRequestBody()
 
         try {
-            val response = client.newCall(request).execute()
-            if(response.code != 200){
-                Log.e("QUICKDRAW", response.code.toString())
-            } else {
-                val responseVal = Json.decodeFromString<LoginResponse>(response.body.string())
-                dataStore.edit { preferences ->
-                    preferences[PrefKeys.authToken] = responseVal.authToken
+            val response = ConnectionManager.AttemptQuery(reqBody,REGISTER_ENDPOINT)
+            if(response!=null){
+                if(response.code != 200){
+                    Log.e("QUICKDRAW", response.code.toString())
+                } else {
+                    val responseVal = Json.decodeFromString<LoginResponse>(response.body.string())
+                    dataStore.edit { preferences ->
+                        preferences[PrefKeys.authToken] = responseVal.authToken
+                    }
                 }
+                response.close()
+                onRegisterSuccess()
             }
-            response.close()
-            onRegisterSuccess()
         } catch (e: IOException){
             Log.e("QUICKDRAW", "there was an exception with registration")
             Log.e("QUICKDRAW", e.toString())
