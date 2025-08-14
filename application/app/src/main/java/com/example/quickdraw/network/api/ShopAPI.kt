@@ -2,7 +2,6 @@ package com.example.quickdraw.network.api
 
 import android.util.Log
 import com.example.quickdraw.TAG
-import com.example.quickdraw.game.dataDisplayers.BulletShopEntry
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.data.BuyRequest
 import com.example.quickdraw.network.data.TokenRequest
@@ -11,13 +10,11 @@ import com.example.quickdraw.network.data.ShopMedikit
 import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
 import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody
 
 fun getShopWeaponsAPI(authToken: String): List<ShopWeapon> {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,SHOP_WEAPONS)
+    val response = ConnectionManager.attemptPost(requestBody,SHOP_WEAPONS)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
@@ -31,7 +28,7 @@ fun getShopWeaponsAPI(authToken: String): List<ShopWeapon> {
 
 fun getShopBulletsAPI(authToken: String): List<ShopBullet> {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,SHOP_BULLETS)
+    val response = ConnectionManager.attemptPost(requestBody,SHOP_BULLETS)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
@@ -45,7 +42,7 @@ fun getShopBulletsAPI(authToken: String): List<ShopBullet> {
 
 fun getShopMedikitsAPI(authToken: String): List<ShopMedikit> {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,SHOP_MEDIKITS)
+    val response = ConnectionManager.attemptPost(requestBody,SHOP_MEDIKITS)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
@@ -59,7 +56,7 @@ fun getShopMedikitsAPI(authToken: String): List<ShopMedikit> {
 
 fun getShopUpgradesAPI(authToken: String): List<ShopUpgrade> {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,SHOP_UPGRADES)
+    val response = ConnectionManager.attemptPost(requestBody,SHOP_UPGRADES)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
@@ -73,7 +70,7 @@ fun getShopUpgradesAPI(authToken: String): List<ShopUpgrade> {
 
 fun buyBulletsAPI(buy: BuyRequest): ShopBullet?{
     val requestBody: RequestBody = buy.toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,SHOP_BUY_BULLETS)
+    val response = ConnectionManager.attemptPost(requestBody,SHOP_BUY_BULLETS)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
@@ -87,7 +84,7 @@ fun buyBulletsAPI(buy: BuyRequest): ShopBullet?{
 
 fun buyMedikitAPI(buy: BuyRequest): ShopMedikit?{
     val requestBody: RequestBody = buy.toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,SHOP_BUY_MEDIKIT)
+    val response = ConnectionManager.attemptPost(requestBody,SHOP_BUY_MEDIKIT)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
@@ -101,7 +98,7 @@ fun buyMedikitAPI(buy: BuyRequest): ShopMedikit?{
 
 fun buyWeaponAPI(buy: BuyRequest): ShopWeapon?{
     val requestBody: RequestBody = buy.toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,SHOP_BUY_WEAPON)
+    val response = ConnectionManager.attemptPost(requestBody,SHOP_BUY_WEAPON)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
@@ -115,7 +112,7 @@ fun buyWeaponAPI(buy: BuyRequest): ShopWeapon?{
 
 fun buyUpgradeAPI(buy: BuyRequest): ShopUpgrade?{
     val requestBody: RequestBody = buy.toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,SHOP_BUY_UPGRADE)
+    val response = ConnectionManager.attemptPost(requestBody,SHOP_BUY_UPGRADE)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token

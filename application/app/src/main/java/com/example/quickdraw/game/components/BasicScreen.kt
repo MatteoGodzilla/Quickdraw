@@ -1,5 +1,6 @@
 package com.example.quickdraw.game.components
 
+import android.util.Base64
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -46,6 +47,7 @@ fun BasicScreen(
 ){
     val pagerState = rememberPagerState (initialPage = 0){ tabs.count() }
     val scrollScope = rememberCoroutineScope()
+
     QuickdrawTheme {
         Scaffold (
             topBar = {

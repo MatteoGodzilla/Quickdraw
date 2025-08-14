@@ -6,3 +6,6 @@ class BasicAuthTokenRequest(BaseModel):
 
 class BuyRequest(BasicAuthTokenRequest):
     id:int
+
+class ImageRequest(BaseModel):
+    id: int

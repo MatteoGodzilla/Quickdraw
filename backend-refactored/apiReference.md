@@ -271,17 +271,6 @@ Per la quantità dei medikit, fare riferimento all'inventario
 - Response: [number]
 Lista di punti exp richiesti, in ordine crescente, dal livello 1 in poi
 
-### /updatePic/
-- Richiesta POST
-- Request: {
-    authToken: string,
-    image: (base64 o blob?)
-}
-    - In caso di dati mancanti -> HTTP 400
-- Response: {
-    uri: string
-}
-
 ## Duel
 ### /duel/
 TODO: da migliorare una volta implementato il loop vero di gioco
@@ -319,3 +308,43 @@ lista ordinata dall'utente con il bounty più alto a quello più basso
     bounty: number
 }]
 lista ordinata dall'utente con il bounty più alto a quello più basso
+
+## Images
+### /image/weapon
+- Richiesta POST
+- Request: { id:number }
+    - In caso di dati mancanti -> HTTP 404 Not found
+- Response: { image: blob as base64 } 
+
+### /image/bullet
+- Richiesta POST
+- Request: { id:number }
+    - In caso di dati mancanti -> HTTP 404 Not found
+- Response: { image: blob as base64 } 
+
+### /image/medikit
+- Richiesta POST
+- Request: { id:number }
+    - In caso di dati mancanti -> HTTP 404 Not found
+- Response: { image: blob as base64 } 
+
+### /image/upgrade
+- Richiesta POST
+- Request: { id:number }
+    - In caso di dati mancanti -> HTTP 404 Not found
+- Response: { image: blob as base64 } 
+
+### /image/player
+- Richiesta POST
+- Request: { id:number }
+    - In caso di dati mancanti -> HTTP 404 Not found
+- Response: { image: blob as base64 } 
+
+### /image/updatePic
+- Richiesta POST
+- Request: {
+    authToken: string,
+    image: blob as base64
+}
+    - In caso di dati mancanti -> HTTP 400
+- Response: HTTP 200 Ok

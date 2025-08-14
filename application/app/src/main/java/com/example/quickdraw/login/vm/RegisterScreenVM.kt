@@ -42,7 +42,7 @@ class RegisterScreenVM(
 
         try {
             LoadingScreenViewManager.showLoading()
-            val response = ConnectionManager.AttemptQuery(reqBody,REGISTER_ENDPOINT)
+            val response = ConnectionManager.attemptPost(reqBody,REGISTER_ENDPOINT)
             if(response!=null){
                 if(response.code != 200){
                     Log.e("QUICKDRAW", response.code.toString())

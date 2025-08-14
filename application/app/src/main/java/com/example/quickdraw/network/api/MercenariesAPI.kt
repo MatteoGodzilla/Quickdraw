@@ -6,21 +6,17 @@ import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.data.EmployMercenary
 import com.example.quickdraw.network.data.EmployMercenaryResponse
 import com.example.quickdraw.network.data.HireableMercenary
-import com.example.quickdraw.network.data.LeaderboardEntry
 import com.example.quickdraw.network.data.MercenaryEmployedResponse
 import com.example.quickdraw.network.data.MercenaryHireableResponse
-import com.example.quickdraw.network.data.MercenaryUnassigned
 import com.example.quickdraw.network.data.NextToUnlockMercenaryResponse
 import com.example.quickdraw.network.data.TokenRequest
 import com.example.quickdraw.network.data.UnassignedMercenaryResponse
 import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import okhttp3.RequestBody
 
 fun getHirableAPI(authToken: String): MercenaryHireableResponse {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,MERCENARY_HIREABLE)
+    val response = ConnectionManager.attemptPost(requestBody,MERCENARY_HIREABLE)
 
     if(response!=null){
         if(response.code == 200){
@@ -35,7 +31,7 @@ fun getHirableAPI(authToken: String): MercenaryHireableResponse {
 
 fun getUnassignedMercenariesAPI(authToken: String): UnassignedMercenaryResponse {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,MERCENARY_PLAYER_UNASSIGNED)
+    val response = ConnectionManager.attemptPost(requestBody,MERCENARY_PLAYER_UNASSIGNED)
 
     if(response!=null){
         if(response.code == 200){
@@ -50,7 +46,7 @@ fun getUnassignedMercenariesAPI(authToken: String): UnassignedMercenaryResponse 
 
 fun employMercenaryAPI(authToken: String,mercenary: HireableMercenary) : EmployMercenaryResponse {
     val requestBody: RequestBody = EmployMercenary(idMercenary = mercenary.id, authToken = authToken).toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,MERCENARY_EMPLOY)
+    val response = ConnectionManager.attemptPost(requestBody,MERCENARY_EMPLOY)
 
     if(response!=null){
         if(response.code == 200){
@@ -65,7 +61,7 @@ fun employMercenaryAPI(authToken: String,mercenary: HireableMercenary) : EmployM
 
 fun getNextUnlockableMercenariesAPI(authToken: String) : NextToUnlockMercenaryResponse {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,MERCENAR_NEXT_UNLOCKABLE)
+    val response = ConnectionManager.attemptPost(requestBody,MERCENARY_NEXT_UNLOCKABLE)
 
     if(response!=null){
         if(response.code == 200){
@@ -80,7 +76,7 @@ fun getNextUnlockableMercenariesAPI(authToken: String) : NextToUnlockMercenaryRe
 
 fun getAllPlayerMercenariesAPI(authToken: String) : MercenaryEmployedResponse {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.AttemptQuery(requestBody,MERCENARY_PLAYER_ALL)
+    val response = ConnectionManager.attemptPost(requestBody,MERCENARY_PLAYER_ALL)
 
     if(response!=null){
         if(response.code == 200){

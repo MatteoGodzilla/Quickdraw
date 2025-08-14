@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
             LoadingScreenViewManager.showLoading()
             if(tokenId != null){
                 try {
-                    val response = ConnectionManager.AttemptQuery(TokenRequest(tokenId).toRequestBody(),TOKEN_LOGIN_ENDPOINT)
+                    val response = ConnectionManager.attemptPost(TokenRequest(tokenId).toRequestBody(),TOKEN_LOGIN_ENDPOINT)
                     if(response == null){
                         //no connection available,send to no connection activity
                         LoadingScreenViewManager.hideLoading()

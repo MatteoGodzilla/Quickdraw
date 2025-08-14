@@ -38,7 +38,7 @@ class LoginScreenVM(
         val requestBody = LoginRequest(email.value, password.value).toRequestBody()
         try {
             LoadingScreenViewManager.showLoading()
-            val response=ConnectionManager.AttemptQuery(requestBody,LOGIN_ENDPOINT)
+            val response=ConnectionManager.attemptPost(requestBody,LOGIN_ENDPOINT)
             if(response!=null){
                 if(response.code != 200){
                     showInvalidCombo.value = true;

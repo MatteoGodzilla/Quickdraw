@@ -31,12 +31,17 @@ const val BOUNTY_FRIENDS = "/bounty/friends"
 const val BOUNTY_LEADERBOARD = "/bounty/leaderboard"
 
 const val MERCENARY_HIREABLE = "/mercenaries/hireable"
-
 const val MERCENARY_EMPLOY = "/mercenaries/employ"
-
 const val MERCENARY_PLAYER_ALL = "/mercenaries/player/all"
 const val MERCENARY_PLAYER_UNASSIGNED = "/mercenaries/player/unassigned"
-const val MERCENAR_NEXT_UNLOCKABLE = "/mercenaries/nextUnlockables"
+const val MERCENARY_NEXT_UNLOCKABLE = "/mercenaries/nextUnlockables"
+
+const val IMAGE_WEAPON = "/image/weapon"
+const val IMAGE_BULLET = "/image/bullet"
+const val IMAGE_MEDIKIT = "/image/medikit"
+const val IMAGE_UPGRADE = "/image/upgrade"
+const val IMAGE_PLAYER = "/image/player"
+const val IMAGE_UPDATE_PLAYER = "/image/updatePic"
 
 inline fun <reified T> T.toRequestBody(): RequestBody {
     val jsonString = Json.encodeToString(this)

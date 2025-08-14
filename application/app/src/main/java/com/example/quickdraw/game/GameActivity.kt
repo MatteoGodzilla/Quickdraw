@@ -96,7 +96,7 @@ class GameActivity : ComponentActivity(){
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
 
-                composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository) }
+                composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository, qdapp.imageLoader) }
                 composable<GameNavigation.Shop> {
 
                     ShopScreen(controller, repository, object : ShopCallbacks{
