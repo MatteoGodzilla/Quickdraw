@@ -9,14 +9,13 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.lifecycleScope
-import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.network.api.TOKEN_LOGIN_ENDPOINT
 import com.example.quickdraw.network.data.TokenRequest
 import com.example.quickdraw.network.api.toRequestBody
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.components.ScreenLoader
-import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
+import com.example.quickdraw.game.vm.LoadingScreenViewManager
 import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.NoConnectionActivity
@@ -26,8 +25,6 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.IOException
 
 //Main as in first activity that is booted

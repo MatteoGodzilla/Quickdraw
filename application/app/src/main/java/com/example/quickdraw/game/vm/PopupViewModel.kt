@@ -1,13 +1,11 @@
-package com.example.quickdraw.game.viewmodels
+package com.example.quickdraw.game.vm
 
-import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
-
 object PopupViewModel {
     val message: MutableStateFlow<String> = MutableStateFlow<String>("test")
-    val isShowing:MutableStateFlow<Boolean> = MutableStateFlow<Boolean>(false)
+    val isShowing: MutableStateFlow<Boolean> = MutableStateFlow<Boolean>(false)
 
     fun showLoading(msg:String) {
         message.update { x->msg }

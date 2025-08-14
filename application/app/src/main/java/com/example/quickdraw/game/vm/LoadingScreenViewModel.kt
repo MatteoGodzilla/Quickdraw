@@ -1,10 +1,6 @@
-package com.example.quickdraw.game.viewmodels
+package com.example.quickdraw.game.vm
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.lifecycle.ViewModel
 
 
 object LoadingScreenViewManager {

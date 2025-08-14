@@ -1,10 +1,7 @@
 package com.example.quickdraw.login.vm
 
-import android.content.Context
-import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
-import androidx.core.content.ContextCompat.startActivity
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
@@ -15,15 +12,12 @@ import com.example.quickdraw.network.api.LOGIN_ENDPOINT
 import com.example.quickdraw.network.data.LoginRequest
 import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.TAG
-import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
+import com.example.quickdraw.game.vm.LoadingScreenViewManager
 import com.example.quickdraw.network.ConnectionManager
-import com.example.quickdraw.network.NoConnectionActivity
 import com.example.quickdraw.network.api.toRequestBody
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.IOException
 
 class LoginScreenVM(

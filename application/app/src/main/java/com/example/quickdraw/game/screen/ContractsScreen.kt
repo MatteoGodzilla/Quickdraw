@@ -23,15 +23,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
-import com.example.quickdraw.game.components.Popup
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.dataDisplayers.*
-import com.example.quickdraw.game.viewmodels.PopupViewModel
+import com.example.quickdraw.game.vm.ContractStartVM
+import com.example.quickdraw.game.vm.PopupViewModel
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.ui.theme.Typography
 import kotlinx.coroutines.delay
@@ -43,8 +44,6 @@ interface ContractsCallbacks {
     fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>)
     fun onHireMercenary(hireable: HireableMercenary)
 }
-
-
 @Composable
 fun ContractsScreen (controller: NavHostController, repository: GameRepository, callbacks: ContractsCallbacks) {
     //mutable states for mercenaries
@@ -52,12 +51,6 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
     val employedAll by repository.mercenaries.playerEmployed.collectAsState()
     val hireable by repository.mercenaries.hireable.collectAsState()
     val unlockable by repository.mercenaries.nextUnlockables.collectAsState()
-
-    //mutable states for contracts starting (selectedMercenariesState pair is id and power)
-    val selectedContractState = MutableStateFlow(-1)
-    val selectedMercenariesState = MutableStateFlow<List<Pair<Int,Int>>>(listOf())
-    val selectedContract = selectedContractState.collectAsState()
-    val selectedMercenaries = selectedMercenariesState.collectAsState()
 
     //mutable states for contracts
     val activeContracts = repository.contracts.active.collectAsState()
@@ -83,87 +76,13 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
             }
         },
         ContentTab("Available"){
-            if(selectedContract.value == -1){
-                for(contract in availableContracts.value){
-                    AvailableContract(contract,
-                        {selectedContractState.update { x->contract.id }},
-                        player.value!!.money >= contract.startCost
-                    )
-                }
-            } else{
-                    Box(modifier = Modifier.fillMaxWidth(),
-                        contentAlignment = Alignment.Center
-                    ){
-                        /**Button(
-                            modifier = Modifier.padding(horizontal = 10.dp)
-                                .align(Alignment.CenterStart),
-                            onClick = {selectedContractState.update { x->-1 }
-                                selectedMercenariesState.update { x->listOf() }
-                            }) {
-                            Icon(
-                                imageVector = ImageVector.vectorResource(R.drawable.home_24px),
-                                "",
-                                tint = Color.Black,
-                            )
-                        }**/
-                        Text("Select mercenaries",
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 15.dp, vertical = 15.dp).align(Alignment.Center),
-                            fontSize = Typography.titleLarge.fontSize,
-                            textAlign = TextAlign.Center,
-                        )
-                    }
-
-                val selected = availableContracts.value.filter { x->x.id == selectedContract.value }
-                if(selected.isEmpty()){
-                    selectedContractState.update { x->-1 }
-                }
-                else{
-                    //Data
-                    val currentContract = selected.first()
-                    val notTooMany = selectedMercenaries.value.size<=currentContract.maxMercenaries
-                    val atLeastOne = selectedMercenaries.value.isNotEmpty()
-                    var successRate = 100.0
-                    if(currentContract.requiredPower>0){
-                        successRate =
-                            kotlin.math.round((selectedMercenaries.value.sumOf { x -> x.second }
-                                .toDouble() / (currentContract.requiredPower).toDouble()) * 100)
-                                .coerceAtMost(100.0)
-                    }
-
-                    Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
-                        horizontalAlignment = Alignment.CenterHorizontally) {
-
-
-                        Text("Completion time:${currentContract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
-                        Text("Chance of success:${successRate}%", fontSize = Typography.bodyLarge.fontSize)
-                        Text("Selected :${selectedMercenaries.value.size}/${currentContract.maxMercenaries} mercenaries"
-                            , fontSize = Typography.bodyLarge.fontSize, color = if(notTooMany) Color.Black else Color.Red)
-                    }
-
-                    //display mercenaries
-                    RowDivider()
-                    for(merc in unassigned){
-                        val checkBoxSelectable = selectedMercenaries.value.any{x->x.first==merc.idEmployment} || selectedMercenaries.value.size<currentContract.maxMercenaries
-                        AssignableMercenary(merc,selectedMercenariesState,checkBoxSelectable)
-                    }
-
-                    Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)){
-
-                        Spacer(modifier = Modifier.weight(0.5f).fillMaxWidth())
-                        Button(enabled = notTooMany && atLeastOne,
-                            modifier = Modifier.padding(horizontal = 10.dp),
-                            onClick = {
-                                callbacks.onStartContract(currentContract,selectedMercenaries.value.map{x->x.first})
-                                selectedMercenariesState.update { x->listOf() }
-                                selectedContractState.update { x->-1 }
-                            }) {
-                            Text("Start contract (${currentContract.startCost})", textAlign = TextAlign.Center,
-                                modifier= Modifier.fillMaxWidth())
-                        }
-                    }
-
-                }
-
+            for(contract in availableContracts.value){
+                AvailableContract(contract,
+                    {
+                        controller.navigate(GameNavigation.StartContract(contract.id))
+                    },
+                    player.value!!.money >= contract.startCost
+                )
             }
         },
         ContentTab("Mercenary"){

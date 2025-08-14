@@ -14,7 +14,7 @@ import androidx.navigation.toRoute
 import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.game.GameActivity
-import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
+import com.example.quickdraw.game.vm.LoadingScreenViewManager
 import com.example.quickdraw.login.screen.LoginScreen
 import com.example.quickdraw.login.screen.RegisterScreen
 import com.example.quickdraw.login.vm.LoginScreenVM

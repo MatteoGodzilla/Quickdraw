@@ -5,26 +5,21 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings.ACTION_WIFI_SETTINGS
-import android.provider.Settings.ACTION_WIRELESS_SETTINGS
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.toRoute
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.QuickdrawApplication
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.components.BasicScreen
-import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.components.Popup
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.ContractsCallbacks
@@ -35,9 +30,11 @@ import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
 import com.example.quickdraw.game.screen.ShopCallbacks
 import com.example.quickdraw.game.screen.ShopScreen
+import com.example.quickdraw.game.screen.StartContractScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
-import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
-import com.example.quickdraw.game.viewmodels.PopupViewModel
+import com.example.quickdraw.game.vm.ContractStartVM
+import com.example.quickdraw.game.vm.LoadingScreenViewManager
+import com.example.quickdraw.game.vm.PopupViewModel
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
@@ -58,9 +55,13 @@ class GameNavigation {
     object Shop
     @Serializable
     object Contracts
+    @Serializable
+    data class StartContract(val idContract:Int)
 }
 
 class GameActivity : ComponentActivity(){
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -142,6 +143,27 @@ class GameActivity : ComponentActivity(){
                 }
                 composable<GameNavigation.Contracts> {
                     ContractsScreen(controller, repository, object : ContractsCallbacks {
+                        override fun onRedeemContract(activeContract: ActiveContract) {
+                            lifecycleScope.launch { repository.contracts.redeem(activeContract) }
+                        }
+                        override fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>) {
+                            lifecycleScope.launch { repository.contracts.start(availableContract,mercenaries) }
+                        }
+
+                        override fun onHireMercenary(hireable: HireableMercenary) {
+                            lifecycleScope.launch {
+                                LoadingScreenViewManager.showLoading()
+                                repository.mercenaries.employ(hireable)
+                                LoadingScreenViewManager.hideLoading()
+                            }
+                        }
+                    })
+                }
+                composable<GameNavigation.StartContract>{ backstackEntry ->
+                    val selected = backstackEntry.toRoute<GameNavigation.StartContract>()
+                    val contractsVM = ContractStartVM()
+                    contractsVM.selectContract(selected.idContract)
+                    StartContractScreen(controller,repository,contractsVM,object : ContractsCallbacks {
                         override fun onRedeemContract(activeContract: ActiveContract) {
                             lifecycleScope.launch { repository.contracts.redeem(activeContract) }
                         }

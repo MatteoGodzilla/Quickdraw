@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quickdraw.PrefKeys
-import com.example.quickdraw.game.viewmodels.LoadingScreenViewManager
+import com.example.quickdraw.game.vm.LoadingScreenViewManager
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.network.api.REGISTER_ENDPOINT
@@ -17,8 +17,6 @@ import com.example.quickdraw.network.api.toRequestBody
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import okhttp3.OkHttpClient
-import okhttp3.Request
 import java.io.IOException
 
 class RegisterScreenVM(

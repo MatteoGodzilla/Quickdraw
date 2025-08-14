@@ -34,7 +34,10 @@ fun BasicTabLayout(
         edgePadding = 4.dp,
     ) {
         for(i in 0 ..< tabs.count()) {
-            Tab(selected = false,modifier = Modifier.widthIn(min=minTabWidth), onClick = { callback(i) }, text = { Text(text = tabs[i],color= Color.Black, maxLines = 1) })
+            if(tabs[i].isNotEmpty()){
+                Tab(selected = false,modifier = Modifier.widthIn(min=minTabWidth), onClick = { callback(i) }, text = { Text(text = tabs[i],color= Color.Black, maxLines = 1) })
+            }
+
         }
     }
 }
