@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -37,17 +38,18 @@ fun BasicShopEntry(price:String, purchasable: Boolean, action:()->Unit, populate
         Column(modifier = Modifier.fillMaxWidth(0.6f).padding(horizontal = 20.dp)) {
             populateShopEntry()
         }
-        Column(modifier = Modifier.padding(all = 20.dp).fillMaxWidth(0.9f)) {
+        Column(modifier = Modifier.padding(all = 20.dp).fillMaxWidth(1f)) {
             Button(
                 enabled = purchasable,
                 onClick = action,
                 modifier = Modifier.fillMaxWidth().height(72.dp)
             ) {
-                Text(price,fontSize = Typography.titleLarge.fontSize)
+                Text(price,fontSize = Typography.titleLarge.fontSize, modifier = Modifier.weight(1.0f))
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.money_bag_24px_1_),
                     "",
                     tint = Color.Black,
+                    modifier = Modifier.size(24.dp)
                 )
             }
         }

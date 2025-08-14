@@ -66,7 +66,7 @@ object  ConnectionManager {
         return null
     }
 
-    public fun AttemptEmptyQuery(url:String):Response?{
+     fun AttemptEmptyQuery(url:String):Response?{
         //attempt with main IP
         var request = Request.Builder().url(mainIP+url).build()
         var response = query(request)
