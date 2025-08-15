@@ -1,12 +1,18 @@
 package com.example.quickdraw.game.dataDisplayers
 
+import android.graphics.Paint.Align
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
@@ -16,6 +22,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.RowDivider
@@ -31,20 +39,31 @@ import com.example.quickdraw.ui.theme.fulledEntry
 @Composable
 fun BasicShopEntry(price:String, purchasable: Boolean, action:()->Unit, populateShopEntry: @Composable ()->Unit){
     Row (
-        modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
+        modifier = Modifier.fillMaxWidth().padding(vertical = 0.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Column(modifier = Modifier.fillMaxWidth(0.6f).padding(horizontal = 20.dp)) {
-            populateShopEntry()
+        Row (
+            modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 10.dp).weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(Icons.Default.Settings, "Icon", modifier = Modifier.size(48.dp))
+            Column {
+                populateShopEntry()
+            }
         }
-        Column(modifier = Modifier.padding(all = 20.dp).fillMaxWidth(1f)) {
+        Column(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp)) {
             Button(
                 enabled = purchasable,
                 onClick = action,
-                modifier = Modifier.fillMaxWidth().height(72.dp)
+                //modifier = Modifier.fillMaxWidth().height(64.dp)
             ) {
-                Text(price,fontSize = Typography.titleLarge.fontSize, modifier = Modifier.weight(1.0f))
+                Text(
+                    price,
+                    //fontSize = Typography.titleLarge.fontSize,
+                    //modifier = Modifier.weight(1.0f),
+                    textAlign = TextAlign.Center
+                )
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.money_bag_24px_1_),
                     "",
@@ -61,8 +80,11 @@ fun BasicShopEntry(price:String, purchasable: Boolean, action:()->Unit, populate
 fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit, purchasable:Boolean=true, possessedAmount:Int = 0){
     val isFull = possessedAmount==bullet.capacity
     BasicShopEntry(if(isFull) "Full" else bullet.cost.toString(),purchasable,onBuy) {
-        Text("${bullet.name} (${bullet.quantity}x)", fontSize = Typography.titleLarge.fontSize)
-        Text("Your possession: ${possessedAmount}/${bullet.capacity}",color = if(isFull) fulledEntry else Color.Black)
+        Text(bullet.name, fontSize = Typography.titleLarge.fontSize)
+        if(bullet.quantity > 1){
+            Text("Bundle of ${bullet.quantity} bullets")
+        }
+        Text("Owned: ${possessedAmount}/${bullet.capacity}",color = if(isFull) fulledEntry else Color.Black)
     }
 }
 
@@ -70,9 +92,12 @@ fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit, purchasable:Boolean=tru
 fun MedikitEntryShop(medikit: ShopMedikit, onBuy: ()->Unit, purchasable:Boolean=true, possessedAmount:Int = 0){
     val isFull = possessedAmount==medikit.capacity
     BasicShopEntry(if(isFull) "Full" else medikit.cost.toString(),purchasable,onBuy) {
-        Text("${medikit.description} (${medikit.quantity}x)", fontSize = Typography.titleLarge.fontSize)
+        Text(medikit.description, fontSize = Typography.titleLarge.fontSize)
+        if(medikit.quantity > 1){
+            Text("Bundle of ${medikit.quantity} medikits")
+        }
         Text("Heals ${medikit.healthRecover} per use")
-        Text("Your possession: ${possessedAmount}/${medikit.capacity}",color = if(isFull) fulledEntry else Color.Black)
+        Text("Owned: ${possessedAmount}/${medikit.capacity}",color = if(isFull) fulledEntry else Color.Black)
     }
 }
 
@@ -100,6 +125,19 @@ fun MercenaryShopEntry(mercenary: HireableMercenary, onBuy: ()->Unit,canAfford:B
     }
 }
 
+@Preview
+@Composable
+fun previewBasic(){
+    BasicShopEntry("69000", true, action = {}) {
+        Text("Winchester", fontSize = Typography.titleLarge.fontSize)
+        Text("200 damage per hit")
+        Text("200 damage per hit")
+        Text("200 damage per hit")
+        Text("200 damage per hit")
+        Text("200 damage per hit")
+        Text("200 damage per hit   g  sg  gl js lh sghl gshlgshlgshlgshlsglhsglh")
+    }
+}
 
 
 

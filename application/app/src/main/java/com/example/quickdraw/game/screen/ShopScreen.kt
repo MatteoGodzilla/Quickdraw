@@ -53,19 +53,25 @@ fun ShopScreen (controller: NavHostController, repository: GameRepository, callb
         },
         ContentTab("Bullets"){
             if(bullets.value.isNotEmpty()){
-                for (w in bullets.value){
-                    val possessed = if(!possessedBullets.value.any{x->x.type==w.type}) 0 else possessedBullets.value.first { x -> x.type == w.type }.amount
-                    BulletShopEntry(w,{callbacks.onBuyBullet(w)},
-                        playerState.value!!.money>=w.cost && possessed<w.capacity,possessed)
+                for (pair in bullets.value.groupBy { it.name }){
+                    SmallHeader(pair.key)
+                    for (b in pair.value){
+                        val possessed = possessedBullets.value.firstOrNull { x -> x.type == b.type }?.amount ?: 0
+                        val purchasable = playerState.value!!.money >= b.cost && possessed<b.capacity
+                        BulletShopEntry(b,{callbacks.onBuyBullet(b)}, purchasable,possessed)
+                    }
                 }
             }
         },
         ContentTab("Medikits"){
             if(medikits.value.isNotEmpty()){
-                for (w in medikits.value){
-                    val possessed = if(!possessedMedikits.value.any{x->x.id==w.idMedikit}) 0 else possessedMedikits.value.first { x -> x.id == w.idMedikit }.amount
-                    MedikitEntryShop(w,{callbacks.onBuyMedikit(w)},
-                        playerState.value!!.money>=w.cost && possessed < w.capacity,possessed)
+                for (pair in medikits.value.groupBy { it.description }){
+                    SmallHeader(pair.key)
+                    for(m in pair.value){
+                        val possessed = possessedMedikits.value.firstOrNull { x -> x.id == m.id }?.amount ?: 0
+                        val purchasable = playerState.value!!.money >= m.cost && possessed < m.capacity
+                        MedikitEntryShop(m,{callbacks.onBuyMedikit(m)}, purchasable,possessed)
+                    }
                 }
             }
         },
