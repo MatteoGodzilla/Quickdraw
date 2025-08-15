@@ -3,14 +3,18 @@ package com.example.quickdraw.game.screen
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowLeft
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -46,7 +50,7 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun YourPlaceScreen(controller: NavHostController, repository: GameRepository, imageLoader: ImageLoader){
+fun YourPlaceScreen(controller: NavHostController, repository: GameRepository, imageLoader: ImageLoader, onLogout:()-> Unit={}){
 
     //stateflows
     val weapons = repository.inventory.weapons.collectAsState()
@@ -127,7 +131,23 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository, i
                 }
         },
         ContentTab("Settings") {
-
+            Box(contentAlignment = Alignment.BottomCenter,
+                    modifier = Modifier.fillMaxSize().padding(5.dp)){
+                Button(
+                    onClick = onLogout,
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContainerColor = MaterialTheme.colorScheme.primary,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    Icon(Icons.AutoMirrored.Default.ArrowBack,"go back")
+                    Text("Logout", fontSize = Typography.titleLarge.fontSize)
+                }
+            }
         }
     ), money = player.value!!.money)
 }

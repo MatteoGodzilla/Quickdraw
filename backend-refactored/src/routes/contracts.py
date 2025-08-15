@@ -144,7 +144,7 @@ async def redeem(request:RedeemContractRequest):
         maxMercenaries=contract[1].maxMercenaries,
         startCost=contract[1].startCost)
     
-    response = ContractRedeemedResponse(success = success,
+    response = ContractRedeemedResponse(success = True,
         reward=reward,
         returnableContract=toReclaim
     )

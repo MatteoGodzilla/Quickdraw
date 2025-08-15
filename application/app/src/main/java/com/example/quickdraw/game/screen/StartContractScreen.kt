@@ -67,18 +67,9 @@ fun StartContractScreen(controller: NavHostController, repository: GameRepositor
             val currentContract = selected.first()
             val notTooMany = selectedMercs.value.size<=currentContract.maxMercenaries
             val atLeastOne = selectedMercs.value.isNotEmpty()
-            var successRate = 100.0
-            if(currentContract.requiredPower>0){
-                successRate =
-                    kotlin.math.round((selectedMercs.value.sumOf { x -> x.second }
-                        .toDouble() / (currentContract.requiredPower).toDouble()) * 100)
-                        .coerceAtMost(100.0)
-            }
-
+            val successRate = vm.successChance(currentContract.requiredPower)
             Column(modifier = Modifier.fillMaxWidth().padding(vertical = 5.dp),
                 horizontalAlignment = Alignment.CenterHorizontally) {
-
-
                 Text("Completion time:${currentContract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
                 Text("Chance of success:${successRate}%", fontSize = Typography.bodyLarge.fontSize)
                 Text("Selected :${selectedMercs.value.size}/${currentContract.maxMercenaries} mercenaries"
@@ -89,7 +80,7 @@ fun StartContractScreen(controller: NavHostController, repository: GameRepositor
             RowDivider()
             for(merc in unassigned.value){
                 val checkBoxSelectable = selectedMercs.value.any{x->x.first==merc.idEmployment} || selectedMercs.value.size<currentContract.maxMercenaries
-                AssignableMercenary(merc,vm.selectedMercenariesState,checkBoxSelectable)
+                AssignableMercenary(merc,vm,checkBoxSelectable)
             }
 
             Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)){

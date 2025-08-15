@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,6 +30,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.RowDivider
+import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.network.data.EmployedMercenary
@@ -138,8 +140,9 @@ fun EmployedMercenaryPost(mercenary: EmployedMercenary,available: Boolean = true
 }
 
 @Composable
-fun AssignableMercenary(mercenary: EmployedMercenary,stateArray: MutableStateFlow<List<Pair<Int,Int>>>,isCheckable: Boolean=true){
-    var checked by remember { mutableStateOf(false) }
+fun AssignableMercenary(mercenary: EmployedMercenary,vm: ContractStartVM,isCheckable: Boolean=true){
+    val mercs by vm.selectedMercenariesState.collectAsState()
+    var checked = mercs.any{x->x.first==mercenary.idEmployment}
     Row (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -152,11 +155,11 @@ fun AssignableMercenary(mercenary: EmployedMercenary,stateArray: MutableStateFlo
         Checkbox(enabled=isCheckable,onCheckedChange =
             {
                 checked = it
-                if(checked){
-                    stateArray.update { x->x+Pair<Int,Int>(mercenary.idEmployment,mercenary.power) }
+                if(!checked){
+                    vm.unselectMercenary(mercenary.idEmployment)
                 }
                 else{
-                    stateArray.update { x->x.filter { y->y.first!=mercenary.idEmployment } }
+                    vm.selectMercenary(mercenary)
                 }
             }
             , checked = checked

@@ -1,9 +1,10 @@
 package com.example.quickdraw.game.vm
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.lifecycle.ViewModel
 
 
-object LoadingScreenViewManager {
+class LoadingScreenVM: ViewModel() {
     val isLoading = mutableStateOf(false)
 
     fun showLoading() {

@@ -15,7 +15,7 @@ import com.example.quickdraw.network.data.TokenRequest
 import com.example.quickdraw.network.api.toRequestBody
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.components.ScreenLoader
-import com.example.quickdraw.game.vm.LoadingScreenViewManager
+import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.NoConnectionActivity
@@ -29,13 +29,16 @@ import java.io.IOException
 
 //Main as in first activity that is booted
 class MainActivity : ComponentActivity() {
+
+    val loadingScreenVM = LoadingScreenVM()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
 
         setContent{
             QuickdrawTheme {
-                ScreenLoader(MaterialTheme.colorScheme.background)
+                ScreenLoader(loadingScreenVM)
             }
         }
 
@@ -50,13 +53,13 @@ class MainActivity : ComponentActivity() {
             val level = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.level] }
                 .firstOrNull()
             Log.i(TAG, "Stored Level = $level")
-            LoadingScreenViewManager.showLoading()
+            loadingScreenVM.showLoading()
             if(tokenId != null){
                 try {
                     val response = ConnectionManager.attemptPost(TokenRequest(tokenId).toRequestBody(),TOKEN_LOGIN_ENDPOINT)
                     if(response == null){
                         //no connection available,send to no connection activity
-                        LoadingScreenViewManager.hideLoading()
+                        loadingScreenVM.hideLoading()
                         val intent = Intent(this@MainActivity, NoConnectionActivity::class.java)
                         startActivity(intent)
                         return@launch;
@@ -74,7 +77,7 @@ class MainActivity : ComponentActivity() {
                             }
                             response.close()
                             Log.i(TAG, "Sending from Main to Game Activity")
-                            LoadingScreenViewManager.hideLoading()
+                            loadingScreenVM.hideLoading()
                             val intent = Intent(this@MainActivity, GameActivity::class.java)
                             startActivity(intent)
                             return@launch;
@@ -86,7 +89,7 @@ class MainActivity : ComponentActivity() {
                     Log.e(TAG, e.toString())
                 }
             }
-            LoadingScreenViewManager.hideLoading()
+            loadingScreenVM.hideLoading()
             Log.i(TAG, "Sending from Main to Login Activity")
             val intent = Intent(this@MainActivity, LoginActivity::class.java)
             startActivity(intent)

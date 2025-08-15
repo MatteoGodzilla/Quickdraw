@@ -1,15 +1,6 @@
 package com.example.quickdraw.game.screen
 
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -17,27 +8,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
-import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.dataDisplayers.*
-import com.example.quickdraw.game.vm.ContractStartVM
-import com.example.quickdraw.game.vm.PopupViewModel
 import com.example.quickdraw.network.data.HireableMercenary
-import com.example.quickdraw.ui.theme.Typography
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
 
 interface ContractsCallbacks {
     fun onRedeemContract(activeContract: ActiveContract)
@@ -65,7 +45,6 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
             for(contract in activeContracts.value){
                 ActiveContract(contract, timeSeconds) {
                     callbacks.onRedeemContract(contract)
-                    PopupViewModel.showLoading("Redeemed")
                 }
             }
             LaunchedEffect(activeContracts.value) {

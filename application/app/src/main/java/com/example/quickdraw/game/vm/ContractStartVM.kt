@@ -11,21 +11,28 @@ class ContractStartVM {
     val selectedMercenariesState = MutableStateFlow<List<Pair<Int,Int>>>(listOf())
 
     fun selectMercenary(m: EmployedMercenary){
-        if(!selectedMercenariesState.value.any{x->x.first==m.idEmployment}){
+        if(!isMercenarySelected(m)){
             selectedMercenariesState.update { x->x+Pair<Int,Int>(m.idEmployment,m.power) }
         }
     }
 
     fun unselectMercenary(id:Int){
-        selectedMercenariesState.update { it.filter { merc->merc.first==id } }
+        selectedMercenariesState.update { it.filter { merc->merc.first!=id } }
     }
 
-    fun isContractSelected():Boolean{
-        return selectedContractState.value >=0
+    fun isMercenarySelected(m: EmployedMercenary):Boolean{
+        return selectedMercenariesState.value.any{x->x.first==m.idEmployment}
     }
 
     fun successChance(required:Int): Float{
-        return 0.0f
+        var successRate = 100.0f
+        if(required>0){
+            successRate =
+                kotlin.math.round((selectedMercenariesState.value.sumOf { x -> x.second }
+                    .toDouble() / (required).toDouble()) * 100).toFloat()
+                    .coerceAtMost(100.0f)
+        }
+        return successRate
     }
 
     fun unselectContract(){

@@ -22,6 +22,7 @@ class ContractsRepository (
         private set
     var available: MutableStateFlow<List<AvailableContract>> = MutableStateFlow(listOf())
         private set
+    var lastRedeemed = MutableStateFlow(0)
 
     suspend fun getContracts() = runIfAuthenticated( dataStore ) { auth ->
         active.update { getActiveContractsAPI(auth) }
@@ -34,6 +35,17 @@ class ContractsRepository (
             //it should always be successful, otherwise there is a problem with the flow not being correct
             if (response.success) {
                 val info = response.contractInfo
+                playerRepository.status.update { x ->
+                    PlayerStatus(
+                        x!!.id,
+                        x.health,
+                        x.maxHealth,
+                        x.exp,
+                        x.money - contract.startCost,
+                        x.bounty,
+                        x.username
+                    )
+                }
                 active.update { list ->
                     list + ActiveContract(
                         info.idActiveContract, contract.name, contract.requiredTime, info.startTime,
@@ -61,6 +73,7 @@ class ContractsRepository (
                     x.username
                 )
             }
+            lastRedeemed.update { response.reward }
             available.update { it + response.returnableContract }
             mercenaryRepo.unAssigned.update { it + contract.mercenaries }
         }

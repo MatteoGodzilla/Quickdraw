@@ -5,10 +5,10 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings.ACTION_WIFI_SETTINGS
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.MaterialTheme
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,10 +16,10 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.QuickdrawApplication
+import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
-import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.Popup
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.ContractsCallbacks
@@ -33,13 +33,15 @@ import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.StartContractScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
 import com.example.quickdraw.game.vm.ContractStartVM
-import com.example.quickdraw.game.vm.LoadingScreenViewManager
-import com.example.quickdraw.game.vm.PopupViewModel
+import com.example.quickdraw.game.vm.LoadingScreenVM
+import com.example.quickdraw.game.vm.PopupVM
+import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
 import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
+import com.example.quickdraw.signOff
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -72,6 +74,8 @@ class GameActivity : ComponentActivity(){
             repository.firstLoad()
         }
 
+        val popupVM = PopupVM()
+
         val qdapp = application as QuickdrawApplication
 
         val onScoutingFun: ()->Unit ={
@@ -96,7 +100,14 @@ class GameActivity : ComponentActivity(){
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
 
-                composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository, qdapp.imageLoader) }
+                composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository, qdapp.imageLoader){
+                    lifecycleScope.launch {
+                        signOff(dataStore)
+                    }
+                    val intent = Intent(this@GameActivity, LoginActivity::class.java)
+                    startActivity(intent)
+                    Log.i(TAG, "Sending from Register to Game activity")
+                } }
                 composable<GameNavigation.Shop> {
 
                     ShopScreen(controller, repository, object : ShopCallbacks{
@@ -144,7 +155,12 @@ class GameActivity : ComponentActivity(){
                 composable<GameNavigation.Contracts> {
                     ContractsScreen(controller, repository, object : ContractsCallbacks {
                         override fun onRedeemContract(activeContract: ActiveContract) {
-                            lifecycleScope.launch { repository.contracts.redeem(activeContract) }
+                            lifecycleScope.launch {
+                                repository.contracts.redeem(activeContract)
+                                val redeemedCoins = repository.contracts.lastRedeemed.value
+                                if(redeemedCoins>0) popupVM.showLoading("Contract completed! You gained $redeemedCoins coins")
+                                else popupVM.showLoading("Yor mercenaries failed the contract :(",false)
+                            }
                         }
                         override fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>) {
                             lifecycleScope.launch { repository.contracts.start(availableContract,mercenaries) }
@@ -152,9 +168,7 @@ class GameActivity : ComponentActivity(){
 
                         override fun onHireMercenary(hireable: HireableMercenary) {
                             lifecycleScope.launch {
-                                LoadingScreenViewManager.showLoading()
                                 repository.mercenaries.employ(hireable)
-                                LoadingScreenViewManager.hideLoading()
                             }
                         }
                     })
@@ -165,7 +179,9 @@ class GameActivity : ComponentActivity(){
                     contractsVM.selectContract(selected.idContract)
                     StartContractScreen(controller,repository,contractsVM,object : ContractsCallbacks {
                         override fun onRedeemContract(activeContract: ActiveContract) {
-                            lifecycleScope.launch { repository.contracts.redeem(activeContract) }
+                            lifecycleScope.launch {
+                                repository.contracts.redeem(activeContract)
+                            }
                         }
                         override fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>) {
                             lifecycleScope.launch { repository.contracts.start(availableContract,mercenaries) }
@@ -173,9 +189,7 @@ class GameActivity : ComponentActivity(){
 
                         override fun onHireMercenary(hireable: HireableMercenary) {
                             lifecycleScope.launch {
-                                LoadingScreenViewManager.showLoading()
                                 repository.mercenaries.employ(hireable)
-                                LoadingScreenViewManager.hideLoading()
                             }
                         }
                     })
@@ -183,8 +197,8 @@ class GameActivity : ComponentActivity(){
             }
             //popup for all pages
             QuickdrawTheme {
-                Popup(3000,color = MaterialTheme.colorScheme.primary)
-                { PopupViewModel.hide() }
+                Popup(3000,popupVM)
+                { popupVM.hide() }
             }
         }
     }

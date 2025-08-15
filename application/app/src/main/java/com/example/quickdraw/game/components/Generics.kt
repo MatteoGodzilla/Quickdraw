@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,8 +39,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.quickdraw.R
-import com.example.quickdraw.game.vm.LoadingScreenViewManager
-import com.example.quickdraw.game.vm.PopupViewModel
+import com.example.quickdraw.game.vm.LoadingScreenVM
+import com.example.quickdraw.game.vm.PopupVM
 import kotlinx.coroutines.delay
 
 enum class PopupType{
@@ -58,13 +59,15 @@ fun RowDivider(){
 }
 
 @Composable
-fun Popup(duration:Long,color:Color,onEnd:()->Unit){
-        val message = PopupViewModel.message.collectAsState()
-        val isShowing = PopupViewModel.isShowing.collectAsState()
+fun Popup(duration:Long, popupVm: PopupVM, onEnd:()->Unit){
+        val message = popupVm.message.collectAsState()
+        val isShowing = popupVm.isShowing.collectAsState()
+        val success = popupVm.isPositive.collectAsState()
+        val backColor = if(success.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
         LaunchedEffect(isShowing.value) {
             if (isShowing.value) {
                 delay(duration)
-                PopupViewModel.hide()
+                popupVm.hide()
             }
         }
         val density = LocalDensity.current
@@ -80,7 +83,7 @@ fun Popup(duration:Long,color:Color,onEnd:()->Unit){
                     .offset(y=10.dp),
                 contentAlignment = Alignment.TopCenter
             ){
-                Surface(color = color,
+                Surface(color = backColor,
                     shape = RoundedCornerShape(8.dp),
                     shadowElevation = 4.dp,
                     modifier = Modifier.wrapContentSize()) {
@@ -105,9 +108,9 @@ fun Popup(duration:Long,color:Color,onEnd:()->Unit){
 
 @Composable
 fun ScreenLoader(
-    bgColor: Color
+    loadVM: LoadingScreenVM
 ) {
-    val isLoading by LoadingScreenViewManager.isLoading
+    val isLoading by loadVM.isLoading
     if (isLoading) {
         val infiniteTransition = rememberInfiniteTransition()
         val rotation by infiniteTransition.animateFloat(
@@ -129,7 +132,7 @@ fun ScreenLoader(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(bgColor),
+                    .background(MaterialTheme.colorScheme.background),
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center
             ) {

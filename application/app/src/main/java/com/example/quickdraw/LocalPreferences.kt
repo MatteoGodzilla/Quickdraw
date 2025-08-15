@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.quickdraw.network.ConnectionManager
@@ -42,6 +43,10 @@ suspend fun loadFavoriteServer(dataStore: DataStore<Preferences>){
             ConnectionManager.setFavourite(favourite)
         }
     }
+}
+
+suspend fun signOff(dataStore: DataStore<Preferences>){
+    dataStore.edit { pref->pref.remove(PrefKeys.authToken)}
 }
 
 object Game2Duel{

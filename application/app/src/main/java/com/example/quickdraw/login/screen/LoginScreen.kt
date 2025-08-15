@@ -41,7 +41,6 @@ fun LoginScreen(
     navHost: NavHostController
 ){
     QuickdrawTheme {
-        ScreenLoader(MaterialTheme.colorScheme.background)
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
             Column (
                 modifier = Modifier.padding(innerPadding).fillMaxSize(),
