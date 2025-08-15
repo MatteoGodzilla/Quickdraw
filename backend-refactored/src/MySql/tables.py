@@ -31,6 +31,7 @@ class Bullet(SQLModel,table=True):
     type:int = Field(primary_key=True)
     description:str
     capacity:int
+    requiredLevel:int
 
 class Contract(SQLModel,table = True):
     __tablename__  = "Contract"
@@ -84,6 +85,7 @@ class Medikit(SQLModel,table=True):
     healthRecover:int
     description:str = Field(default=None)
     capacity:int
+    requiredLevel:int
 
 class MedikitShop(SQLModel,table=True):
     __tablename__  = "MedikitShop"
@@ -122,6 +124,7 @@ class Weapon(SQLModel,table=True):
     damage:int
     cost:int = Field(default=0)
     bulletType: int = Field(foreign_key="Bullet.type")
+    requiredLevel:int
 
 class PlayerWeapon(SQLModel,table=True):
     __tablename__  = "PlayerWeapon"

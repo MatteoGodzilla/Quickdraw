@@ -10,7 +10,7 @@ import okhttp3.RequestBody
 
 fun getInventoryAPI(authToken: String) : InventoryResponse?{
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,INVENTORY_ENDPOINT)
+    val response = ConnectionManager.attempt(requestBody,INVENTORY_ENDPOINT)
 
     if(response!=null){
         if(response.code == 200){

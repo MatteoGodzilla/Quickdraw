@@ -2,6 +2,7 @@ package com.example.quickdraw.game.dataDisplayers
 
 import android.graphics.Paint.Align
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,6 +36,7 @@ import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
 import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.fulledEntry
+import com.example.quickdraw.ui.theme.lockedShopEntry
 
 
 @Composable
@@ -106,6 +109,27 @@ fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit, purchasable:Boolean=tru
     BasicShopEntry(weapon.cost.toString(),purchasable,onBuy) {
         Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
         Text("${weapon.damage} damage per hit")
+    }
+}
+
+@Composable
+fun LockedWeapon(weapon:ShopWeapon){
+    Row (
+        modifier = Modifier.fillMaxWidth().padding(vertical = 0.dp).background(color= MaterialTheme.colorScheme.onErrorContainer),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+
+        ){
+        Row (
+            modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 10.dp).weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Image(Icons.Default.Settings, "Icon", modifier = Modifier.size(48.dp))
+            Column() {
+                Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
+                Text("Unlock at level ${weapon.level}")
+            }
+        }
     }
 }
 

@@ -12,7 +12,6 @@ import com.example.quickdraw.network.api.LOGIN_ENDPOINT
 import com.example.quickdraw.network.data.LoginRequest
 import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.TAG
-import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.api.toRequestBody
 import kotlinx.coroutines.Dispatchers
@@ -37,7 +36,7 @@ class LoginScreenVM(
     fun sendLogin() = viewModelScope.launch(Dispatchers.IO) {
         val requestBody = LoginRequest(email.value, password.value).toRequestBody()
         try {
-            val response=ConnectionManager.attemptPost(requestBody,LOGIN_ENDPOINT)
+            val response=ConnectionManager.attempt(requestBody,LOGIN_ENDPOINT)
             if(response!=null){
                 if(response.code != 200){
                     showInvalidCombo.value = true;

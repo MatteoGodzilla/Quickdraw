@@ -11,7 +11,7 @@ import okhttp3.RequestBody
 fun getFriendLeaderboardAPI(authToken: String): List<LeaderboardEntry> {
 
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,BOUNTY_FRIENDS)
+    val response = ConnectionManager.attempt(requestBody,BOUNTY_FRIENDS)
 
     if(response!=null){
         if(response.code == 200){

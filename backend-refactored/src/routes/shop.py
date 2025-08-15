@@ -12,6 +12,7 @@ from sqlmodel import Session, select
 from starlette.status import *
 
 from Models.shop import *
+from routes.middlewares.exp import getLevel
 
 session = SessionManager.global_session
 
@@ -38,25 +39,24 @@ async def weapons(request: BasicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
+    playerInfo = getPlayerData(player,session)
+    if playerInfo[SUCCESS] == False:
+        return JSONResponse(
+            status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message":"Could not find player data"}
+        )
+    player:Player = playerInfo[PLAYER]
    
     available_weapons = select(Weapon).where(Weapon.id.not_in(
-        select(PlayerWeapon.idWeapon).where(PlayerWeapon.idPlayer == player.idPlayer)
+        select(PlayerWeapon.idWeapon).where(PlayerWeapon.idPlayer == player.id)
     ))
 
     result = session.exec(available_weapons) 
-    response_weapons = []
-    for w in result.fetchall():
-        response_weapons.append({
-            "id": w.id,
-            "name" : w.name,
-            "damage" : w.damage,
-            "cost" : w.cost
-            # bullet type
-        })
+    response_weapons = [BuyWeaponResponse(id=w.id,name=w.name,damage=w.damage,cost=w.cost,level=w.requiredLevel) for w in result.fetchall()]
 
     return JSONResponse(
         status_code = HTTP_200_OK,
-        content=response_weapons
+        content=jsonable_encoder(response_weapons)
     )
 
 @router.post("/bullets")
@@ -77,24 +77,22 @@ async def bullets(request: BasicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
+    playerInfo = getPlayerData(player,session)
+    if playerInfo[SUCCESS] == False:
+        return JSONResponse(
+            status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message":"Could not find player data"}
+        )
+    playerInfo:Player = playerInfo[PLAYER]
    
     available_bullets = select(BulletShop,Bullet).where(BulletShop.idBullet == Bullet.type)
 
     result = session.exec(available_bullets) 
-    response_bullets = []
-    for bulletShop, bullet in result.fetchall():
-        response_bullets.append({
-            "id": bulletShop.id,
-            "type": bullet.type, 
-            "name" : bullet.description,
-            "cost" : bulletShop.cost,
-            "quantity" : bulletShop.quantity,
-            "capacity" : bullet.capacity,
-        })
+    response_bullets = [BuyBulletResponse(id=x.id,type=y.type,name=y.description,cost=x.cost,quantity=x.quantity,capacity=y.capacity,level=y.requiredLevel) for x,y in result.fetchall()]
 
     return JSONResponse(
         status_code = HTTP_200_OK,
-        content=response_bullets
+        content=jsonable_encoder(response_bullets)
     )
 
 @router.post("/medikits")
@@ -113,27 +111,23 @@ async def bullets(request: BasicAuthTokenRequest):
             status_code = obtain_player[HTTP_CODE],
             content={"message":obtain_player[ERROR]}
         )
-
-    player:Login = obtain_player[PLAYER]
+    
+    player:Login=obtain_player[PLAYER]
+    playerInfo = getPlayerData(player,session)
+    if playerInfo[SUCCESS] == False:
+        return JSONResponse(
+            status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message":"Could not find player data"}
+        )
+    player:Player = playerInfo[PLAYER]
    
     available_medikits = select(MedikitShop,Medikit).where(MedikitShop.idMedikit == Medikit.id)
 
     result = session.exec(available_medikits) 
-    response_medikits = []
-    for medikitShop, medikit in result.fetchall():
-        response_medikits.append({
-            "id": medikitShop.id,
-            "idMedikit": medikit.id,
-            "description" : medikit.description,
-            "healthRecover": medikit.healthRecover,
-            "cost" : medikitShop.cost,
-            "quantity" : medikitShop.quantity,
-            "capacity" : medikit.capacity,
-        })
-
+    response_medikits = [BuyMedikitResponse(id=x.id,idMedikit=y.id,description=y.description,healthRecover=y.healthRecover,cost=x.cost,quantity=x.quantity,capacity=y.capacity,level=y.requiredLevel) for x,y in result.fetchall()]
     return JSONResponse(
         status_code = HTTP_200_OK,
-        content=response_medikits
+        content=jsonable_encoder(response_medikits)
     )
 
 @router.post("/upgrades")
@@ -284,7 +278,7 @@ async def buyBullets(request: BuyRequest):
             return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR,content={"message":"error while doing purchase"})
 
     #By passing directly bulletInfo[1] it returns an array...
-    response = BuyBulletResponse(id = bulletInfo[1].id,type=bulletInfo[1].idBullet,name=bulletInfo[0].description,cost = bulletInfo[1].cost,quantity=bulletInfo[1].quantity,capacity=bulletInfo[0].capacity)
+    response = BuyBulletResponse(id = bulletInfo[1].id,type=bulletInfo[1].idBullet,name=bulletInfo[0].description,cost = bulletInfo[1].cost,quantity=bulletInfo[1].quantity,capacity=bulletInfo[0].capacity,level = bulletInfo[0].requiredLevel)
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))
     
          
@@ -377,7 +371,8 @@ async def buyMedikit(request: BuyRequest):
         healthRecover=medikitInfo[0].healthRecover,
         cost = medikitInfo[1].cost,
         quantity=medikitInfo[1].quantity,
-        capacity=medikitInfo[0].capacity
+        capacity=medikitInfo[0].capacity,
+        level = medikitInfo[0].requiredLevel
     )
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))
 
@@ -430,6 +425,12 @@ async def buyWeapon(request: BuyRequest):
             content={"message":"Insuffucient founds"}
         )
     
+    if weaponInfo.cost > getLevel(playerInfo.exp):
+        return JSONResponse(
+            status_code = HTTP_401_UNAUTHORIZED,
+            content={"message":"Insuffucient level"}
+        )
+    
     #check if player already has bullet or not
     getWeapon = select(Weapon,PlayerWeapon).where(
          and_(
@@ -460,7 +461,8 @@ async def buyWeapon(request: BuyRequest):
         id = weaponInfo.id,
         name = weaponInfo.name,
         damage= weaponInfo.damage,
-        cost = weaponInfo.cost
+        cost = weaponInfo.cost,
+        level = weaponInfo.requiredLevel
     )
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))
 

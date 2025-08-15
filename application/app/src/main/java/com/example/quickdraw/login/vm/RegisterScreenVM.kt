@@ -8,7 +8,6 @@ import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.quickdraw.PrefKeys
-import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.network.api.REGISTER_ENDPOINT
@@ -41,7 +40,7 @@ class RegisterScreenVM(
         val reqBody = RegisterRequest(email.value, password.value, username.value).toRequestBody()
 
         try {
-            val response = ConnectionManager.attemptPost(reqBody,REGISTER_ENDPOINT)
+            val response = ConnectionManager.attempt(reqBody,REGISTER_ENDPOINT)
             if(response!=null){
                 if(response.code != 200){
                     Log.e("QUICKDRAW", response.code.toString())

@@ -141,10 +141,10 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository, i
 }
 
 @Composable
-fun SmallHeader(title:String){
+fun SmallHeader(title:String,locked:Boolean=false){
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        color = MaterialTheme.colorScheme.surfaceContainer,
+        color = if(!locked) MaterialTheme.colorScheme.surfaceContainer else MaterialTheme.colorScheme.onErrorContainer,
     ) {
         Row (
             horizontalArrangement = Arrangement.SpaceBetween,

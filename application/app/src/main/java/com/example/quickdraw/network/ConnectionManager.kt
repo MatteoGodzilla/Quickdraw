@@ -37,9 +37,10 @@ object  ConnectionManager {
         mainIP = ip
     }
 
-    fun attemptPost(bodyRequest: RequestBody, url: String): Response? {
+    fun attempt(bodyRequest: RequestBody, url: String,isPost:Boolean=true): Response? {
         //attempt with main IP
-        var request = Request.Builder().url(mainIP+url).post(bodyRequest).build()
+        var request = if(isPost) Request.Builder().url(mainIP+url).post(bodyRequest).build()
+            else Request.Builder().url(mainIP+url).get().build()
         var response = query(request)
         if(response==null){
             //attempt with fallback ids

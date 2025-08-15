@@ -10,7 +10,7 @@ import okhttp3.RequestBody
 
 fun getStatusAPI(authToken: String): PlayerStatus? {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,STATUS_ENDPOINT)
+    val response = ConnectionManager.attempt(requestBody,STATUS_ENDPOINT)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
@@ -24,14 +24,15 @@ fun getStatusAPI(authToken: String): PlayerStatus? {
 
 fun getLevelsAPI(): List<Int> {
     val requestBody: RequestBody = "".toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,LEVELS_ENDPOINT)
+    val response = ConnectionManager.attempt(requestBody,LEVELS_ENDPOINT,false)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
-            Log.i(TAG, result)
+            val result = response.body.string()
+            Log.i(TAG, "Levels:$result")
             return Json.decodeFromString<List<Int>>(result)
         }
+        Log.i(TAG, "Failed to fetch levels,${response.code}")
     }
     return listOf()
 }

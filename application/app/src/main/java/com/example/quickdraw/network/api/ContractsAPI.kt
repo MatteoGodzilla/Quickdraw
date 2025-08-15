@@ -18,7 +18,7 @@ import okhttp3.RequestBody
 
 fun redeemContractAPI(authToken: String, contract: ActiveContract) : ContractRedeemResponse {
     val requestBody: RequestBody = ContractRedeemRequest(authToken, contract.activeId).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,CONTRACTS_REDEEM)
+    val response = ConnectionManager.attempt(requestBody,CONTRACTS_REDEEM)
     if(response!=null){
         Log.i(TAG, response.code.toString())
         if(response.code == 200){
@@ -33,7 +33,7 @@ fun redeemContractAPI(authToken: String, contract: ActiveContract) : ContractRed
 
 fun startContractAPI(authToken: String, contract: AvailableContract,mercenaries:List<Int>): ContractStartResponse{
     val requestBody: RequestBody = ContractStartRequest(authToken, contract.id, mercenaries).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,CONTRACTS_START)
+    val response = ConnectionManager.attempt(requestBody,CONTRACTS_START)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
@@ -47,7 +47,7 @@ fun startContractAPI(authToken: String, contract: AvailableContract,mercenaries:
 
 fun getActiveContractsAPI(authToken: String): List<ActiveContract>{
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,CONTRACTS_ACTIVE_ENDPOINT)
+    val response = ConnectionManager.attempt(requestBody,CONTRACTS_ACTIVE_ENDPOINT)
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
@@ -61,7 +61,7 @@ fun getActiveContractsAPI(authToken: String): List<ActiveContract>{
 
 fun getAvailableContractsAPI(authToken: String): List<AvailableContract> {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,CONTRACTS_AVAILABLE_ENDPOINT)
+    val response = ConnectionManager.attempt(requestBody,CONTRACTS_AVAILABLE_ENDPOINT)
 
     if(response!=null){
         if(response.code == 200){

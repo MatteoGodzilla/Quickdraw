@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.material3.MaterialTheme
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.lifecycleScope
 import com.example.quickdraw.network.data.LoginResponse
@@ -56,7 +55,7 @@ class MainActivity : ComponentActivity() {
             loadingScreenVM.showLoading()
             if(tokenId != null){
                 try {
-                    val response = ConnectionManager.attemptPost(TokenRequest(tokenId).toRequestBody(),TOKEN_LOGIN_ENDPOINT)
+                    val response = ConnectionManager.attempt(TokenRequest(tokenId).toRequestBody(),TOKEN_LOGIN_ENDPOINT)
                     if(response == null){
                         //no connection available,send to no connection activity
                         loadingScreenVM.hideLoading()

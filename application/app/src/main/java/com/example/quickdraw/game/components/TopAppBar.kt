@@ -61,7 +61,7 @@ fun TopBar(repository: GameRepository) {
                 }
                 ProgressBar(progress, ProgressBarColors.experience, rowHeight, ImageVector.vectorResource(R.drawable.stars_2_24px), "Experience")
             }
-            item { CenteredText("Lv. ${-repository.player.level.collectAsState().value}", rowHeight) }
+            item { CenteredText("Lv. ${repository.player.level.collectAsState().value}", rowHeight) }
             item { TopBarRow(image = ImageVector.vectorResource(R.drawable.money_bag_24px_1_), rowHeight, text = "${player.value?.money}") }
             item { TopBarRow(image = ImageVector.vectorResource(R.drawable.local_police_24px), rowHeight, text = "${player.value?.bounty}") }
         }

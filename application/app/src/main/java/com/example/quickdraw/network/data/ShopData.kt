@@ -7,7 +7,8 @@ data class ShopWeapon(
     val id: Int,
     val name: String,
     val damage: Int,
-    val cost: Int
+    val cost: Int,
+    val level:Int
 )
 
 @Serializable
@@ -17,7 +18,8 @@ data class ShopBullet(
     val name: String,
     val cost: Int,
     val quantity: Int,
-    val capacity: Int
+    val capacity: Int,
+    val level:Int
 )
 
 @Serializable
@@ -28,7 +30,8 @@ data class ShopMedikit(
     val healthRecover: Int,
     val cost: Int,
     val quantity: Int,
-    val capacity: Int
+    val capacity: Int,
+    val level:Int
 )
 
 

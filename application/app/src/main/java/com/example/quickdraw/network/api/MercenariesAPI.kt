@@ -16,7 +16,7 @@ import okhttp3.RequestBody
 
 fun getHirableAPI(authToken: String): MercenaryHireableResponse {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,MERCENARY_HIREABLE)
+    val response = ConnectionManager.attempt(requestBody,MERCENARY_HIREABLE)
 
     if(response!=null){
         if(response.code == 200){
@@ -31,7 +31,7 @@ fun getHirableAPI(authToken: String): MercenaryHireableResponse {
 
 fun getUnassignedMercenariesAPI(authToken: String): UnassignedMercenaryResponse {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,MERCENARY_PLAYER_UNASSIGNED)
+    val response = ConnectionManager.attempt(requestBody,MERCENARY_PLAYER_UNASSIGNED)
 
     if(response!=null){
         if(response.code == 200){
@@ -46,7 +46,7 @@ fun getUnassignedMercenariesAPI(authToken: String): UnassignedMercenaryResponse 
 
 fun employMercenaryAPI(authToken: String,mercenary: HireableMercenary) : EmployMercenaryResponse {
     val requestBody: RequestBody = EmployMercenary(idMercenary = mercenary.id, authToken = authToken).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,MERCENARY_EMPLOY)
+    val response = ConnectionManager.attempt(requestBody,MERCENARY_EMPLOY)
 
     if(response!=null){
         if(response.code == 200){
@@ -61,7 +61,7 @@ fun employMercenaryAPI(authToken: String,mercenary: HireableMercenary) : EmployM
 
 fun getNextUnlockableMercenariesAPI(authToken: String) : NextToUnlockMercenaryResponse {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,MERCENARY_NEXT_UNLOCKABLE)
+    val response = ConnectionManager.attempt(requestBody,MERCENARY_NEXT_UNLOCKABLE)
 
     if(response!=null){
         if(response.code == 200){
@@ -76,7 +76,7 @@ fun getNextUnlockableMercenariesAPI(authToken: String) : NextToUnlockMercenaryRe
 
 fun getAllPlayerMercenariesAPI(authToken: String) : MercenaryEmployedResponse {
     val requestBody: RequestBody = TokenRequest(authToken).toRequestBody()
-    val response = ConnectionManager.attemptPost(requestBody,MERCENARY_PLAYER_ALL)
+    val response = ConnectionManager.attempt(requestBody,MERCENARY_PLAYER_ALL)
 
     if(response!=null){
         if(response.code == 200){

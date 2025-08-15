@@ -8,6 +8,7 @@ class BuyBulletResponse(BaseModel):
     cost: int
     quantity: int
     capacity: int
+    level:int
 
 class BuyMedikitResponse(BaseModel):
     id: int
@@ -17,6 +18,7 @@ class BuyMedikitResponse(BaseModel):
     cost: int
     quantity: int
     capacity: int
+    level:int
 
 
 class BuyWeaponResponse(BaseModel):
@@ -24,6 +26,7 @@ class BuyWeaponResponse(BaseModel):
     name: str
     damage: int
     cost: int
+    level:int
 
 
 class BuyUpgradeResponse(BaseModel):
