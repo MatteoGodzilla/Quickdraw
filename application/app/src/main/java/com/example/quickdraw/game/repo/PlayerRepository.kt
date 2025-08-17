@@ -14,50 +14,75 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
+data class Player(
+    val id: Int,
+    val health: Int,
+    val maxHealth: Int,
+    val exp: Int,
+    val level: Int,
+    val money: Int,
+    val bounty: Int,
+    val username: String
+)
+
 class PlayerRepository(
     private val dataStore: DataStore<Preferences>
 ) {
     //Status
-    var status: MutableStateFlow<PlayerStatus?> = MutableStateFlow(null)
+    //TODO: Merge status with level, as to have a single object with everything
+    //(It doesn't make sense to have _just_ the level separated
+
+    var player: MutableStateFlow<Player> = MutableStateFlow( Player(0, 0, 100, 0, 0, 0, 0,"" ) )
         private set
-    var levels: List<Int> = listOf()
-        private set
-    var level: MutableStateFlow<Int> = MutableStateFlow(-1)
-        private set
+    private var status: PlayerStatus? = null
+    private var levels: List<Int> = listOf()
 
     suspend fun firstLoad(){
         getStatus()
         getLevels()
     }
 
-    suspend fun getStatus() = runIfAuthenticated (dataStore){ auth ->
-        val response = getStatusAPI(auth)
-        if(response != null){
-            status.update { response }
-            runBlocking { dataStore.edit { it[PrefKeys.username] = response.username } }
-            val lvl = getPlayerLevel()
-            level.update { lvl }
-            runBlocking { dataStore.edit { it[PrefKeys.level] = lvl.toString() } }
-        }
-    }
-
-    suspend fun getLevels() = withContext(Dispatchers.IO) {
-        levels = getLevelsAPI()
-        val lvl = getPlayerLevel()
-        level.update { lvl }
-        runBlocking { dataStore.edit { it[PrefKeys.level] = lvl.toString() } }
-    }
-
-    private fun getPlayerLevel(): Int {
-        if (status.value == null || levels.isEmpty()) {
-            return -2;
-        }
-        var level = -1
-        for (i in levels.indices) {
-            if (status.value!!.exp >= levels[i]) {
-                level = i + 1
+    fun getProgressToNextLevel(): Float {
+        //TODO: use levels for this
+        var progress = 0f
+        if(levels.isNotEmpty()){
+            val playerLevel = player.value.level
+            val levelIndex = playerLevel - 1
+            if(levelIndex < levels.size){
+                //playerLevel -1 is a valid index
+                progress = (player.value.exp - levels[levelIndex]).toFloat() / (levels[levelIndex + 1] - levels[levelIndex])
             }
         }
-        return level
+        return progress
+    }
+
+    private suspend fun getStatus() = runIfAuthenticated (dataStore){ auth ->
+        //NOTE: response does not include level
+        val response = getStatusAPI(auth)
+        if(response != null){
+            status = response
+            updatePlayer()
+        }
+    }
+
+    private suspend fun getLevels() = withContext(Dispatchers.IO) {
+        levels = getLevelsAPI()
+        updatePlayer()
+    }
+
+    private fun updatePlayer(){
+        var level = 0
+        if(status != null){
+            for (i in levels.indices) {
+                if (status!!.exp >= levels[i]) {
+                    level = i + 1
+                }
+            }
+            player.value = Player(status!!.id, status!!.health, status!!.maxHealth, status!!.exp, level, status!!.money, status!!.bounty,status!!.username)
+            runBlocking {
+                dataStore.edit { it[PrefKeys.username] = status!!.username }
+                dataStore.edit { it[PrefKeys.level] = level.toString() }
+            }
+        }
     }
 }

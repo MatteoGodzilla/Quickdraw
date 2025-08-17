@@ -8,7 +8,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.navigation.NavHostController
+import com.example.quickdraw.ImageLoader
 import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
@@ -25,7 +27,7 @@ interface ContractsCallbacks {
     fun onHireMercenary(hireable: HireableMercenary)
 }
 @Composable
-fun ContractsScreen (controller: NavHostController, repository: GameRepository, callbacks: ContractsCallbacks) {
+fun ContractsScreen (controller: NavHostController, repository: GameRepository, imageLoader: ImageLoader, callbacks: ContractsCallbacks) {
     //mutable states for mercenaries
     val unassigned by repository.mercenaries.unAssigned.collectAsState()
     val employedAll by repository.mercenaries.playerEmployed.collectAsState()
@@ -37,7 +39,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
     val availableContracts = repository.contracts.available.collectAsState()
 
     //for mercenaries shop
-    val player = repository.player.status.collectAsState()
+    val player = repository.player.player.collectAsState()
 
     BasicScreen("Contracts", controller, listOf(
         ContentTab("Active"){
@@ -60,7 +62,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                     {
                         controller.navigate(GameNavigation.StartContract(contract.id))
                     },
-                    player.value!!.money >= contract.startCost
+                    player.value.money >= contract.startCost
                 )
             }
         },
@@ -73,12 +75,12 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
         },
         ContentTab("Employ"){
             for(mercenary in hireable){
-                MercenaryShopEntry(mercenary,{callbacks.onHireMercenary(mercenary)},player.value!!.money>=mercenary.cost)
+                MercenaryShopEntry(mercenary,{callbacks.onHireMercenary(mercenary)}, imageLoader.imageNotFound.asImageBitmap(), player.value.money >= mercenary.cost)
             }
             for(mercenary in unlockable){
                 LockedMercenaryPost(mercenary)
             }
         }
-    ), money = player.value!!.money, showMoney = true)
+    ), money = player.value.money, showMoney = true)
 }
 

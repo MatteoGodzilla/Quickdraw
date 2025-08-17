@@ -35,9 +35,11 @@ class ContractsRepository (
             //it should always be successful, otherwise there is a problem with the flow not being correct
             if (response.success) {
                 val info = response.contractInfo
-                playerRepository.status.update { x ->
+                playerRepository.player.update { x ->
+                    x.copy(money = x.money - contract.startCost)
+                    /*
                     PlayerStatus(
-                        x!!.id,
+                        x.id,
                         x.health,
                         x.maxHealth,
                         x.exp,
@@ -45,6 +47,7 @@ class ContractsRepository (
                         x.bounty,
                         x.username
                     )
+                     */
                 }
                 active.update { list ->
                     list + ActiveContract(
@@ -62,7 +65,9 @@ class ContractsRepository (
         val response = redeemContractAPI(auth, contract)
         if (response.success) {
             active.update { it.filter { c -> c.activeId != contract.activeId } }
-            playerRepository.status.update { x ->
+            playerRepository.player.update { x ->
+                x.copy(money = x.money + response.reward)
+                /*
                 PlayerStatus(
                     x!!.id,
                     x.health,
@@ -72,6 +77,8 @@ class ContractsRepository (
                     x.bounty,
                     x.username
                 )
+
+                 */
             }
             lastRedeemed.update { response.reward }
             available.update { it + response.returnableContract }

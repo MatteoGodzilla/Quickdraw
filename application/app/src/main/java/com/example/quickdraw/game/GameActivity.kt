@@ -10,6 +10,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -28,13 +29,13 @@ import com.example.quickdraw.game.screen.LeaderBoardScreen
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
-import com.example.quickdraw.game.screen.ShopCallbacks
 import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.StartContractScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
 import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.game.vm.PopupVM
+import com.example.quickdraw.game.vm.ShopScreenVM
 import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
@@ -62,8 +63,6 @@ class GameNavigation {
 }
 
 class GameActivity : ComponentActivity(){
-
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -83,8 +82,8 @@ class GameActivity : ComponentActivity(){
                 qdapp.peerFinderSingleton.stopScanning()
             } else {
                 qdapp.peerFinderSingleton.startScanning(Peer(
-                    repository.player.status.value?.username ?: "ERROR",
-                    repository.player.level.value
+                    repository.player.player.value.username ?: "ERROR",
+                    repository.player.player.value.level
                 ), this@GameActivity)
             }
         }
@@ -109,29 +108,10 @@ class GameActivity : ComponentActivity(){
                     Log.i(TAG, "Sending from Register to Game activity")
                 } }
                 composable<GameNavigation.Shop> {
-
-                    ShopScreen(controller, repository, object : ShopCallbacks{
-                        override fun onBuyBullet(toBuy: ShopBullet) {
-                            lifecycleScope.launch {
-                                repository.shop.buyBullet(toBuy)
-                            }
-                        }
-
-                        override fun onBuyMedikit(toBuy: ShopMedikit) {
-                            lifecycleScope.launch { repository.shop.buyMedikit(toBuy) }
-                        }
-
-                        override fun onBuyWeapon(toBuy: ShopWeapon) {
-                            lifecycleScope.launch { repository.shop.buyWeapon(toBuy) }
-                        }
-
-                        override fun onBuyUpgrade(toBuy: ShopUpgrade) {
-                            lifecycleScope.launch { repository.shop.buyUpgrade(toBuy) }
-                        }
-                    })
+                    val vm = viewModel { ShopScreenVM(repository, qdapp.imageLoader) }
+                    ShopScreen(vm, controller)
                 }
                 composable<GameNavigation.Map> {
-                    //TODO: pretty sure this will need to be kept alive between activities using Application
                     MainScreen(controller, repository, qdapp.peerFinderSingleton,onScoutingFun){
                         try{
                             //not guaranteeded to exist
@@ -153,7 +133,7 @@ class GameActivity : ComponentActivity(){
                     LeaderBoardScreen(controller,repository)
                 }
                 composable<GameNavigation.Contracts> {
-                    ContractsScreen(controller, repository, object : ContractsCallbacks {
+                    ContractsScreen(controller, repository, qdapp.imageLoader, object : ContractsCallbacks {
                         override fun onRedeemContract(activeContract: ActiveContract) {
                             lifecycleScope.launch {
                                 repository.contracts.redeem(activeContract)

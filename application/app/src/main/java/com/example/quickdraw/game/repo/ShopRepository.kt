@@ -64,7 +64,7 @@ class ShopRepository(
     suspend fun buyBullet(bullet: ShopBullet) = runIfAuthenticated( dataStore ) { auth ->
         val response = buyBulletsAPI(BuyRequest(id = bullet.id, authToken = auth))
         if (response != null) {
-            playerRepository.status.update { player -> player!!.copy(money = player.money - bullet.cost) }
+            playerRepository.player.update { player -> player.copy(money = player.money - bullet.cost) }
             if (inventoryRepository.bullets.value.any { it.type == bullet.type }) {
                 inventoryRepository.bullets.update {
                     it.map { y ->
@@ -93,7 +93,7 @@ class ShopRepository(
     suspend fun buyMedikit(medikit: ShopMedikit) = runIfAuthenticated( dataStore ) { auth ->
         val response = buyMedikitAPI(BuyRequest(id = medikit.id, authToken = auth))
         if (response != null) {
-            playerRepository.status.update { p -> p!!.copy(money = p.money - medikit.cost) }
+            playerRepository.player.update { p -> p.copy(money = p.money - medikit.cost) }
             if (inventoryRepository.medikits.value.any { it.id == medikit.idMedikit }) {
                 inventoryRepository.medikits.update {
                     it.map { y ->
@@ -123,7 +123,7 @@ class ShopRepository(
     suspend fun buyWeapon(weapon: ShopWeapon) = runIfAuthenticated( dataStore ) { auth ->
         val response = buyWeaponAPI(BuyRequest(id = weapon.id, authToken = auth))
         if (response != null) {
-            playerRepository.status.update { x -> x!!.copy(money = x.money - weapon.cost) }
+            playerRepository.player.update { x -> x.copy(money = x.money - weapon.cost) }
             weapons.update { it.filter { w -> w.id != weapon.id } }
             inventoryRepository.weapons.update { x -> x + InventoryWeapon(weapon.name, weapon.damage, weapon.cost, 1) }
         }
@@ -132,7 +132,7 @@ class ShopRepository(
     suspend fun buyUpgrade(upgrade: ShopUpgrade) = runIfAuthenticated( dataStore ) { auth ->
         val response = buyUpgradeAPI(BuyRequest(id = upgrade.id, authToken = auth))
         if(response!=null){
-            playerRepository.status.update { x -> x!!.copy(money = x.money - upgrade.cost) }
+            playerRepository.player.update { x -> x.copy(money = x.money - upgrade.cost) }
             upgrades.update { x-> x.filter { y -> y.id != upgrade.id } }
             inventoryRepository.upgrades.update{it.filter{u->u.type!=upgrade.type}}
             inventoryRepository.upgrades.update { x -> x + InventoryUpgrade(upgrade.id, upgrade.description, upgrade.type, upgrade.level) }

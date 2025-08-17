@@ -34,7 +34,7 @@ import com.example.quickdraw.ui.theme.Typography
 
 @Composable
 fun TopBar(repository: GameRepository) {
-    val player = repository.player.status.collectAsState()
+    val player = repository.player.player.collectAsState()
     Surface(color = MaterialTheme.colorScheme.surfaceContainer){
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
@@ -43,27 +43,17 @@ fun TopBar(repository: GameRepository) {
         ) {
             val rowHeight = Typography.bodyLarge.lineHeight.value.dp
             item ( span = { GridItemSpan(2) } ) {
-                val ratio = if(player.value != null) player.value!!.health.toFloat() / player.value!!.maxHealth else 0.0f
+                val ratio = player.value.health.toFloat() / player.value.maxHealth
                 ProgressBar(ratio, ProgressBarColors.health, rowHeight, ImageVector.vectorResource(R.drawable.favorite_24px), "Health")
             }
-            item { CenteredText("${player.value?.health}/${player.value?.maxHealth} HP", rowHeight ) }
+            item { CenteredText("${player.value.health}/${player.value.maxHealth} HP", rowHeight ) }
             item ( span = { GridItemSpan(2) } ) {
-                //TODO: use levels for this
-                var progress = 0f
-                if(repository.player.levels.isNotEmpty()){
-                    val playerLevel = repository.player.level.collectAsState().value
-                    val levelIndex = playerLevel - 1
-                    if(levelIndex < repository.player.levels.size){
-                        //playerLevel -1 is a valid index
-                        progress = (player.value!!.exp - repository.player.levels[levelIndex]).toFloat() /
-                                (repository.player.levels[levelIndex + 1] - repository.player.levels[levelIndex])
-                    }
-                }
+                val progress = repository.player.getProgressToNextLevel()
                 ProgressBar(progress, ProgressBarColors.experience, rowHeight, ImageVector.vectorResource(R.drawable.stars_2_24px), "Experience")
             }
-            item { CenteredText("Lv. ${repository.player.level.collectAsState().value}", rowHeight) }
-            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.money_bag_24px_1_), rowHeight, text = "${player.value?.money}") }
-            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.local_police_24px), rowHeight, text = "${player.value?.bounty}") }
+            item { CenteredText("Lv. ${repository.player.player.collectAsState().value.level}", rowHeight) }
+            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.money_bag_24px_1_), rowHeight, text = "${player.value.money}") }
+            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.local_police_24px), rowHeight, text = "${player.value.bounty}") }
         }
     }
 }

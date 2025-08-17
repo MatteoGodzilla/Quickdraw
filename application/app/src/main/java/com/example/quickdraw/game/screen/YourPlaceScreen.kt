@@ -41,13 +41,13 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository, i
     val medikits = repository.inventory.medikits.collectAsState()
     val upgrades = repository.inventory.upgrades.collectAsState()
     val bullets = repository.inventory.bullets.collectAsState()
-    val player = repository.player.status.collectAsState()
+    val player = repository.player.player.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
     val playerImage = MutableStateFlow(imageLoader.imageNotFound.asImageBitmap())
     LaunchedEffect(true) {
         coroutineScope.launch {
-            playerImage.value = imageLoader.getPlayerImage(repository.player.status.value?.id ?: 0)
+            playerImage.value = imageLoader.getPlayerImage(repository.player.player.value.id)
         }
     }
 

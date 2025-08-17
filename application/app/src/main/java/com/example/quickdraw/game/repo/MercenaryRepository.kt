@@ -67,7 +67,7 @@ class MercenaryRepository (
             playerEmployed.update { it + newEmploy }
             unAssigned.update { it + newEmploy }
             //player balance update data
-            playerRepository.status.update { p -> p!!.copy(money = p.money - mercenary.cost) }
+            playerRepository.player.update { p -> p.copy(money = p.money - mercenary.cost) }
         }
     }
 
