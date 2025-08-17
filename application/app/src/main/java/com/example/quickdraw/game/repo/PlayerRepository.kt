@@ -49,6 +49,7 @@ class PlayerRepository(
         private set
     var stats: MutableStateFlow<Stats> = MutableStateFlow(Stats(50,100,100,100,1))
     private var status: PlayerInfo? = null
+    private var baseStats: List<BaseStats> = listOf()
     private var statusStats: List<BaseStats> = listOf()
     private var levels: List<Int> = listOf()
 
@@ -87,7 +88,7 @@ class PlayerRepository(
 
     private suspend fun getBase() = runIfAuthenticated(dataStore){ auth->
         val response = getBaseAPI()
-        statusStats = response
+        baseStats = response
         updateStats()
     }
 
@@ -108,6 +109,7 @@ class PlayerRepository(
     }
 
     private fun updateStats(){
+        statusStats = baseStats.toMutableList()
         for(upgrade in statusStats){
             when (upgrade.upgradeType) {
                 UpgradeIds.MAX_HEALTH.ordinal -> {

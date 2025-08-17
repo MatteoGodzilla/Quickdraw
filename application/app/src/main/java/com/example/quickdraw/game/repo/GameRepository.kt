@@ -35,26 +35,27 @@ class GameRepository(
         updatePlayerStats()
     }
 
-    private fun updatePlayerStats(){
+     fun updatePlayerStats(){
         for(upgrade in inventory.upgrades.value){
-            Log.i(TAG,upgrade.idUpgrade.toString())
-            when (upgrade.idUpgrade) {
+            Log.i(TAG,inventory.upgrades.value.toString())
+            when (upgrade.type) {
                 UpgradeIds.MAX_HEALTH.ordinal -> {
-                    player.stats.update { x->x.copy(maxContracts = x.maxHealth+upgrade.modifier) }
+                    player.stats.update { x->x.copy(maxHealth = x.maxHealth+upgrade.modifier) }
                 }
                 UpgradeIds.MAX_CONTRACTS.ordinal -> {
                     player.stats.update { x->x.copy(maxContracts = x.maxContracts+upgrade.modifier) }
                 }
                 UpgradeIds.MONEY_BOOST.ordinal -> {
-                    player.stats.update { x->x.copy(maxContracts = x.moneyBoost+upgrade.modifier) }
+                    player.stats.update { x->x.copy(moneyBoost = x.moneyBoost+upgrade.modifier) }
                 }
                 UpgradeIds.EXP_BOOST.ordinal -> {
-                    player.stats.update { x->x.copy(maxContracts = x.expBoost+upgrade.modifier) }
+                    player.stats.update { x->x.copy(expBoost = x.expBoost+upgrade.modifier) }
                 }
                 UpgradeIds.BOUNTY_BOOST.ordinal -> {
-                    player.stats.update { x->x.copy(maxContracts = x.bountyBoost+upgrade.modifier) }
+                    player.stats.update { x->x.copy(bountyBoost = x.bountyBoost+upgrade.modifier) }
                 }
             }
         }
+        Log.i(TAG,player.stats.value.toString())
     }
 }

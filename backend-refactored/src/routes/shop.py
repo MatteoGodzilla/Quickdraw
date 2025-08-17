@@ -568,7 +568,8 @@ async def buyUpgrade(request: BuyRequest):
         type = upgradeInfo.type,
         description= desc,
         level = upgradeInfo.level,
-        cost = upgradeInfo.cost
+        cost = upgradeInfo.cost,
+        modifier = upgradeInfo.modifier
     )
 
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))

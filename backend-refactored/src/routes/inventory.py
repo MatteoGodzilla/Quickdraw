@@ -46,7 +46,7 @@ async def get_inventory(request: BasicAuthTokenRequest):
     #obtain upgrades
     upgrades_query = select(PlayerUpgrade,UpgradeShop,UpgradeTypes
                             ).where(and_(PlayerUpgrade.idUpgrade == UpgradeShop.idUpgrade,
-                                    UpgradeShop.idUpgrade == UpgradeTypes.id,
+                                    UpgradeShop.type == UpgradeTypes.id,
                                     PlayerUpgrade.idPlayer == player.idPlayer))
     response_upgrades = []
     result = safe_exec(upgrades_query)

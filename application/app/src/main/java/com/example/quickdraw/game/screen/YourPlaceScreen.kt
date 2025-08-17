@@ -3,6 +3,7 @@ package com.example.quickdraw.game.screen
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,6 +43,7 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository, i
     val upgrades = repository.inventory.upgrades.collectAsState()
     val bullets = repository.inventory.bullets.collectAsState()
     val player = repository.player.player.collectAsState()
+    val stats = repository.player.stats.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
     val playerImage = MutableStateFlow(imageLoader.imageNotFound.asImageBitmap())
@@ -54,6 +56,12 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository, i
     BasicScreen("Your Place", controller, listOf(
         ContentTab("Stats") {
             Image(playerImage.collectAsState().value, "Player icon")
+            Column(){
+                Text("Max activable contracts:${stats.value.maxContracts}")
+                Text("Exp boost:${stats.value.expBoost-100}%")
+                Text("Money boost:${stats.value.moneyBoost-100}%")
+                Text("Bounty boost:${stats.value.bountyBoost-100}%")
+            }
         },
         ContentTab("Memories") {
             Text("Memories")
@@ -104,16 +112,17 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository, i
                     }
                 }
                 //Upgrades
+                SmallHeader("Upgrades")
                 if(upgrades.value.isNotEmpty()){
-                    SmallHeader("Upgrades")
-                    for(upgrade in upgrades.value) {
+                    for (pair in upgrades.value.groupBy { it.type }){
+                        val highest = pair.value.maxBy { x->x.level }
                         Row (
                             modifier = Modifier.fillMaxWidth().padding(8.dp),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ){
-                            Text(upgrade.description, fontSize = Typography.titleLarge.fontSize)
-                            Text("Level ${upgrade.level}")
+                            Text(highest.description, fontSize = Typography.titleLarge.fontSize)
+                            Text("Level ${highest.level}")
                         }
                     }
                 }
