@@ -54,7 +54,7 @@ fun ShopScreen (viewModel: ShopScreenVM, controller: NavHostController) {
         },
         ContentTab("Bullets"){
             var nextUnlock = player.value.level
-            if(weapons.value.any { x->x.level > player.value.level }){
+            if(bullets.value.any { x->x.level > player.value.level }){
                 nextUnlock = bullets.value.filter { x->x.level>player.value.level }.minBy { x->x.level }.level
             }
 
@@ -78,8 +78,8 @@ fun ShopScreen (viewModel: ShopScreenVM, controller: NavHostController) {
         },
         ContentTab("Medikits"){
             var nextUnlock = player.value.level
-            if(weapons.value.any { x->x.level > player.value.level }){
-                nextUnlock = bullets.value.filter { x->x.level>player.value.level }.minBy { x->x.level }.level
+            if(medikits.value.any { x->x.level > player.value.level }){
+                nextUnlock = medikits.value.filter { x->x.level>player.value.level }.minBy { x->x.level }.level
             }
 
             if(medikits.value.isNotEmpty()){
@@ -92,7 +92,7 @@ fun ShopScreen (viewModel: ShopScreenVM, controller: NavHostController) {
                         SmallHeader(pair.key)
                         for(m in pair.value){
                             val possessed = ownedMedikits.value.firstOrNull { x -> x.id == m.id }?.amount ?: 0
-                            val purchasable = player.value!!.money >= m.cost && possessed < m.capacity
+                            val purchasable = player.value.money >= m.cost && possessed < m.capacity
                             val icon = viewModel.getMedikitIcon(m.id).collectAsState().value
                             MedikitEntryShop(m,{viewModel.onBuyMedikit(m)}, icon, purchasable,possessed)
                         }
@@ -108,5 +108,5 @@ fun ShopScreen (viewModel: ShopScreenVM, controller: NavHostController) {
                 }
             }
         }
-    ), money = player.value!!.money, showMoney = true)
+    ), money = player.value.money, showMoney = true)
 }
