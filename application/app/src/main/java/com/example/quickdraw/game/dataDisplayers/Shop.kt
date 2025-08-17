@@ -1,17 +1,13 @@
 package com.example.quickdraw.game.dataDisplayers
 
-import android.graphics.Paint.Align
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
@@ -31,6 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import com.example.quickdraw.R
+import com.example.quickdraw.game.components.LockedContainer
+import com.example.quickdraw.game.components.ShoppingContainer
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
@@ -39,44 +37,35 @@ import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
 import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.fulledEntry
-import com.example.quickdraw.ui.theme.lockedShopEntry
 
 
 @Composable
 fun BasicShopEntry(price:String, purchasable: Boolean, action:()->Unit, icon: ImageBitmap, populateShopEntry: @Composable ()->Unit){
-    Row (
-        modifier = Modifier.fillMaxWidth().padding(vertical = 0.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ){
-        Row (
-            modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 10.dp).weight(1f),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(icon, "", modifier = Modifier.size(48.dp))
-            Column {
-                populateShopEntry()
-            }
+    val content = @Composable {
+        Image(icon, "", modifier = Modifier.size(48.dp))
+        Column {
+            populateShopEntry()
         }
-        Column(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp)) {
-            Button(
-                enabled = purchasable,
-                onClick = action,
-                //modifier = Modifier.fillMaxWidth().height(64.dp)
-            ) {
-                Text(
-                    price,
-                    //fontSize = Typography.titleLarge.fontSize,
-                    //modifier = Modifier.weight(1.0f),
-                    textAlign = TextAlign.Center
-                )
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.money_bag_24px_1_),
-                    "",
-                    tint = Color.Black,
-                    modifier = Modifier.size(24.dp)
-                )
-            }
+    }
+
+    ShoppingContainer(content){
+        Button(
+            enabled = purchasable,
+            onClick = action,
+            //modifier = Modifier.fillMaxWidth().height(64.dp)
+        ) {
+            Text(
+                price,
+                //fontSize = Typography.titleLarge.fontSize,
+                //modifier = Modifier.weight(1.0f),
+                textAlign = TextAlign.Center
+            )
+            Icon(
+                imageVector = ImageVector.vectorResource(R.drawable.money_bag_24px_1_),
+                "",
+                tint = Color.Black,
+                modifier = Modifier.size(24.dp)
+            )
         }
     }
     RowDivider()
@@ -117,21 +106,11 @@ fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit, icon: ImageBitmap, purc
 
 @Composable
 fun LockedWeapon(weapon:ShopWeapon){
-    Row (
-        modifier = Modifier.fillMaxWidth().padding(vertical = 0.dp).background(color= MaterialTheme.colorScheme.onErrorContainer),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-
-        ){
-        Row (
-            modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 10.dp).weight(1f),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(Icons.Default.Settings, "Icon", modifier = Modifier.size(48.dp))
-            Column() {
-                Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
-                Text("Unlock at level ${weapon.level}")
-            }
+    LockedContainer(){
+        Image(Icons.Default.Settings, "Icon", modifier = Modifier.size(48.dp))
+        Column() {
+            Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
+            Text("Unlock at level ${weapon.level}")
         }
     }
 }

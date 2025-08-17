@@ -7,11 +7,12 @@ from MySql.tables import *
 from Models.auth import *
 from routes.middlewares.checkAuthTokenExpiration import *
 from routes.middlewares.key_names import *
+from MySql.SessionManager import safe_exec
 
 #returns a dictonary with a success value,if success is false a error message is added
-def getPlayer(authToken:str,session:Session):
+def getPlayer(authToken:str):
     player_query = select(Login).where(Login.authToken == authToken)
-    results = session.exec(player_query)
+    results = safe_exec(player_query)
     user = results.first()
 
     validate_token = checkAuthTokenValidity(authToken)
@@ -24,11 +25,20 @@ def getPlayer(authToken:str,session:Session):
     return {SUCCESS:True,PLAYER:user}
 
 
-def getPlayerData(player:Login,session:Session):
+def getPlayerData(player:Login):
     player_query = select(Player).where(Player.id == player.idPlayer)
-    results = session.exec(player_query)
+    results = safe_exec(player_query)
     user = results.first()
     if user == None:
         return {SUCCESS:False,ERROR:"Player data not found",HTTP_CODE:HTTP_400_BAD_REQUEST}
 
     return {SUCCESS:True,PLAYER:user}
+
+def getPlayerStats(player: Player):
+    stats_query = select(PlayerStats).where(Player.id==PlayerStats.idPlayer)
+    results = safe_exec(stats_query)
+    stats = results.first()
+    if stats == None:
+        return {SUCCESS:False,ERROR:"Player stats not found",HTTP_CODE:HTTP_400_BAD_REQUEST}
+
+    return {SUCCESS:True,STATS:stats}

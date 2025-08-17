@@ -14,6 +14,7 @@ import com.example.quickdraw.ImageLoader
 import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
+import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.repo.GameRepository
@@ -78,7 +79,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                 MercenaryShopEntry(mercenary,{callbacks.onHireMercenary(mercenary)}, imageLoader.imageNotFound.asImageBitmap(), player.value.money >= mercenary.cost)
             }
             for(mercenary in unlockable){
-                LockedMercenaryPost(mercenary)
+                LockedMercenaryPost(mercenary,imageLoader.imageNotFound.asImageBitmap())
             }
         }
     ), money = player.value.money, showMoney = true)

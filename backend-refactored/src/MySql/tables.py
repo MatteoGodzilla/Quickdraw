@@ -12,11 +12,19 @@ class Player(SQLModel, table=True):
     __tablename__  = "Player"
     id : int = Field(primary_key=True,default=None)
     health : int = Field(default=100)
-    maxHealth : int = Field(default=100)
     exp: int = Field(default=0)
     money: int = Field(default=0)
     bounty: int = Field(default=0)
     username: str 
+
+class PlayerStats(SQLModel, table=True):
+    __tablename__  = "PlayerStats"
+    idPlayer : int = Field(primary_key=True,default=None,foreign_key="Player.id")
+    maxHealth : int = Field(default=50)
+    moneyBoost: int = Field(default=100)
+    expBoost: int = Field(default=100)
+    bountyBoost: int = Field(default=100)
+    maxContracts: int = Field(default=1) 
 
 class Mercenary(SQLModel, table=True):
     __tablename__  = "Mercenary"

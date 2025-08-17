@@ -8,7 +8,6 @@ import com.example.quickdraw.network.api.redeemContractAPI
 import com.example.quickdraw.network.api.startContractAPI
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
-import com.example.quickdraw.network.data.PlayerStatus
 import com.example.quickdraw.runIfAuthenticated
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update

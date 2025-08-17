@@ -1,9 +1,11 @@
 from fastapi import FastAPI
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from sqlmodel import Session
 from starlette.status import *
 from routes import auth, contracts, inventory, status, shop, bountyboard,mercenaries, images
 from MySql import connection
+from pymysql.err import *
 
 #this is the file to run for starting the backend service,it will incorporate all the routes defined in the route folder
 app = FastAPI()
@@ -27,5 +29,4 @@ async def missing_parameters_error(request, exc: RequestValidationError):
             "error": "Missing or invalid fields."
         }
     )
-
 

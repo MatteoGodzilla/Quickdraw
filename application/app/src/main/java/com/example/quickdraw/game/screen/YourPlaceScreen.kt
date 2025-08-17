@@ -137,7 +137,7 @@ fun YourPlaceScreen(controller: NavHostController, repository: GameRepository, i
                 }
             }
         }
-    ), money = player.value!!.money)
+    ), money = player.value.money)
 }
 
 @Composable

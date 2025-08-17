@@ -5,6 +5,7 @@ from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from fastapi.encoders import jsonable_encoder
 
+import pymysql
 from sqlmodel import Session, delete,select,and_,func, update
 from starlette.status import *
 from bcrypt import *
@@ -36,7 +37,7 @@ async def get_available(request:BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -44,8 +45,8 @@ async def get_available(request:BasicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    playerInfo:Player = getPlayerData(player,session)[PLAYER]
-    playerLevel = getLevel(playerInfo.exp,session)
+    playerInfo:Player = getPlayerData(player)[PLAYER]
+    playerLevel = getLevel(playerInfo.exp)
     employed_mercenaries = select(Mercenary.id).where(
          and_(
               EmployedMercenary.idMercenary == Mercenary.id,
@@ -78,7 +79,7 @@ async def employ(request:EmployRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -86,8 +87,8 @@ async def employ(request:EmployRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    playerInfo:Player = getPlayerData(player,session)[PLAYER]
-    playerLevel = getLevel(playerInfo.exp,session)
+    playerInfo:Player = getPlayerData(player)[PLAYER]
+    playerLevel = getLevel(playerInfo.exp)
     employed_mercenaries = select(Mercenary.id).where(
          and_(
               EmployedMercenary.idMercenary == Mercenary.id,
@@ -138,7 +139,7 @@ async def get_available(request:BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -146,7 +147,7 @@ async def get_available(request:BasicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    playerInfo:Player = getPlayerData(player,session)[PLAYER]
+    playerInfo:Player = getPlayerData(player)[PLAYER]
 
     employed_mercenaries = select(Mercenary,EmployedMercenary).where(
          and_(
@@ -175,7 +176,7 @@ async def get_available(request:BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -218,7 +219,7 @@ async def get_next_unlock(request:BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -226,8 +227,8 @@ async def get_next_unlock(request:BasicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    playerInfo:Player = getPlayerData(player,session)[PLAYER]
-    playerLevel = getLevel(playerInfo.exp,session)
+    playerInfo:Player = getPlayerData(player)[PLAYER]
+    playerLevel = getLevel(playerInfo.exp)
     next_unlock_level = getNextUnlockableMercenariesLevel(playerLevel)
 
     if next_unlock_level == None:

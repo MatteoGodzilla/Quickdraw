@@ -27,7 +27,7 @@ async def friends(request: BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],

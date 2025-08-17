@@ -5,6 +5,11 @@ from Models.commons import BasicAuthTokenRequest, ImageRequest
 from pathlib import Path
 from starlette.status import *
 
+from routes.middlewares.checkAuthTokenExpiration import checkAuthTokenValidity
+from routes.middlewares.key_names import *
+from routes.middlewares import getPlayer
+from MySql.tables import Login
+
 router = APIRouter(
     prefix="/image",
     tags=["image"]
@@ -60,7 +65,7 @@ def updatePic(request: BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],

@@ -21,6 +21,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -41,6 +43,7 @@ import androidx.compose.ui.window.DialogProperties
 import com.example.quickdraw.R
 import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.game.vm.PopupVM
+import com.example.quickdraw.ui.theme.Typography
 import kotlinx.coroutines.delay
 
 enum class PopupType{
@@ -148,5 +151,42 @@ fun ScreenLoader(
         }
     }
 }
+
+@Composable
+fun ShoppingContainer(rowContent: @Composable ()->Unit, columnContent: @Composable ()->Unit){
+    Row (
+        modifier = Modifier.fillMaxWidth().padding(vertical = 0.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Row (
+            modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 10.dp).weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            rowContent()
+        }
+        Column(modifier = Modifier.padding(top = 10.dp, bottom = 10.dp, end = 10.dp)) {
+            columnContent()
+        }
+    }
+}
+
+@Composable
+fun LockedContainer(content:@Composable ()->Unit){
+    Row (
+        modifier = Modifier.fillMaxWidth().padding(vertical = 0.dp).background(color= MaterialTheme.colorScheme.onErrorContainer),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+
+    ){
+        Row (
+            modifier = Modifier.padding(start = 10.dp, top = 10.dp, bottom = 10.dp).weight(1f),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            content()
+        }
+    }
+}
+
 
 

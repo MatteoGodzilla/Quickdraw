@@ -35,6 +35,7 @@ import com.example.quickdraw.ui.theme.Typography
 @Composable
 fun TopBar(repository: GameRepository) {
     val player = repository.player.player.collectAsState()
+    val stats = repository.player.stats.collectAsState()
     Surface(color = MaterialTheme.colorScheme.surfaceContainer){
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
@@ -43,10 +44,10 @@ fun TopBar(repository: GameRepository) {
         ) {
             val rowHeight = Typography.bodyLarge.lineHeight.value.dp
             item ( span = { GridItemSpan(2) } ) {
-                val ratio = player.value.health.toFloat() / player.value.maxHealth
+                val ratio = player.value.health.toFloat() / stats.value.maxHealth
                 ProgressBar(ratio, ProgressBarColors.health, rowHeight, ImageVector.vectorResource(R.drawable.favorite_24px), "Health")
             }
-            item { CenteredText("${player.value.health}/${player.value.maxHealth} HP", rowHeight ) }
+            item { CenteredText("${player.value.health}/${stats.value.maxHealth} HP", rowHeight ) }
             item ( span = { GridItemSpan(2) } ) {
                 val progress = repository.player.getProgressToNextLevel()
                 ProgressBar(progress, ProgressBarColors.experience, rowHeight, ImageVector.vectorResource(R.drawable.stars_2_24px), "Experience")

@@ -13,7 +13,7 @@ from MySql.SessionManager import *
 session = global_session
 
 #returns a dictonary with a success value,if success is false a error message is added
-def getLevel(exp:int,session = global_session):
+def getLevel(exp:int):
     level_query = select(Level).where(Level.expRequired <= exp).order_by(desc(Level.level))
     result = session.exec(level_query)
     level = result.first()

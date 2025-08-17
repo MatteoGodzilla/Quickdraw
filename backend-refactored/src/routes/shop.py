@@ -10,6 +10,7 @@ from routes.middlewares.getPlayer import getPlayer, getPlayerData
 from sqlalchemy import and_, or_, func, join
 from sqlmodel import Session, select
 from starlette.status import *
+from MySql.SessionManager import safe_exec
 
 from Models.shop import *
 from routes.middlewares.exp import getLevel
@@ -31,7 +32,7 @@ async def weapons(request: BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -39,7 +40,7 @@ async def weapons(request: BasicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    playerInfo = getPlayerData(player,session)
+    playerInfo = getPlayerData(player)
     if playerInfo[SUCCESS] == False:
         return JSONResponse(
             status_code = HTTP_500_INTERNAL_SERVER_ERROR,
@@ -51,7 +52,7 @@ async def weapons(request: BasicAuthTokenRequest):
         select(PlayerWeapon.idWeapon).where(PlayerWeapon.idPlayer == player.id)
     ))
 
-    result = session.exec(available_weapons) 
+    result = safe_exec(available_weapons) 
     response_weapons = [BuyWeaponResponse(id=w.id,name=w.name,damage=w.damage,cost=w.cost,level=w.requiredLevel) for w in result.fetchall()]
 
     return JSONResponse(
@@ -69,7 +70,7 @@ async def bullets(request: BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -77,7 +78,7 @@ async def bullets(request: BasicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    playerInfo = getPlayerData(player,session)
+    playerInfo = getPlayerData(player)
     if playerInfo[SUCCESS] == False:
         return JSONResponse(
             status_code = HTTP_500_INTERNAL_SERVER_ERROR,
@@ -87,7 +88,7 @@ async def bullets(request: BasicAuthTokenRequest):
    
     available_bullets = select(BulletShop,Bullet).where(BulletShop.idBullet == Bullet.type)
 
-    result = session.exec(available_bullets) 
+    result = safe_exec(available_bullets) 
     response_bullets = [BuyBulletResponse(id=x.id,type=y.type,name=y.description,cost=x.cost,quantity=x.quantity,capacity=y.capacity,level=y.requiredLevel) for x,y in result.fetchall()]
 
     return JSONResponse(
@@ -105,7 +106,7 @@ async def bullets(request: BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -113,7 +114,7 @@ async def bullets(request: BasicAuthTokenRequest):
         )
     
     player:Login=obtain_player[PLAYER]
-    playerInfo = getPlayerData(player,session)
+    playerInfo = getPlayerData(player)
     if playerInfo[SUCCESS] == False:
         return JSONResponse(
             status_code = HTTP_500_INTERNAL_SERVER_ERROR,
@@ -123,7 +124,7 @@ async def bullets(request: BasicAuthTokenRequest):
    
     available_medikits = select(MedikitShop,Medikit).where(MedikitShop.idMedikit == Medikit.id)
 
-    result = session.exec(available_medikits) 
+    result = safe_exec(available_medikits) 
     response_medikits = [BuyMedikitResponse(id=x.id,idMedikit=y.id,description=y.description,healthRecover=y.healthRecover,cost=x.cost,quantity=x.quantity,capacity=y.capacity,level=y.requiredLevel) for x,y in result.fetchall()]
     return JSONResponse(
         status_code = HTTP_200_OK,
@@ -140,7 +141,7 @@ async def bullets(request: BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -179,7 +180,7 @@ async def bullets(request: BasicAuthTokenRequest):
             UpgradeTypes.id == UpgradeShop.type
         ).group_by(UpgradeShop.type)
 
-    result = session.exec(available_upgrades)
+    result = safe_exec(available_upgrades)
     response_upgrades = []
     for upgrade_id, upgrade_type, level, cost, description in result.fetchall():
         response_upgrades.append({
@@ -205,7 +206,7 @@ async def buyBullets(request: BuyRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -221,7 +222,7 @@ async def buyBullets(request: BuyRequest):
          )
     )
 
-    result = session.exec(obtain_bullet)
+    result = safe_exec(obtain_bullet)
     bulletInfo = result.first()
 
     #bullet does not exist
@@ -231,7 +232,7 @@ async def buyBullets(request: BuyRequest):
             content={"message":"Required bullet sale does not exist"}
         )
     
-    playerInfo = getPlayerData(player,session)
+    playerInfo = getPlayerData(player)
     if playerInfo[SUCCESS] == False:
         return JSONResponse(
             status_code = HTTP_500_INTERNAL_SERVER_ERROR,
@@ -254,7 +255,7 @@ async def buyBullets(request: BuyRequest):
         )
     )
 
-    result = session.exec(getBullet)
+    result = safe_exec(getBullet)
     bulletPlayer = result.first()
 
     #case 1: player does not already own bullet:
@@ -292,7 +293,7 @@ async def buyMedikit(request: BuyRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -307,7 +308,7 @@ async def buyMedikit(request: BuyRequest):
          )
     )
 
-    result = session.exec(obtain_medikit)
+    result = safe_exec(obtain_medikit)
     medikitInfo = result.first()
 
     #medikit does not exist
@@ -317,7 +318,7 @@ async def buyMedikit(request: BuyRequest):
             content={"message":"Required medikit sale does not exist"}
         )
     
-    playerInfo = getPlayerData(player,session)
+    playerInfo = getPlayerData(player)
     if playerInfo[SUCCESS] == False:
         return JSONResponse(
             status_code = HTTP_500_INTERNAL_SERVER_ERROR,
@@ -340,7 +341,7 @@ async def buyMedikit(request: BuyRequest):
         )
     )
 
-    result = session.exec(getMedikit)
+    result = safe_exec(getMedikit)
     medikitPlayer = result.first()
 
     #case 1: player does not already own medikit:
@@ -386,7 +387,7 @@ async def buyWeapon(request: BuyRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -400,7 +401,7 @@ async def buyWeapon(request: BuyRequest):
          )
     )
 
-    result = session.exec(obtain_weapon)
+    result = safe_exec(obtain_weapon)
     weaponInfo = result.first()
 
     #weapon does not exist
@@ -410,7 +411,7 @@ async def buyWeapon(request: BuyRequest):
             content={"message":"Required weapon sale does not exist"}
         )
     
-    playerInfo = getPlayerData(player,session)
+    playerInfo = getPlayerData(player)
     if playerInfo[SUCCESS] == False:
         return JSONResponse(
             status_code = HTTP_500_INTERNAL_SERVER_ERROR,
@@ -439,7 +440,7 @@ async def buyWeapon(request: BuyRequest):
         )
     )
 
-    result = session.exec(getWeapon)
+    result = safe_exec(getWeapon)
     weaponPlayer = result.first()
 
     #case 1: player does not already own weapon:
@@ -475,7 +476,7 @@ async def buyUpgrade(request: BuyRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -489,7 +490,7 @@ async def buyUpgrade(request: BuyRequest):
          )
     )
 
-    result = session.exec(obtain_upgrade)
+    result = safe_exec(obtain_upgrade)
     upgradeInfo = result.first()
 
     #weapon does not exist
@@ -499,7 +500,7 @@ async def buyUpgrade(request: BuyRequest):
             content={"message":"Required upgrade sale does not exist"}
         )
     
-    playerInfo = getPlayerData(player,session)
+    playerInfo = getPlayerData(player)
     if playerInfo[SUCCESS] == False:
         return JSONResponse(
             status_code = HTTP_500_INTERNAL_SERVER_ERROR,
@@ -523,7 +524,7 @@ async def buyUpgrade(request: BuyRequest):
                    UpgradeShop.level == upgradeInfo.level-1
               )
          )
-         result = session.exec(possessesPrevious)
+         result = safe_exec(possessesPrevious)
          if result.first() == None:
             return JSONResponse(status_code=HTTP_401_UNAUTHORIZED,content={"message":"Player does not own previous level of this upgrade"})
 
@@ -534,7 +535,7 @@ async def buyUpgrade(request: BuyRequest):
         )
     )
 
-    result = session.exec(getUpgrade)
+    result = safe_exec(getUpgrade)
     upgradePlayer = result.first()
 
     #case 1: player does not already own upgrade:
@@ -555,7 +556,7 @@ async def buyUpgrade(request: BuyRequest):
 
     #query to obtain upgrade description
     getUpgradeDescription = select(UpgradeTypes.description).where(UpgradeTypes.id==upgradeInfo.idUpgrade)
-    result = session.exec(getUpgradeDescription)
+    result = safe_exec(getUpgradeDescription)
     desc = result.first()
     if desc == None:
          desc=""

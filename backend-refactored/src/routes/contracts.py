@@ -35,7 +35,7 @@ async def get_actives(request:BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -89,7 +89,7 @@ async def redeem(request:RedeemContractRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -151,7 +151,7 @@ async def redeem(request:RedeemContractRequest):
 
     #update player balance and remove column
     try:
-        playerData : Player = getPlayerData(player,session)[PLAYER]
+        playerData : Player = getPlayerData(player)[PLAYER]
         playerData.money += reward*int(success)
         session.exec(delete(ActiveContract).where(ActiveContract.id == contract[0].id))
         session.commit()
@@ -183,7 +183,7 @@ async def start_contract(request:StartContractRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
@@ -211,7 +211,7 @@ async def start_contract(request:StartContractRequest):
             content={"message":"Selected contract doesnt exist or it is not available"}
         )
     
-    playerData:Player = getPlayerData(player,session)[PLAYER]
+    playerData:Player = getPlayerData(player)[PLAYER]
     if playerData.money < contract_to_start.startCost:
         return JSONResponse(
             status_code = HTTP_402_PAYMENT_REQUIRED,
@@ -283,7 +283,7 @@ async def get_availables(request:BasicAuthTokenRequest):
             content={"message":check_token[ERROR]}
         )
 
-    obtain_player = getPlayer(request.authToken,session)
+    obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
             return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
