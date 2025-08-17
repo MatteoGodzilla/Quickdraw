@@ -35,3 +35,4 @@ class BuyUpgradeResponse(BaseModel):
     description: str
     level: int
     cost: int
+    modifier:int

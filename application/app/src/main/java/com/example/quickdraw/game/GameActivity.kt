@@ -22,6 +22,7 @@ import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.components.Popup
+import com.example.quickdraw.game.components.ScreenLoader
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.ContractsCallbacks
 import com.example.quickdraw.game.screen.ContractsScreen
@@ -67,13 +68,17 @@ class GameActivity : ComponentActivity(){
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val repository = GameRepository(dataStore)
+        val popupVM = PopupVM()
+        val loadScreenVM = LoadingScreenVM()
 
         //TODO: run repository fetch when it changes screen, not just at start
         lifecycleScope.launch {
+            loadScreenVM.showLoading("Fetching resources...")
             repository.firstLoad()
+            loadScreenVM.hideLoading()
         }
 
-        val popupVM = PopupVM()
+
 
         val qdapp = application as QuickdrawApplication
 
@@ -177,6 +182,7 @@ class GameActivity : ComponentActivity(){
             }
             //popup for all pages
             QuickdrawTheme {
+                ScreenLoader(loadScreenVM)
                 Popup(3000,popupVM)
                 { popupVM.hide() }
             }

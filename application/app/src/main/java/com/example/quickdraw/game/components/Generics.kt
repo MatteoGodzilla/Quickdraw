@@ -114,6 +114,7 @@ fun ScreenLoader(
     loadVM: LoadingScreenVM
 ) {
     val isLoading by loadVM.isLoading
+    val msg by loadVM.message
     if (isLoading) {
         val infiniteTransition = rememberInfiniteTransition()
         val rotation by infiniteTransition.animateFloat(
@@ -146,7 +147,7 @@ fun ScreenLoader(
                         .size(64.dp)
                         .rotate(rotation)
                 )
-                Text("Connecting to server...")
+                Text(msg)
             }
         }
     }

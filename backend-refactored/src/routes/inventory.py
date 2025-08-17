@@ -53,7 +53,7 @@ async def get_inventory(request: BasicAuthTokenRequest):
     upgrades = result.fetchall()
     for playerUpgrade,upgradeShop,upgradeType in upgrades:
         response_object = InventoryResponseUpgrade(
-             idUpgrade = playerUpgrade.idUpgrade,description = upgradeType.description, type= upgradeShop.type, level = upgradeShop.level)
+             idUpgrade = playerUpgrade.idUpgrade,description = upgradeType.description, type= upgradeShop.type, level = upgradeShop.level,modifier=upgradeShop.modifier)
         response_upgrades.append(response_object)
     #obtain weapons
     weapon_query = select (PlayerWeapon,Weapon).where(and_(PlayerWeapon.idPlayer == player.idPlayer,PlayerWeapon.idWeapon == Weapon.id))

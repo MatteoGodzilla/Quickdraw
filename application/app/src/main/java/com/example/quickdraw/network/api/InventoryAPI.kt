@@ -15,7 +15,7 @@ fun getInventoryAPI(authToken: String) : InventoryResponse?{
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<InventoryResponse>(result)
         }

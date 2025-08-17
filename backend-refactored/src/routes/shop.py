@@ -170,7 +170,8 @@ async def bullets(request: BasicAuthTokenRequest):
             UpgradeShop.type,
             func.min(UpgradeShop.level),
             UpgradeShop.cost,
-            UpgradeTypes.description
+            UpgradeTypes.description,
+            UpgradeShop.modifier
         ).select_from(
             join(UpgradeShop, player_max_upgrades, UpgradeShop.type == player_max_upgrades.c.type, isouter = True)
         ).where(or_(
@@ -182,13 +183,14 @@ async def bullets(request: BasicAuthTokenRequest):
 
     result = safe_exec(available_upgrades)
     response_upgrades = []
-    for upgrade_id, upgrade_type, level, cost, description in result.fetchall():
+    for upgrade_id, upgrade_type, level, cost, description,modifier in result.fetchall():
         response_upgrades.append({
             "id": upgrade_id,
             "type": upgrade_type,
             "description": description,
             "level": level,
             "cost": cost,
+            "modifier":modifier
         })
 
     return JSONResponse(
@@ -491,7 +493,7 @@ async def buyUpgrade(request: BuyRequest):
     )
 
     result = safe_exec(obtain_upgrade)
-    upgradeInfo = result.first()
+    upgradeInfo:UpgradeShop = result.first()
 
     #weapon does not exist
     if upgradeInfo==None:
@@ -568,5 +570,5 @@ async def buyUpgrade(request: BuyRequest):
         level = upgradeInfo.level,
         cost = upgradeInfo.cost
     )
-    
+
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))

@@ -135,7 +135,7 @@ class ShopRepository(
             playerRepository.player.update { x -> x.copy(money = x.money - upgrade.cost) }
             upgrades.update { x-> x.filter { y -> y.id != upgrade.id } }
             inventoryRepository.upgrades.update{it.filter{u->u.type!=upgrade.type}}
-            inventoryRepository.upgrades.update { x -> x + InventoryUpgrade(upgrade.id, upgrade.description, upgrade.type, upgrade.level) }
+            inventoryRepository.upgrades.update { x -> x + InventoryUpgrade(upgrade.id, upgrade.description, upgrade.type, upgrade.level,upgrade.modifier) }
         }
     }
 }

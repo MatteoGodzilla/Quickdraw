@@ -29,7 +29,8 @@ data class InventoryUpgrade(
     val idUpgrade: Int,
     val description: String,
     val type: Int,
-    val level:Int
+    val level:Int,
+    val modifier:Int
 )
 @Serializable
 data class InventoryResponse(

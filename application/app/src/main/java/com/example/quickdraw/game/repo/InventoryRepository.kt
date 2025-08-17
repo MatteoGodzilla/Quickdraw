@@ -1,7 +1,9 @@
 package com.example.quickdraw.game.repo
 
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.example.quickdraw.TAG
 import com.example.quickdraw.network.api.getInventoryAPI
 import com.example.quickdraw.network.data.InventoryBullet
 import com.example.quickdraw.network.data.InventoryMedikit
@@ -25,6 +27,7 @@ class InventoryRepository (
 
     suspend fun getInventory() = runIfAuthenticated(dataStore) { auth ->
         val response = getInventoryAPI(auth)
+        Log.i(TAG,response.toString())
         if (response != null) {
             //Separate values
             bullets.update { response.bullets }

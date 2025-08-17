@@ -19,6 +19,7 @@ class InventoryResponseUpgrade(BaseModel):
     description:str
     type: int
     level:int
+    modifier:int
 
 class InventoryResponseWeapon(BaseModel):
     name:str

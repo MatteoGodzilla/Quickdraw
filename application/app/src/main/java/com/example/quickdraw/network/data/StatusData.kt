@@ -1,5 +1,6 @@
 package com.example.quickdraw.network.data
 
+import com.example.quickdraw.game.repo.Evaluation
 import kotlinx.serialization.Serializable
 
 /* --- RESPONSE --- */
@@ -14,17 +15,8 @@ data class PlayerInfo(
 )
 
 @Serializable
-data class PlayerStats(
-    val idPlayer: Int,
-    val maxHealth: Int,
-    val expBoost: Int,
-    val bountyBoost: Int,
-    val moneyBoost: Int,
-    val maxContracts: Int
-)
-
-@Serializable
-data class PlayerStatus(
-    val player: PlayerInfo,
-    val stats: PlayerStats
+data class BaseStats(
+    val upgradeType:Int,
+    val baseValue:Int,
+    val evaluation: Evaluation
 )

@@ -41,7 +41,8 @@ data class ShopUpgrade(
     val type: Int,
     val description: String,
     val level: Int,
-    val cost: Int
+    val cost: Int,
+    val modifier:Int
 )
 
 //request

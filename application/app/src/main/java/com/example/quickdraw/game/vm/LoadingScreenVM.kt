@@ -6,9 +6,11 @@ import androidx.lifecycle.ViewModel
 
 class LoadingScreenVM: ViewModel() {
     val isLoading = mutableStateOf(false)
+    val message = mutableStateOf("")
 
-    fun showLoading() {
+    fun showLoading(msg:String="Connecting...") {
         isLoading.value = true
+        message.value=msg
     }
 
     fun hideLoading() {

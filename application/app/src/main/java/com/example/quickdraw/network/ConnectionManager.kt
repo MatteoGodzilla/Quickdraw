@@ -9,7 +9,7 @@ import okhttp3.Response
 import okio.IOException
 
 object  ConnectionManager {
-    private var mainIP = "http://192.168.1.59:8000"
+    private var mainIP = "http://192.168.1.63:8000"
     private var availableIPs:List<String>  = listOf(
         "http://10.10.1.130:8000",
         "http://192.168.1.68:8000",
@@ -39,6 +39,7 @@ object  ConnectionManager {
 
     fun attempt(bodyRequest: RequestBody, url: String,isPost:Boolean=true): Response? {
         //attempt with main IP
+        Log.i(TAG, "Attempting server:$mainIP")
         var request = if(isPost) Request.Builder().url(mainIP+url).post(bodyRequest).build()
             else Request.Builder().url(mainIP+url).get().build()
         var response = query(request)

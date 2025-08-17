@@ -4,16 +4,21 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import com.example.quickdraw.PrefKeys
+import com.example.quickdraw.network.api.getBaseAPI
 import com.example.quickdraw.network.api.getLevelsAPI
 import com.example.quickdraw.network.api.getStatusAPI
+import com.example.quickdraw.network.data.BaseStats
 import com.example.quickdraw.network.data.PlayerInfo
-import com.example.quickdraw.network.data.PlayerStats
 import com.example.quickdraw.runIfAuthenticated
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
+
+enum class Evaluation {
+    INCREMENT, MULTIPLIER
+}
 
 data class Player(
     val id: Int,
@@ -26,11 +31,11 @@ data class Player(
 )
 
 data class Stats(
-    val maxHealth:Int,
-    val expBoost:Int,
-    val moneyBoost:Int,
-    val bountyBoost:Int,
-    val maxContracts: Int
+    var maxHealth:Int,
+    var expBoost:Int,
+    var moneyBoost:Int,
+    var bountyBoost:Int,
+    var maxContracts: Int
 )
 
 class PlayerRepository(
@@ -44,7 +49,7 @@ class PlayerRepository(
         private set
     var stats: MutableStateFlow<Stats> = MutableStateFlow(Stats(50,100,100,100,1))
     private var status: PlayerInfo? = null
-    private var statusStats: PlayerStats? = null
+    private var statusStats: List<BaseStats> = listOf()
     private var levels: List<Int> = listOf()
 
     suspend fun firstLoad(){
@@ -70,15 +75,20 @@ class PlayerRepository(
         //NOTE: response does not include level
         val response = getStatusAPI(auth)
         if(response != null){
-            status = response.player
-            statusStats = response.stats
-            updatePlayer()
+            status = response
+            updateStats()
         }
     }
 
     private suspend fun getLevels() = withContext(Dispatchers.IO) {
         levels = getLevelsAPI()
         updatePlayer()
+    }
+
+    private suspend fun getBase() = runIfAuthenticated(dataStore){ auth->
+        val response = getBaseAPI()
+        statusStats = response
+        updateStats()
     }
 
     private fun updatePlayer(){
@@ -95,9 +105,27 @@ class PlayerRepository(
                 dataStore.edit { it[PrefKeys.level] = level.toString() }
             }
         }
+    }
 
-        if(statusStats!=null){
-            stats.update { Stats(statusStats!!.maxHealth,statusStats!!.expBoost,statusStats!!.moneyBoost,statusStats!!.bountyBoost,statusStats!!.maxContracts) }
+    private fun updateStats(){
+        for(upgrade in statusStats){
+            when (upgrade.upgradeType) {
+                UpgradeIds.MAX_HEALTH.ordinal -> {
+                    stats.value.maxHealth = upgrade.baseValue
+                }
+                UpgradeIds.MAX_CONTRACTS.ordinal -> {
+                    stats.value.maxContracts = upgrade.baseValue
+                }
+                UpgradeIds.MONEY_BOOST.ordinal -> {
+                    stats.value.moneyBoost = upgrade.baseValue
+                }
+                UpgradeIds.EXP_BOOST.ordinal -> {
+                    stats.value.expBoost = upgrade.baseValue
+                }
+                UpgradeIds.BOUNTY_BOOST.ordinal -> {
+                    stats.value.bountyBoost = upgrade.baseValue
+                }
+            }
         }
     }
 }

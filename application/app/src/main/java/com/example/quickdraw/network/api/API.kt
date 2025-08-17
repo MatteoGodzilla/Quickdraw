@@ -12,6 +12,7 @@ const val REGISTER_ENDPOINT = "/auth/register"
 const val INVENTORY_ENDPOINT = "/inventory"
 const val STATUS_ENDPOINT = "/status"
 const val LEVELS_ENDPOINT = "/status/levels"
+const val BASE_STATS_ENDPOINT = "/status/baseStats"
 
 const val CONTRACTS_ACTIVE_ENDPOINT = "/contracts/active"
 const val CONTRACTS_AVAILABLE_ENDPOINT = "/contracts/available"

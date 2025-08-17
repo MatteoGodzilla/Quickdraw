@@ -1,5 +1,10 @@
+import enum
 from sqlmodel import Field, SQLModel,Column,LargeBinary
 
+
+class Evaluation(enum.Enum):
+    INCREMENT = 1,
+    MULTIPLIER = 2
 
 class Login(SQLModel, table=True):
     __tablename__  = "Login"
@@ -16,15 +21,6 @@ class Player(SQLModel, table=True):
     money: int = Field(default=0)
     bounty: int = Field(default=0)
     username: str 
-
-class PlayerStats(SQLModel, table=True):
-    __tablename__  = "PlayerStats"
-    idPlayer : int = Field(primary_key=True,default=None,foreign_key="Player.id")
-    maxHealth : int = Field(default=50)
-    moneyBoost: int = Field(default=100)
-    expBoost: int = Field(default=100)
-    bountyBoost: int = Field(default=100)
-    maxContracts: int = Field(default=1) 
 
 class Mercenary(SQLModel, table=True):
     __tablename__  = "Mercenary"
@@ -124,6 +120,7 @@ class UpgradeShop(SQLModel,table=True):
     level: int
     cost: int
     type: int
+    modifier:int
 
 class Weapon(SQLModel,table=True):
     __tablename__  = "Weapon"
@@ -144,3 +141,8 @@ class Level(SQLModel, table=True):
     level:int = Field(primary_key=True)
     expRequired: int
 
+class BaseStats(SQLModel, table=True):
+    __tablename__ = "BaseStats"
+    upgradetype:int = Field(primary_key=True,foreign_key="UpgradeTypes.id")
+    baseValue: int = Field(default=1)
+    evaluation: Evaluation = Field(default=Evaluation.INCREMENT)
