@@ -85,7 +85,7 @@ fun ShopScreen (viewModel: ShopScreenVM, controller: NavHostController) {
                     else{
                         SmallHeader(pair.key)
                         for(m in pair.value){
-                            val possessed = ownedMedikits.value.firstOrNull { x -> x.id == m.id }?.amount ?: 0
+                            val possessed = ownedMedikits.value.firstOrNull { x -> x.id == m.idMedikit }?.amount ?: 0
                             val purchasable = player.value.money >= m.cost && possessed < m.capacity
                             val icon = viewModel.getMedikitIcon(m.id).collectAsState().value
                             MedikitEntryShop(m,{viewModel.onBuyMedikit(m)}, icon, purchasable,possessed)

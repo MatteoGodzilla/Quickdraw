@@ -75,7 +75,24 @@ fun MainScreen(controller: NavHostController, repository: GameRepository, peerFi
                 verticalArrangement = Arrangement.Bottom,
                 modifier = Modifier.fillMaxSize().padding(padding)
             ){
-                //connection settings
+                //scouting
+                Button(
+                    onClick = onScan,
+                    colors = ButtonColors(
+                        containerColor = MaterialTheme.colorScheme.primary,
+                        contentColor = MaterialTheme.colorScheme.onSurface,
+                        disabledContainerColor = MaterialTheme.colorScheme.primary,
+                        disabledContentColor = MaterialTheme.colorScheme.onSurface
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
+                    if(peerFinder.scanning.collectAsState().value){
+                        Text("Stop scouting", fontSize = Typography.titleLarge.fontSize)
+                    } else {
+                        Text("Start scouting", fontSize = Typography.titleLarge.fontSize)
+                    }
+                }
                 Row (modifier = Modifier.fillMaxWidth()) {
                     //manual match
                     Button(
@@ -91,38 +108,20 @@ fun MainScreen(controller: NavHostController, repository: GameRepository, peerFi
                         Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
                         Text("Manual match", fontSize = Typography.titleLarge.fontSize)
                     }
-                    //scouting
+                    //connection settings
                     Button(
-                        onClick = onScan,
+                        onClick = onSettings,
                         colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primary,
+                            containerColor = MaterialTheme.colorScheme.secondary,
                             contentColor = MaterialTheme.colorScheme.onSurface,
                             disabledContainerColor = MaterialTheme.colorScheme.primary,
                             disabledContentColor = MaterialTheme.colorScheme.onSurface
                         ),
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier.fillMaxWidth().weight(1f)
                     ) {
-                        Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
-                        if(peerFinder.scanning.collectAsState().value){
-                            Text("Stop scouting", fontSize = Typography.titleLarge.fontSize)
-                        } else {
-                            Text("Start scouting", fontSize = Typography.titleLarge.fontSize)
-                        }
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.settings_24px),"Scout")
+                        Text("Open settings", fontSize = Typography.titleLarge.fontSize)
                     }
-                }
-                Button(
-                    onClick = onSettings,
-                    colors = ButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        disabledContainerColor = MaterialTheme.colorScheme.primary,
-                        disabledContentColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Icon(imageVector = ImageVector.vectorResource(R.drawable.settings_24px),"Scout")
-                    Text("Open settings", fontSize = Typography.titleLarge.fontSize)
                 }
             }
         }

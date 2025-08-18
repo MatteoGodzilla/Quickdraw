@@ -5,7 +5,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.os.Bundle
 import android.provider.Settings.ACTION_WIFI_SETTINGS
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -17,7 +16,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.QuickdrawApplication
-import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
@@ -34,17 +32,12 @@ import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.StartContractScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
 import com.example.quickdraw.game.vm.ContractStartVM
+import com.example.quickdraw.game.vm.LeaderboardVM
 import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.game.vm.PopupVM
 import com.example.quickdraw.game.vm.ShopScreenVM
 import com.example.quickdraw.game.vm.YourPlaceVM
-import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.data.HireableMercenary
-import com.example.quickdraw.network.data.ShopBullet
-import com.example.quickdraw.network.data.ShopMedikit
-import com.example.quickdraw.network.data.ShopUpgrade
-import com.example.quickdraw.network.data.ShopWeapon
-import com.example.quickdraw.signOff
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -137,7 +130,8 @@ class GameActivity : ComponentActivity(){
                     MainScreen(controller, repository, qdapp.peerFinderSingleton,onScoutingFun, onSettingsFun, onManualMatch)
                 }
                 composable<GameNavigation.BountyBoard> {
-                    LeaderBoardScreen(controller,repository, qdapp.imageLoader)
+                    val vm = viewModel { LeaderboardVM(repository, qdapp.imageLoader) }
+                    LeaderBoardScreen(vm, controller)
                 }
                 composable<GameNavigation.Contracts> {
                     ContractsScreen(controller, repository, qdapp.imageLoader, object : ContractsCallbacks {

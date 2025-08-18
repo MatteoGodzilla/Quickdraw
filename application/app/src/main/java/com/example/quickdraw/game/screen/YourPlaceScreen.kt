@@ -29,6 +29,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.focus.focusModifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.modifier.modifierLocalOf
@@ -125,7 +126,10 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
 
         },
         ContentTab("Memories") {
-            Text("Memories")
+            Text("You haven't added a memory yet!\nDuel someone, then add one in the result screen",
+                modifier = Modifier.fillMaxWidth(),
+                textAlign = TextAlign.Center
+            )
         },
         ContentTab("Inventory") {
                 //Weapons
@@ -139,7 +143,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 if(bullets.value.isNotEmpty()){
                     SmallHeader("Bullets")
                     for(bullet in bullets.value){
-                        StatsDisplayer(bullet.description, "${bullet.amount}/${bullet.capacity}")
+                        StatsDisplayer(bullet.description, "Owned: ${bullet.amount}/${bullet.capacity}")
                     }
                 }
                 //Medikits
@@ -151,7 +155,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                             fontSize = Typography.titleLarge.fontSize,
                             modifier = Modifier.padding(8.dp)
                         )
-                        StatsDisplayer("Health recover:${medikit.healthRecover}", "${medikit.amount}/${medikit.capacity}")
+                        StatsDisplayer("Health recover:${medikit.healthRecover}", "Owned: ${medikit.amount}/${medikit.capacity}")
                     }
                 }
                 //Upgrades
