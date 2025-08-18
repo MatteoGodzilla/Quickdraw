@@ -66,7 +66,7 @@ class MainActivity : ComponentActivity() {
                     else{
                         Log.i(TAG, "Token login returned with code ${response.code}")
                         if(response.code == 200){
-                            val responseVal = Json.decodeFromString<LoginResponse>(response.body!!.string())
+                            val responseVal = Json.decodeFromString<LoginResponse>(response.body.string())
                             Log.i(TAG, "New valid token: $responseVal")
                             dataStore.edit { preferences ->
                                 preferences[PrefKeys.authToken] = responseVal.authToken

@@ -9,14 +9,14 @@ import okhttp3.Response
 import okio.IOException
 
 object  ConnectionManager {
-    private var mainIP = "http://quickdraw.matteogodzilla.net"
+    private var mainIP = "http://192.168.1.59:8000"
     private var availableIPs:List<String> = listOf(
         "http://quickdraw.matteogodzilla.net",
         "http://10.10.1.130:8000",
         "http://192.168.1.68:8000",
         "http://192.168.1.63:8000",
         "http://192.168.1.45:8000",
-        "http://102.168.1.59:8000",
+        "http://192.168.1.59:8000"
         "http://10.201.100.225:8000",
         "http://10.174.108.5:8000"
     )

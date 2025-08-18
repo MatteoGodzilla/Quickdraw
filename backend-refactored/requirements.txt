@@ -6,3 +6,4 @@ pydantic
 pymysql
 uuid-utils
 dotenv
+filetype

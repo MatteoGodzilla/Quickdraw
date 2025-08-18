@@ -92,6 +92,28 @@ class GameActivity : ComponentActivity(){
             }
         }
 
+        val onSettingsFun: ()->Unit = {
+            try{
+                //not guaranteeded to exist
+                val i = Intent().apply {
+                    component = ComponentName(
+                        "com.android.settings",
+                        "com.android.settings.wifi.p2p.WifiP2pSettings"
+                    )
+                }
+                startActivity(i)
+            }
+            catch(e: ActivityNotFoundException){
+                val i = Intent(ACTION_WIFI_SETTINGS)
+                startActivity(i)
+            }
+        }
+
+        val onManualMatch: ()->Unit = {
+            val intent = Intent(this@GameActivity, DuelActivity::class.java)
+            startActivity(intent)
+        }
+
         qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
             val intent = Intent(this, DuelActivity::class.java)
             intent.putExtra(Game2Duel.groupOwnerKey, groupOwner)
@@ -112,22 +134,7 @@ class GameActivity : ComponentActivity(){
                     ShopScreen(vm, controller)
                 }
                 composable<GameNavigation.Map> {
-                    MainScreen(controller, repository, qdapp.peerFinderSingleton,onScoutingFun){
-                        try{
-                            //not guaranteeded to exist
-                            val i = Intent().apply {
-                                component = ComponentName(
-                                    "com.android.settings",
-                                    "com.android.settings.wifi.p2p.WifiP2pSettings"
-                                )
-                            }
-                            startActivity(i)
-                        }
-                        catch(e: ActivityNotFoundException){
-                            val i = Intent(ACTION_WIFI_SETTINGS)
-                            startActivity(i)
-                        }
-                    }
+                    MainScreen(controller, repository, qdapp.peerFinderSingleton,onScoutingFun, onSettingsFun, onManualMatch)
                 }
                 composable<GameNavigation.BountyBoard> {
                     LeaderBoardScreen(controller,repository, qdapp.imageLoader)

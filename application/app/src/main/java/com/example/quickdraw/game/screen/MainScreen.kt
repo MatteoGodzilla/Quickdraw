@@ -44,7 +44,7 @@ import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
 
 @Composable
-fun MainScreen(controller: NavHostController, repository: GameRepository, peerFinder: PeerFinder, onScan: ()->Unit, onSettings:()->Unit){
+fun MainScreen(controller: NavHostController, repository: GameRepository, peerFinder: PeerFinder, onScan: ()->Unit, onSettings:()->Unit, onManualMatch: ()->Unit){
     QuickdrawTheme {
         Scaffold(
             topBar = { TopBar(repository) },
@@ -76,6 +76,40 @@ fun MainScreen(controller: NavHostController, repository: GameRepository, peerFi
                 modifier = Modifier.fillMaxSize().padding(padding)
             ){
                 //connection settings
+                Row (modifier = Modifier.fillMaxWidth()) {
+                    //manual match
+                    Button(
+                        onClick = onManualMatch,
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContainerColor = MaterialTheme.colorScheme.primary,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
+                        Text("Manual match", fontSize = Typography.titleLarge.fontSize)
+                    }
+                    //scouting
+                    Button(
+                        onClick = onScan,
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.primary,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContainerColor = MaterialTheme.colorScheme.primary,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
+                        if(peerFinder.scanning.collectAsState().value){
+                            Text("Stop scouting", fontSize = Typography.titleLarge.fontSize)
+                        } else {
+                            Text("Start scouting", fontSize = Typography.titleLarge.fontSize)
+                        }
+                    }
+                }
                 Button(
                     onClick = onSettings,
                     colors = ButtonColors(
@@ -89,25 +123,6 @@ fun MainScreen(controller: NavHostController, repository: GameRepository, peerFi
                 ) {
                     Icon(imageVector = ImageVector.vectorResource(R.drawable.settings_24px),"Scout")
                     Text("Open settings", fontSize = Typography.titleLarge.fontSize)
-                }
-                //scouting
-                Button(
-                    onClick = onScan,
-                    colors = ButtonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        disabledContainerColor = MaterialTheme.colorScheme.primary,
-                        disabledContentColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
-                    if(peerFinder.scanning.collectAsState().value){
-                        Text("Stop scouting", fontSize = Typography.titleLarge.fontSize)
-                    } else {
-                        Text("Start scouting", fontSize = Typography.titleLarge.fontSize)
-                    }
                 }
             }
         }
