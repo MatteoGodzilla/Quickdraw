@@ -1,3 +1,4 @@
+from typing import List
 from pydantic import BaseModel
 
 
@@ -28,11 +29,14 @@ class BuyWeaponResponse(BaseModel):
     cost: int
     level:int
 
-
-class BuyUpgradeResponse(BaseModel):
+class BuyableUpgrade(BaseModel):
     id: int
     type: int
     description: str
     level: int
     cost: int
     modifier:int
+
+class BuyUpgradeResponse(BaseModel):
+    buyed:BuyableUpgrade
+    nextUp:List[BuyableUpgrade]

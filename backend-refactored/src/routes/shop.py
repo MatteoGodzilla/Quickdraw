@@ -563,7 +563,24 @@ async def buyUpgrade(request: BuyRequest):
     if desc == None:
          desc=""
 
-    response = BuyUpgradeResponse(
+    #query to obtain next level upgrade
+    getNext = select(UpgradeShop,UpgradeTypes).where(and_(
+         UpgradeShop.type==upgradeInfo.type,
+         UpgradeShop.level == upgradeInfo.level+1,
+         UpgradeTypes.id == upgradeInfo.type 
+    ))
+    result = session.exec(getNext).first()
+    nextUps = []
+    if result!=None:
+        nextUps.append(BuyableUpgrade(
+             id = result[0].idUpgrade,
+             type = result[1].id,
+             description = result[1].description,
+             level = result[0].level,
+             cost = result[0].cost,
+             modifier = result[0].modifier
+        ))
+    buyed = BuyableUpgrade(
         id = upgradeInfo.idUpgrade,
         type = upgradeInfo.type,
         description= desc,
@@ -571,5 +588,7 @@ async def buyUpgrade(request: BuyRequest):
         cost = upgradeInfo.cost,
         modifier = upgradeInfo.modifier
     )
+
+    response = BuyUpgradeResponse(buyed=buyed,nextUp=nextUps)
 
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))

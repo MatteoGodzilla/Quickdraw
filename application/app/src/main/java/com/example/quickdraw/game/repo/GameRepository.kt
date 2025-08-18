@@ -37,7 +37,6 @@ class GameRepository(
 
      fun updatePlayerStats(){
         for(upgrade in inventory.upgrades.value){
-            Log.i(TAG,inventory.upgrades.value.toString())
             when (upgrade.type) {
                 UpgradeIds.MAX_HEALTH.ordinal -> {
                     player.stats.update { x->x.copy(maxHealth = x.maxHealth+upgrade.modifier) }
@@ -48,11 +47,11 @@ class GameRepository(
                 UpgradeIds.MONEY_BOOST.ordinal -> {
                     player.stats.update { x->x.copy(moneyBoost = x.moneyBoost+upgrade.modifier) }
                 }
-                UpgradeIds.EXP_BOOST.ordinal -> {
-                    player.stats.update { x->x.copy(expBoost = x.expBoost+upgrade.modifier) }
-                }
                 UpgradeIds.BOUNTY_BOOST.ordinal -> {
                     player.stats.update { x->x.copy(bountyBoost = x.bountyBoost+upgrade.modifier) }
+                }
+                UpgradeIds.EXP_BOOST.ordinal -> {
+                    player.stats.update { x->x.copy(expBoost = x.expBoost+upgrade.modifier) }
                 }
             }
         }

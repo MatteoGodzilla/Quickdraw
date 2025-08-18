@@ -112,7 +112,7 @@ class UpgradeTypes(SQLModel,table=True):
 class PlayerUpgrade(SQLModel, table=True):
     __tablename__  = "PlayerUpgrade"
     idPlayer : int=Field(primary_key=True,foreign_key="Player.id")
-    idUpgrade : int=Field(primary_key=True,foreign_key="UpgradeTypes.id")
+    idUpgrade : int=Field(primary_key=True,foreign_key="UpgradeShop.idUpgrade")
 
 class UpgradeShop(SQLModel,table=True):
     __tablename__  = "UpgradeShop"
@@ -143,6 +143,6 @@ class Level(SQLModel, table=True):
 
 class BaseStats(SQLModel, table=True):
     __tablename__ = "BaseStats"
-    upgradetype:int = Field(primary_key=True,foreign_key="UpgradeTypes.id")
+    upgradeType:int = Field(primary_key=True,foreign_key="UpgradeTypes.id")
     baseValue: int = Field(default=1)
-    evaluation: Evaluation = Field(default=Evaluation.INCREMENT)
+    evaluation: str = Field(default=str(Evaluation.INCREMENT))

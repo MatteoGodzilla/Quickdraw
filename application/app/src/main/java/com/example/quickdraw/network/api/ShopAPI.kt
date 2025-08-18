@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.quickdraw.TAG
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.data.BuyRequest
+import com.example.quickdraw.network.data.BuyUpgradeResponse
 import com.example.quickdraw.network.data.TokenRequest
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
@@ -110,7 +111,7 @@ fun buyWeaponAPI(buy: BuyRequest): ShopWeapon?{
     return null
 }
 
-fun buyUpgradeAPI(buy: BuyRequest): ShopUpgrade?{
+fun buyUpgradeAPI(buy: BuyRequest): BuyUpgradeResponse?{
     val requestBody: RequestBody = buy.toRequestBody()
     val response = ConnectionManager.attempt(requestBody,SHOP_BUY_UPGRADE)
     if(response!=null){
@@ -118,7 +119,7 @@ fun buyUpgradeAPI(buy: BuyRequest): ShopUpgrade?{
             //it should always be 200, otherwise there is a problem with the auth token
             val result = response.body!!.string()
             Log.i(TAG, result)
-            return Json.decodeFromString<ShopUpgrade>(result)
+            return Json.decodeFromString<BuyUpgradeResponse>(result)
         }
     }
     return null

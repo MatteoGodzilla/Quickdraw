@@ -50,7 +50,6 @@ class ShopScreenVM(
     fun onBuyUpgrade(toBuy: ShopUpgrade) {
         viewModelScope.launch {
             repository.shop.buyUpgrade(toBuy)
-            repository.updatePlayerStats()
         }
     }
 

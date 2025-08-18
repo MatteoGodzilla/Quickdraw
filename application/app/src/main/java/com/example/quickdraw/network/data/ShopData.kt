@@ -45,6 +45,12 @@ data class ShopUpgrade(
     val modifier:Int
 )
 
+@Serializable
+data class BuyUpgradeResponse(
+    val buyed: ShopUpgrade,
+    val nextUp:List<ShopUpgrade>
+)
+
 //request
 @Serializable
 data class BuyRequest(

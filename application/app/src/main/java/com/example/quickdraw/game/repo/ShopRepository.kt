@@ -136,6 +136,29 @@ class ShopRepository(
             upgrades.update { x-> x.filter { y -> y.id != upgrade.id } }
             inventoryRepository.upgrades.update{it.filter{u->u.type!=upgrade.type}}
             inventoryRepository.upgrades.update { x -> x + InventoryUpgrade(upgrade.id, upgrade.description, upgrade.type, upgrade.level,upgrade.modifier) }
+            upgrades.update { x-> if(response.nextUp.isNotEmpty()) x + response.nextUp.first() else x }
+            upgrades.update{it.sortedBy { x->x.id }}
+            updateOnSingle(upgrade)
+        }
+    }
+
+    private fun updateOnSingle(up: ShopUpgrade){
+        when (up.type) {
+            UpgradeIds.MAX_HEALTH.ordinal -> {
+                playerRepository.stats.update { x->x.copy(maxHealth = x.maxHealth + up.modifier) }
+            }
+            UpgradeIds.MAX_CONTRACTS.ordinal -> {
+                playerRepository.stats.update { x->x.copy(maxContracts = x.maxContracts + up.modifier) }
+            }
+            UpgradeIds.MONEY_BOOST.ordinal -> {
+                playerRepository.stats.update { x->x.copy(moneyBoost = x.moneyBoost + up.modifier) }
+            }
+            UpgradeIds.EXP_BOOST.ordinal -> {
+                playerRepository.stats.update { x->x.copy(expBoost = x.expBoost + up.modifier) }
+            }
+            UpgradeIds.BOUNTY_BOOST.ordinal -> {
+                playerRepository.stats.update { x->x.copy(bountyBoost = x.bountyBoost + up.modifier) }
+            }
         }
     }
 }

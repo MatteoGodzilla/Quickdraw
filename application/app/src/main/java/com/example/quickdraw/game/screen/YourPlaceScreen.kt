@@ -108,7 +108,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             StatsDisplayer("Max simultaneous contracts", stats.value.maxContracts.toString())
             StatsDisplayer("Exp boost", "${stats.value.expBoost-100}%")
             StatsDisplayer("Money boost", "${stats.value.moneyBoost-100}%")
-            StatsDisplayer("Bounty boost", "${stats.value.moneyBoost-100}%")
+            StatsDisplayer("Bounty boost", "${stats.value.bountyBoost-100}%")
 
             SmallHeader("Rounds")
             StatsDisplayer("Played", "#")

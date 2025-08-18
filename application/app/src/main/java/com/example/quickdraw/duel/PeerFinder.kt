@@ -212,7 +212,6 @@ class PeerFinder (
         peerToDeviceAddress.clear()
         for(dev in deviceAddressToService.keys) {
             if(deviceAddressToTxt.containsKey(dev)){
-
                 val dictionary = deviceAddressToTxt[dev]?.second
                 val username: String = dictionary?.get(USERNAME_KEY) ?: ""
                 val level = dictionary?.get(LEVEL_KEY)?.toInt() ?: 0

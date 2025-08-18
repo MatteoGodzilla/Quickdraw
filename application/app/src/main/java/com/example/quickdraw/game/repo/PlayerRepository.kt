@@ -9,6 +9,7 @@ import com.example.quickdraw.network.api.getLevelsAPI
 import com.example.quickdraw.network.api.getStatusAPI
 import com.example.quickdraw.network.data.BaseStats
 import com.example.quickdraw.network.data.PlayerInfo
+import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.runIfAuthenticated
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -56,6 +57,7 @@ class PlayerRepository(
     suspend fun firstLoad(){
         getStatus()
         getLevels()
+        getBase()
     }
 
     fun getProgressToNextLevel(): Float {
@@ -77,7 +79,6 @@ class PlayerRepository(
         val response = getStatusAPI(auth)
         if(response != null){
             status = response
-            updateStats()
         }
     }
 
@@ -113,19 +114,19 @@ class PlayerRepository(
         for(upgrade in statusStats){
             when (upgrade.upgradeType) {
                 UpgradeIds.MAX_HEALTH.ordinal -> {
-                    stats.value.maxHealth = upgrade.baseValue
+                    stats.update { x->x.copy(maxHealth = upgrade.baseValue) }
                 }
                 UpgradeIds.MAX_CONTRACTS.ordinal -> {
-                    stats.value.maxContracts = upgrade.baseValue
+                    stats.update { x->x.copy(maxContracts = upgrade.baseValue) }
                 }
                 UpgradeIds.MONEY_BOOST.ordinal -> {
-                    stats.value.moneyBoost = upgrade.baseValue
+                    stats.update { x->x.copy(moneyBoost = upgrade.baseValue) }
                 }
                 UpgradeIds.EXP_BOOST.ordinal -> {
-                    stats.value.expBoost = upgrade.baseValue
+                    stats.update { x->x.copy(expBoost = upgrade.baseValue) }
                 }
                 UpgradeIds.BOUNTY_BOOST.ordinal -> {
-                    stats.value.bountyBoost = upgrade.baseValue
+                    stats.update { x->x.copy(bountyBoost = upgrade.baseValue) }
                 }
             }
         }
