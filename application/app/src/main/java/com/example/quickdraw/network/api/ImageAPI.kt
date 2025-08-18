@@ -5,6 +5,7 @@ import com.example.quickdraw.TAG
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.data.ImageRequest
 import com.example.quickdraw.network.data.ImageResponse
+import com.example.quickdraw.network.data.UpdateProfileRequest
 import kotlinx.serialization.json.Json
 
 fun getWeaponImageAPI(id:Int) = getImage(id, IMAGE_WEAPON)
@@ -22,4 +23,10 @@ private fun getImage(id:Int, url: String): ImageResponse?{
         return Json.decodeFromString<ImageResponse>(body)
      }
      return null
+}
+
+fun updateProfilePicAPI(authToken: String, encoded: String) : Boolean{
+    val requestBody = UpdateProfileRequest(authToken, encoded).toRequestBody()
+    val response = ConnectionManager.attempt(requestBody, IMAGE_UPDATE_PLAYER_PIC)
+    return response?.code == 200
 }

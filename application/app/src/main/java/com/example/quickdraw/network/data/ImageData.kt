@@ -7,3 +7,6 @@ data class ImageRequest(val id:Int)
 
 @Serializable
 data class ImageResponse(val image:String)
+
+@Serializable
+data class UpdateProfileRequest(val authToken:String, val image:String)

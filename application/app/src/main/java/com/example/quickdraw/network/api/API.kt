@@ -42,7 +42,7 @@ const val IMAGE_BULLET = "/image/bullet"
 const val IMAGE_MEDIKIT = "/image/medikit"
 const val IMAGE_UPGRADE = "/image/upgrade"
 const val IMAGE_PLAYER = "/image/player"
-const val IMAGE_UPDATE_PLAYER = "/image/updatePic"
+const val IMAGE_UPDATE_PLAYER_PIC = "/image/updatePic"
 
 inline fun <reified T> T.toRequestBody(): RequestBody {
     val jsonString = Json.encodeToString(this)

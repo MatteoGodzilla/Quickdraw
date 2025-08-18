@@ -37,6 +37,7 @@ import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.game.vm.PopupVM
 import com.example.quickdraw.game.vm.ShopScreenVM
+import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
@@ -78,8 +79,6 @@ class GameActivity : ComponentActivity(){
             loadScreenVM.hideLoading()
         }
 
-
-
         val qdapp = application as QuickdrawApplication
 
         val onScoutingFun: ()->Unit ={
@@ -104,14 +103,10 @@ class GameActivity : ComponentActivity(){
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
 
-                composable<GameNavigation.YourPlace>{ YourPlaceScreen(controller, repository, qdapp.imageLoader){
-                    lifecycleScope.launch {
-                        signOff(dataStore)
-                    }
-                    val intent = Intent(this@GameActivity, LoginActivity::class.java)
-                    startActivity(intent)
-                    Log.i(TAG, "Sending from Register to Game activity")
-                } }
+                composable<GameNavigation.YourPlace>{
+                    val vm = viewModel { YourPlaceVM(repository, qdapp.imageLoader, this@GameActivity) }
+                    YourPlaceScreen(vm, controller)
+                }
                 composable<GameNavigation.Shop> {
                     val vm = viewModel { ShopScreenVM(repository, qdapp.imageLoader) }
                     ShopScreen(vm, controller)
@@ -135,7 +130,7 @@ class GameActivity : ComponentActivity(){
                     }
                 }
                 composable<GameNavigation.BountyBoard> {
-                    LeaderBoardScreen(controller,repository)
+                    LeaderBoardScreen(controller,repository, qdapp.imageLoader)
                 }
                 composable<GameNavigation.Contracts> {
                     ContractsScreen(controller, repository, qdapp.imageLoader, object : ContractsCallbacks {

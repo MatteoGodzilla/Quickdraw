@@ -3,7 +3,6 @@ package com.example.quickdraw.game.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
-import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.components.RowDivider
@@ -13,10 +12,6 @@ import com.example.quickdraw.game.dataDisplayers.MedikitEntryShop
 import com.example.quickdraw.game.dataDisplayers.UpgradeEntryShop
 import com.example.quickdraw.game.dataDisplayers.WeaponEntryShop
 import com.example.quickdraw.game.vm.ShopScreenVM
-import com.example.quickdraw.network.data.ShopBullet
-import com.example.quickdraw.network.data.ShopMedikit
-import com.example.quickdraw.network.data.ShopUpgrade
-import com.example.quickdraw.network.data.ShopWeapon
 
 @Composable
 fun ShopScreen (viewModel: ShopScreenVM, controller: NavHostController) {
@@ -57,7 +52,6 @@ fun ShopScreen (viewModel: ShopScreenVM, controller: NavHostController) {
             if(bullets.value.any { x->x.level > player.value.level }){
                 nextUnlock = bullets.value.filter { x->x.level>player.value.level }.minBy { x->x.level }.level
             }
-
             if(bullets.value.isNotEmpty()){
                 for (pair in bullets.value.filter { x->x.level<=nextUnlock }.sortedBy { x->x.level }.groupBy { it.name }){
                     if(pair.value.first().level> player.value.level ){
@@ -104,7 +98,7 @@ fun ShopScreen (viewModel: ShopScreenVM, controller: NavHostController) {
             if(upgrades.value.isNotEmpty()){
                 for (w in upgrades.value){
                     val icon = viewModel.getUpgradeIcon(w.id).collectAsState().value
-                    UpgradeEntryShop(w,{viewModel.onBuyUpgrade(w)}, icon,player.value!!.money>=w.cost)
+                    UpgradeEntryShop(w,{viewModel.onBuyUpgrade(w)}, icon,player.value.money>=w.cost)
                 }
             }
         }

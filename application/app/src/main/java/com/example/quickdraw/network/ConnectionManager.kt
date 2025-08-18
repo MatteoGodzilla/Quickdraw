@@ -10,7 +10,7 @@ import okio.IOException
 
 object  ConnectionManager {
     private var mainIP = "http://192.168.1.63:8000"
-    private var availableIPs:List<String>  = listOf(
+    private var availableIPs:List<String> = listOf(
         "http://10.10.1.130:8000",
         "http://192.168.1.68:8000",
         "http://192.168.1.63:8000",

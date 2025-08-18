@@ -15,9 +15,9 @@ class LeaderboardRepository (
     private val dataStore: DataStore<Preferences>
 ){
     //Bounty board
-    var friends: MutableStateFlow<List<LeaderboardEntry>> = MutableStateFlow<List<LeaderboardEntry>>(listOf())
+    var friends: MutableStateFlow<List<LeaderboardEntry>> = MutableStateFlow(listOf())
         private set
-    var global: MutableStateFlow<List<LeaderboardEntry>> = MutableStateFlow<List<LeaderboardEntry>>(listOf())
+    var global: MutableStateFlow<List<LeaderboardEntry>> = MutableStateFlow(listOf())
         private set
 
     suspend fun firstLoad(){

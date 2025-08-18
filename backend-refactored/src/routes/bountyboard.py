@@ -46,6 +46,7 @@ async def friends(request: BasicAuthTokenRequest):
 
     for f, p in result.fetchall():
         response.append({
+            "id": p.id,
             "bounty": p.bounty,
             "username": p.username
         })
@@ -57,12 +58,13 @@ async def friends(request: BasicAuthTokenRequest):
 
 @router.get("/leaderboard")
 async def leaderboard():
-    leaderboard = select(Player.bounty, Player.username).order_by(desc(Player.bounty)).limit(50)
+    leaderboard = select(Player.id, Player.bounty, Player.username).order_by(desc(Player.bounty)).limit(50)
     result = session.execute(leaderboard)
 
     response = []
-    for bounty, username in result.fetchall():
+    for id, bounty, username in result.fetchall():
         response.append({
+            "id": id,
             "bounty": bounty,
             "username": username
         })

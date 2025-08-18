@@ -347,4 +347,6 @@ lista ordinata dall'utente con il bounty più alto a quello più basso
     image: blob as base64
 }
     - In caso di dati mancanti -> HTTP 400
-- Response: HTTP 200 Ok
+- Response: 
+    - Se non viene mandata un'immagine -> HTTP 400
+    - Successo -> HTTP 200 Ok

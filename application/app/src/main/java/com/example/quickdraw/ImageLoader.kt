@@ -9,7 +9,10 @@ import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
+import com.example.quickdraw.network.api.getBulletImageAPI
+import com.example.quickdraw.network.api.getMedikitImageAPI
 import com.example.quickdraw.network.api.getPlayerImageAPI
+import com.example.quickdraw.network.api.getUpgradeImageAPI
 import com.example.quickdraw.network.api.getWeaponImageAPI
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -44,7 +47,7 @@ class ImageLoader(context: Context) {
             return@withContext bulletCache[id]!!.asImageBitmap()
         }
         //attempt to get image from server
-        val response = getWeaponImageAPI(id)
+        val response = getBulletImageAPI(id)
         if(response != null){
             val bytes = Base64.decode(response.image, DEFAULT)
             val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
@@ -60,7 +63,7 @@ class ImageLoader(context: Context) {
             return@withContext medikitCache[id]!!.asImageBitmap()
         }
         //attempt to get image from server
-        val response = getWeaponImageAPI(id)
+        val response = getMedikitImageAPI(id)
         if(response != null){
             val bytes = Base64.decode(response.image, DEFAULT)
             val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
@@ -76,7 +79,7 @@ class ImageLoader(context: Context) {
             return@withContext upgradeCache[id]!!.asImageBitmap()
         }
         //attempt to get image from server
-        val response = getWeaponImageAPI(id)
+        val response = getUpgradeImageAPI(id)
         if(response != null){
             val bytes = Base64.decode(response.image, DEFAULT)
             val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
@@ -101,5 +104,9 @@ class ImageLoader(context: Context) {
         }
 
         return@withContext imageNotFound.asImageBitmap()
+    }
+
+    fun invalidatePlayerImage(id: Int){
+        playerCache.remove(id)
     }
 }
