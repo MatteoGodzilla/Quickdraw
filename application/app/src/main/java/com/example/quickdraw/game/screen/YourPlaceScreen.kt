@@ -75,7 +75,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                         playerImage.value,
                         "Player icon",
                         contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.fillMaxHeight().clip(CircleShape),
+                        modifier = Modifier.fillMaxHeight().clip(CircleShape).align(Alignment.Center) ,
                     )
                     CircularProgressIndicator(viewModel::getProgressToNextLevel, modifier = Modifier.fillMaxSize() )
                 }

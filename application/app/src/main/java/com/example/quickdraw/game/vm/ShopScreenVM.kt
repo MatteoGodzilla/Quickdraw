@@ -28,7 +28,6 @@ class ShopScreenVM(
     val ownedBullets = repository.inventory.bullets
     val ownedWeapons = repository.inventory.weapons
     val ownedMedikits = repository.inventory.medikits
-    val ownedUpgrades = repository.inventory.upgrades
 
     private val weaponIcons: MutableMap<Int, MutableStateFlow<ImageBitmap>> = mutableMapOf()
     private val bulletIcons: MutableMap<Int, MutableStateFlow<ImageBitmap>> = mutableMapOf()

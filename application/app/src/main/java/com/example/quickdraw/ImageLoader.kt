@@ -18,7 +18,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
 class ImageLoader(context: Context) {
-    var imageNotFound : Bitmap = AppCompatResources.getDrawable(context, R.drawable.question_mark_24px)!!.toBitmap(128, 128)
+    var imageNotFound : Bitmap = AppCompatResources.getDrawable(context, R.drawable.question_mark_24px)!!.toBitmap(512, 512)
 
     private val weaponCache: MutableMap<Int,Bitmap> = mutableMapOf()
     private val bulletCache: MutableMap<Int,Bitmap> = mutableMapOf()

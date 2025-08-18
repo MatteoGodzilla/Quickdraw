@@ -144,11 +144,13 @@ class GameActivity : ComponentActivity(){
                         }
                         override fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>) {
                             lifecycleScope.launch { repository.contracts.start(availableContract,mercenaries) }
+                            popupVM.showLoading("Contract started",true)
                         }
 
                         override fun onHireMercenary(hireable: HireableMercenary) {
                             lifecycleScope.launch {
                                 repository.mercenaries.employ(hireable)
+                                popupVM.showLoading("Mercenary hired!",true)
                             }
                         }
                     })
