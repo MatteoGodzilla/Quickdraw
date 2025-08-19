@@ -44,7 +44,6 @@ import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.network.data.EmployedMercenary
 import com.example.quickdraw.network.data.LockedMercenary
 import com.example.quickdraw.ui.theme.Typography
-import com.example.quickdraw.ui.theme.lockedShopEntry
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import kotlin.collections.plus

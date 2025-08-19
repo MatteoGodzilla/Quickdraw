@@ -109,6 +109,7 @@ class DuelGameLogic : MessageHandler{
         printStatus()
         selfBangDelta = System.currentTimeMillis() - referenceTimeMS - agreedBangDelay
         duelServer.enqueueOutgoing(Message(Type.BANG, selfBangDelta.toString()))
+        checkBang()
     }
 
     suspend fun nextRound(){

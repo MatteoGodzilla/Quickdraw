@@ -74,18 +74,17 @@ fun Popup(duration:Long, popupVm: PopupVM, onEnd:()->Unit){
                 popupVm.hide()
             }
         }
-        val density = LocalDensity.current
-        AnimatedVisibility(
-            visible = isShowing.value,
-            enter=fadeIn(initialAlpha = 0.2f),
-            exit = fadeOut()
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp)
-                    .offset(y=10.dp),
-                contentAlignment = Alignment.TopCenter
+        Box(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+                .offset(y=30.dp),
+            contentAlignment = Alignment.TopCenter
+        ){
+            AnimatedVisibility(
+                visible = isShowing.value,
+                enter=fadeIn(initialAlpha = 0.2f),
+                exit = fadeOut()
             ){
                 Surface(color = backColor,
                     shape = RoundedCornerShape(8.dp),
