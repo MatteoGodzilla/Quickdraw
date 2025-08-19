@@ -31,6 +31,7 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.login.LoginNavigation
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.ScreenLoader
+import com.example.quickdraw.game.vm.GlobalPartsVM
 import com.example.quickdraw.login.vm.LoginScreenVM
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.primaryButtonColors
@@ -38,7 +39,8 @@ import com.example.quickdraw.ui.theme.primaryButtonColors
 @Composable
 fun LoginScreen(
     loginScreenVM: LoginScreenVM,
-    navHost: NavHostController
+    navHost: NavHostController,
+    globalsVM: GlobalPartsVM
 ){
     QuickdrawTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -104,7 +106,7 @@ fun LoginScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = loginScreenVM::sendLogin,
+                    onClick = { globalsVM.loadScreen.showLoading("Logging in");loginScreenVM.sendLogin()},
                     colors = primaryButtonColors,
                     enabled = loginScreenVM.canSendLogin()
                 ) {

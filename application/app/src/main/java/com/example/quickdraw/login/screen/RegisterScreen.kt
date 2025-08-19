@@ -26,6 +26,7 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
+import com.example.quickdraw.game.vm.GlobalPartsVM
 import com.example.quickdraw.login.vm.RegisterScreenVM
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.primaryButtonColors
@@ -33,7 +34,8 @@ import com.example.quickdraw.ui.theme.primaryButtonColors
 @Composable
 fun RegisterScreen(
     registerScreenVM: RegisterScreenVM,
-    navHostController: NavHostController
+    navHostController: NavHostController,
+    globalsVM: GlobalPartsVM
 ){
     QuickdrawTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -124,7 +126,7 @@ fun RegisterScreen(
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = registerScreenVM::register,
+                    onClick = {globalsVM.loadScreen.showLoading("Registering account");registerScreenVM.register()},
                     colors = primaryButtonColors,
                     enabled = registerScreenVM.canRegister()
                 ) {

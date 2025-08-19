@@ -1,13 +1,16 @@
 package com.example.quickdraw.game
 
+import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
 import android.content.Intent
+import android.content.pm.ActivityInfo
 import android.os.Bundle
 import android.provider.Settings.ACTION_WIFI_SETTINGS
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -32,6 +35,7 @@ import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.StartContractScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
 import com.example.quickdraw.game.vm.ContractStartVM
+import com.example.quickdraw.game.vm.GlobalPartsVM
 import com.example.quickdraw.game.vm.LeaderboardVM
 import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.game.vm.PopupVM
@@ -63,13 +67,13 @@ class GameActivity : ComponentActivity(){
         enableEdgeToEdge()
         val repository = GameRepository(dataStore)
         val popupVM = PopupVM()
-        val loadScreenVM = LoadingScreenVM()
+        val globalsVM = GlobalPartsVM()
 
         //TODO: run repository fetch when it changes screen, not just at start
         lifecycleScope.launch {
-            loadScreenVM.showLoading("Fetching resources...")
+            globalsVM.loadScreen.showLoading("Fetching resources...")
             repository.firstLoad()
-            loadScreenVM.hideLoading()
+            globalsVM.loadScreen.hideLoading()
         }
 
         val qdapp = application as QuickdrawApplication
@@ -180,7 +184,12 @@ class GameActivity : ComponentActivity(){
             }
             //popup for all pages
             QuickdrawTheme {
-                ScreenLoader(loadScreenVM)
+                //force portait
+                val context = LocalContext.current
+                (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+
+                //global composables
+                ScreenLoader(globalsVM.loadScreen)
                 Popup(3000,popupVM)
                 { popupVM.hide() }
             }

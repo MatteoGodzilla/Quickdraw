@@ -14,8 +14,10 @@ import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.TAG
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.api.toRequestBody
+import com.example.quickdraw.network.data.GenericError
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.IOException
 
@@ -41,13 +43,21 @@ class LoginScreenVM(
                 if(response.code != 200){
                     showInvalidCombo.value = true;
                 } else {
-                    val responseVal = Json.decodeFromString<LoginResponse>(response.body.string())
-                    Log.i(TAG, responseVal.toString())
-                    dataStore.edit { preferences ->
-                        preferences[PrefKeys.authToken] = responseVal.authToken
+                    val body = response.body.string()
+                    try{
+                        val responseVal = Json.decodeFromString<LoginResponse>(body)
+                        Log.i(TAG, responseVal.toString())
+                        dataStore.edit { preferences ->
+                            preferences[PrefKeys.authToken] = responseVal.authToken
+                        }
+                        response.close()
+                        onSuccessfulLogin()
                     }
-                    response.close()
-                    onSuccessfulLogin()
+                    catch (e: SerializationException){
+                        val genericError: GenericError =Json.decodeFromString<GenericError>(body)
+                        ConnectionManager.errorMessage = genericError.message
+                        onFailedLogin()
+                    }
                 }
             }
             else{

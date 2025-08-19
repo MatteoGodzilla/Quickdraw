@@ -17,3 +17,6 @@ data class RegisterRequest(val email: String, val password:String, val username:
 
 @Serializable
 data class LoginResponse(val authToken: String)
+
+@Serializable
+data class GenericError(val message:String)

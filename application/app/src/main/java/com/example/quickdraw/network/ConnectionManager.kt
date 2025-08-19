@@ -7,6 +7,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 import okio.IOException
+import java.util.concurrent.TimeUnit
 
 object  ConnectionManager {
     private var mainIP = "http://192.168.1.59:8000"
@@ -21,13 +22,15 @@ object  ConnectionManager {
         "http://10.174.108.5:8000"
     )
 
+    var errorMessage = ""
+
     fun getMainIP(): String {
         return mainIP
     }
 
     private fun query(request:Request):Response?{
         try{
-            val client = OkHttpClient.Builder().build()
+            val client = OkHttpClient.Builder().connectTimeout(1500, TimeUnit.MILLISECONDS).build()
             val response = client.newCall(request).execute()
             return response
         }
