@@ -101,9 +101,9 @@ fun StartContractScreen(controller: NavHostController, repository: GameRepositor
                         Button(enabled = notTooMany && atLeastOne,
                             modifier = Modifier.padding(horizontal = 10.dp),
                             onClick = {
-                                callbacks.onStartContract(currentContract,selectedMercs.value.map{x->x.first})
                                 vm.unselectContract()
                                 controller.navigate(GameNavigation.Contracts)
+                                callbacks.onStartContract(currentContract,selectedMercs.value.map{x->x.first})
                             }) {
                             Text("Start contract (${currentContract.startCost})", textAlign = TextAlign.Center,
                                 modifier= Modifier.fillMaxWidth())

@@ -14,7 +14,8 @@ private val LightColorScheme = lightColorScheme(
     onSurfaceVariant = Color(0xFF2F0E02),
     secondary = Color(0XFFF2721A),
     tertiary = Color(0XFFBC5813),
-    onErrorContainer = Color(0xFF9A9A9A) //used for disabled stuff,
+    onErrorContainer = Color(0xFF9A9A9A), //used for disabled stuff,
+
 
 
     /* Other default colors to override
@@ -28,14 +29,9 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
-//For mercenaries, TODO: place this in a correct class
-val availableMercenaryStatusColor = Color(0xFFA9F89D)
-val unavailableMercenaryStatusColor = Color(0xFFE79273)
 
-//For shop TODO: place this in a correct class
-val lockedShopEntry  = Color(0xFFE1D6AB)
-val shopEntry = Color(0XFFf7f1d0)
 val fulledEntry = Color(0xFF217009)
+val infoTextColor = Color(0xFFFFEB5B)
 
 class ProgressBarColors() {
     companion object {

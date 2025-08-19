@@ -43,7 +43,6 @@ class LoginActivity : ComponentActivity() {
     private fun onLoginFailed(){
         globalsVM.loadScreen.hideLoading()
         if(ConnectionManager.errorMessage.isNotEmpty()){
-            Log.i(TAG,"Were popping it")
             globalsVM.popup.showLoading(ConnectionManager.errorMessage,false)
         }
         else{

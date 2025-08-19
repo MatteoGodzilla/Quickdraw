@@ -66,7 +66,6 @@ class GameActivity : ComponentActivity(){
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val repository = GameRepository(dataStore)
-        val popupVM = PopupVM()
         val globalsVM = GlobalPartsVM()
 
         //TODO: run repository fetch when it changes screen, not just at start
@@ -143,19 +142,19 @@ class GameActivity : ComponentActivity(){
                             lifecycleScope.launch {
                                 repository.contracts.redeem(activeContract)
                                 val redeemedCoins = repository.contracts.lastRedeemed.value
-                                if(redeemedCoins>0) popupVM.showLoading("Contract completed! You gained $redeemedCoins coins")
-                                else popupVM.showLoading("Yor mercenaries failed the contract :(",false)
+                                if(redeemedCoins>0) globalsVM.popup.showLoading("Contract completed! You gained $redeemedCoins coins")
+                                else globalsVM.popup.showLoading("Yor mercenaries failed the contract :(",false)
                             }
                         }
                         override fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>) {
                             lifecycleScope.launch { repository.contracts.start(availableContract,mercenaries) }
-                            popupVM.showLoading("Contract started",true)
+                            globalsVM.popup.showLoading("Contract started",true)
                         }
 
                         override fun onHireMercenary(hireable: HireableMercenary) {
                             lifecycleScope.launch {
                                 repository.mercenaries.employ(hireable)
-                                popupVM.showLoading("Mercenary hired!",true)
+                                globalsVM.popup.showLoading("Mercenary hired!",true)
                             }
                         }
                     })
@@ -190,8 +189,8 @@ class GameActivity : ComponentActivity(){
 
                 //global composables
                 ScreenLoader(globalsVM.loadScreen)
-                Popup(3000,popupVM)
-                { popupVM.hide() }
+                Popup(3000,globalsVM.popup)
+                { }
             }
         }
     }

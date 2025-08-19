@@ -37,6 +37,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -187,6 +188,15 @@ fun LockedContainer(content:@Composable ()->Unit){
             content()
         }
     }
+}
+
+@Composable
+fun TopScreenInfo(text:String){
+    Text(text,
+        textAlign = TextAlign.Center,
+        fontSize =Typography.bodyLarge.fontSize,
+        modifier = Modifier.fillMaxWidth().padding(all = 4.dp))
+    RowDivider()
 }
 
 
