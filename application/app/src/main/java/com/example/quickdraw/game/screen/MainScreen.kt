@@ -1,6 +1,11 @@
 package com.example.quickdraw.game.screen
 
 import android.graphics.Bitmap
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -24,10 +29,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.currentComposer
 import androidx.compose.runtime.currentCompositionLocalContext
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -53,6 +60,15 @@ import com.example.quickdraw.game.components.QrCodeImage
 @Composable
 fun MainScreen(controller: NavHostController, repository: GameRepository, peerFinder: PeerFinder, onScan: ()->Unit, onSettings:()->Unit){
     QuickdrawTheme {
+        //rotation if scouting
+        val infiniteTransition = rememberInfiniteTransition()
+        val rotation by infiniteTransition.animateFloat(
+            initialValue = 0f,
+            targetValue = 360f,
+            animationSpec = infiniteRepeatable(
+                animation = tween(durationMillis = 1000, easing = LinearEasing)
+            )
+        )
         Scaffold(
             topBar = { TopBar(repository) },
             bottomBar = { BottomNavBar(controller) },
@@ -63,6 +79,36 @@ fun MainScreen(controller: NavHostController, repository: GameRepository, peerFi
             Column (
                 modifier = Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState())
             ){
+                Row (modifier = Modifier.fillMaxWidth()) {
+                    //manual match
+                    Button(
+                        onClick = {controller.navigate(GameNavigation.ManualMatch)},
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContainerColor = MaterialTheme.colorScheme.primary,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
+                        Text("Manual match")
+                    }
+                    //connection settings
+                    Button(
+                        onClick = onSettings,
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContainerColor = MaterialTheme.colorScheme.primary,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface
+                        ),
+                        modifier = Modifier.fillMaxWidth().weight(1f)
+                    ) {
+                        Icon(imageVector = ImageVector.vectorResource(R.drawable.settings_24px),"Scout")
+                        Text("Open settings")
+                    }
+                }
                 for (p in peerFinder.peers.collectAsState().value) {
                     Row (
                         modifier = Modifier.fillMaxWidth(),
@@ -93,41 +139,11 @@ fun MainScreen(controller: NavHostController, repository: GameRepository, peerFi
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
+                    Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout", modifier = Modifier.rotate(if(!peerFinder.scanning.collectAsState().value) 0.0f else rotation))
                     if(peerFinder.scanning.collectAsState().value){
                         Text("Stop scouting", fontSize = Typography.titleLarge.fontSize)
                     } else {
                         Text("Start scouting", fontSize = Typography.titleLarge.fontSize)
-                    }
-                }
-                Row (modifier = Modifier.fillMaxWidth()) {
-                    //manual match
-                    Button(
-                        onClick = {controller.navigate(GameNavigation.ManualMatch)},
-                        colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                            disabledContainerColor = MaterialTheme.colorScheme.primary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        modifier = Modifier.weight(1f)
-                    ) {
-                        Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
-                        Text("Manual match", fontSize = Typography.titleLarge.fontSize)
-                    }
-                    //connection settings
-                    Button(
-                        onClick = onSettings,
-                        colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                            disabledContainerColor = MaterialTheme.colorScheme.primary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        modifier = Modifier.fillMaxWidth().weight(1f)
-                    ) {
-                        Icon(imageVector = ImageVector.vectorResource(R.drawable.settings_24px),"Scout")
-                        Text("Open settings", fontSize = Typography.titleLarge.fontSize)
                     }
                 }
             }
