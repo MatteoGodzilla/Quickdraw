@@ -1,5 +1,7 @@
 package com.example.quickdraw.game.screen
 
+import android.graphics.Bitmap
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,7 +29,9 @@ import androidx.compose.runtime.rememberCompositionContext
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.PreviewActivity
 import androidx.compose.ui.tooling.preview.Preview
@@ -42,9 +46,12 @@ import com.example.quickdraw.game.components.BottomNavBar
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
+import androidx.core.graphics.createBitmap
+import com.example.quickdraw.game.GameNavigation
+import com.example.quickdraw.game.components.QrCodeImage
 
 @Composable
-fun MainScreen(controller: NavHostController, repository: GameRepository, peerFinder: PeerFinder, onScan: ()->Unit, onSettings:()->Unit, onManualMatch: ()->Unit){
+fun MainScreen(controller: NavHostController, repository: GameRepository, peerFinder: PeerFinder, onScan: ()->Unit, onSettings:()->Unit){
     QuickdrawTheme {
         Scaffold(
             topBar = { TopBar(repository) },
@@ -96,7 +103,7 @@ fun MainScreen(controller: NavHostController, repository: GameRepository, peerFi
                 Row (modifier = Modifier.fillMaxWidth()) {
                     //manual match
                     Button(
-                        onClick = onManualMatch,
+                        onClick = {controller.navigate(GameNavigation.ManualMatch)},
                         colors = ButtonColors(
                             containerColor = MaterialTheme.colorScheme.secondary,
                             contentColor = MaterialTheme.colorScheme.onSurface,

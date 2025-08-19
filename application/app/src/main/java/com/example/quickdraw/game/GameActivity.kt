@@ -3,19 +3,25 @@ package com.example.quickdraw.game
 import android.app.Activity
 import android.content.ActivityNotFoundException
 import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.provider.Settings.ACTION_WIFI_SETTINGS
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.QuickdrawApplication
@@ -31,6 +37,7 @@ import com.example.quickdraw.game.screen.LeaderBoardScreen
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
+import com.example.quickdraw.game.screen.ManualConnectionScreen
 import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.StartContractScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
@@ -45,6 +52,7 @@ import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
+import java.net.Inet4Address
 
 class GameNavigation {
     @Serializable
@@ -59,6 +67,8 @@ class GameNavigation {
     object Contracts
     @Serializable
     data class StartContract(val idContract:Int)
+    @Serializable
+    object ManualMatch
 }
 
 class GameActivity : ComponentActivity(){
@@ -105,11 +115,6 @@ class GameActivity : ComponentActivity(){
             }
         }
 
-        val onManualMatch: ()->Unit = {
-            val intent = Intent(this@GameActivity, DuelActivity::class.java)
-            startActivity(intent)
-        }
-
         qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
             val intent = Intent(this, DuelActivity::class.java)
             intent.putExtra(Game2Duel.groupOwnerKey, groupOwner)
@@ -118,6 +123,11 @@ class GameActivity : ComponentActivity(){
         }
 
         setContent {
+            //to place better
+            val localAddress = remember { mutableStateOf("") }
+            val connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            localAddress.value = connectivityManager.getLinkProperties(connectivityManager.activeNetwork)?.linkAddresses!!.first { x->x.address is Inet4Address }.toString().split("/")[0]
+
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
 
@@ -130,7 +140,7 @@ class GameActivity : ComponentActivity(){
                     ShopScreen(vm, controller)
                 }
                 composable<GameNavigation.Map> {
-                    MainScreen(controller, repository, qdapp.peerFinderSingleton,onScoutingFun, onSettingsFun, onManualMatch)
+                    MainScreen(controller, repository, qdapp.peerFinderSingleton,onScoutingFun, onSettingsFun)
                 }
                 composable<GameNavigation.BountyBoard> {
                     val vm = viewModel { LeaderboardVM(repository, qdapp.imageLoader) }
@@ -170,7 +180,9 @@ class GameActivity : ComponentActivity(){
                             }
                         }
                         override fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>) {
+                            globalsVM.loadScreen.showLoading("Starting...")
                             lifecycleScope.launch { repository.contracts.start(availableContract,mercenaries) }
+                            globalsVM.loadScreen.hideLoading()
                         }
 
                         override fun onHireMercenary(hireable: HireableMercenary) {
@@ -179,6 +191,10 @@ class GameActivity : ComponentActivity(){
                             }
                         }
                     })
+                }
+
+                composable<GameNavigation.ManualMatch>{
+                    ManualConnectionScreen(controller,repository,localAddress.value)
                 }
             }
             //popup for all pages

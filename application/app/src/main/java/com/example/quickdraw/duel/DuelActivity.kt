@@ -92,6 +92,8 @@ class DuelActivity : ComponentActivity() {
                         Button(onClick = { scope.launch { duelGameLogic.nextRound() } }) {
                             Text("Next round")
                         }
+
+
                     }
                 }
             }
