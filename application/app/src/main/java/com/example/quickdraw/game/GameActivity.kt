@@ -6,6 +6,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
+import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.provider.Settings.ACTION_WIFI_SETTINGS
@@ -25,6 +26,7 @@ import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.QuickdrawApplication
+import com.example.quickdraw.R
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
@@ -48,6 +50,7 @@ import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.game.vm.PopupVM
 import com.example.quickdraw.game.vm.ShopScreenVM
 import com.example.quickdraw.game.vm.YourPlaceVM
+import com.example.quickdraw.music.AudioManager
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.launch
@@ -98,6 +101,8 @@ class GameActivity : ComponentActivity(){
             }
         }
 
+
+
         val onSettingsFun: ()->Unit = {
             try{
                 //not guaranteeded to exist
@@ -122,15 +127,16 @@ class GameActivity : ComponentActivity(){
             startActivity(intent)
         }
 
+        AudioManager.init(this,lifecycle)
+
         setContent {
             //to place better
             val localAddress = remember { mutableStateOf("") }
             val connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
             localAddress.value = connectivityManager.getLinkProperties(connectivityManager.activeNetwork)?.linkAddresses!!.first { x->x.address is Inet4Address }.toString().split("/")[0]
-
+            val musicContext = this
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
-
                 composable<GameNavigation.YourPlace>{
                     val vm = viewModel { YourPlaceVM(repository, qdapp.imageLoader, this@GameActivity) }
                     YourPlaceScreen(vm, controller)

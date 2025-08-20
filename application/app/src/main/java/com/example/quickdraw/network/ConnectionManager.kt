@@ -28,9 +28,9 @@ object  ConnectionManager {
         return mainIP
     }
 
-    private fun query(request:Request):Response?{
+    private fun query(request:Request,timeout:Int):Response?{
         try{
-            val client = OkHttpClient.Builder().connectTimeout(1500, TimeUnit.MILLISECONDS).build()
+            val client = OkHttpClient.Builder().connectTimeout(timeout.toLong(), TimeUnit.MILLISECONDS).build()
             val response = client.newCall(request).execute()
             return response
         }
@@ -43,19 +43,19 @@ object  ConnectionManager {
         mainIP = ip
     }
 
-    fun attempt(bodyRequest: RequestBody, url: String,isPost:Boolean=true): Response? {
+    fun attempt(bodyRequest: RequestBody, url: String,isPost:Boolean=true,timeout:Int=1500): Response? {
         //attempt with main IP
         Log.i(TAG, "Attempting server:$mainIP")
         var request = if(isPost) Request.Builder().url(mainIP+url).post(bodyRequest).build()
             else Request.Builder().url(mainIP+url).get().build()
-        var response = query(request)
+        var response = query(request,timeout)
         if(response==null){
             //attempt with fallback ids
             for(ip in availableIPs){
                 Log.i(TAG, "Attempting server:$ip")
                 if(ip!=mainIP){
                     request = Request.Builder().url(ip+url).post(bodyRequest).build()
-                    response = query(request)
+                    response = query(request,timeout)
                     if(response!=null){
                         mainIP = ip
                         return response
@@ -69,16 +69,16 @@ object  ConnectionManager {
         return null
     }
 
-     fun attemptGet(url:String):Response?{
+     fun attemptGet(url:String,timeout:Int=1500):Response?{
         //attempt with main IP
         var request = Request.Builder().url(mainIP+url).build()
-        var response = query(request)
+        var response = query(request,timeout)
         if(response==null){
             //attempt with fallback ids
             for(ip in availableIPs){
                 if(ip!=mainIP){
                     request = Request.Builder().url(ip+url).build()
-                    response = query(request)
+                    response = query(request,timeout)
                     if(response!=null){
                         mainIP = ip
                         return response
