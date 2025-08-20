@@ -11,15 +11,12 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Done
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -28,33 +25,31 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.example.quickdraw.R
-import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.game.repo.Player
+import com.example.quickdraw.game.repo.Stats
 import com.example.quickdraw.ui.theme.ProgressBarColors
 import com.example.quickdraw.ui.theme.Typography
 
 @Composable
-fun TopBar(repository: GameRepository) {
-    val player = repository.player.player.collectAsState()
-    val stats = repository.player.stats.collectAsState()
+fun TopBar(player: Player, stats: Stats, levelProgress: Float) {
+    val healthRatio = player.health.toFloat() / stats.maxHealth
+    val rowHeight = Typography.bodyLarge.lineHeight.value.dp
     Surface(color = MaterialTheme.colorScheme.surfaceContainer){
         LazyVerticalGrid(
             columns = GridCells.Fixed(3),
             verticalArrangement = Arrangement.Bottom,
             userScrollEnabled = false
         ) {
-            val rowHeight = Typography.bodyLarge.lineHeight.value.dp
             item ( span = { GridItemSpan(2) } ) {
-                val ratio = player.value.health.toFloat() / stats.value.maxHealth
-                ProgressBar(ratio, ProgressBarColors.health, rowHeight, ImageVector.vectorResource(R.drawable.favorite_24px), "Health")
+                ProgressBar(healthRatio, ProgressBarColors.health, rowHeight, ImageVector.vectorResource(R.drawable.favorite_24px), "Health")
             }
-            item { CenteredText("${player.value.health}/${stats.value.maxHealth} HP", rowHeight ) }
+            item { CenteredText("${player.health}/${stats.maxHealth} HP", rowHeight ) }
             item ( span = { GridItemSpan(2) } ) {
-                val progress = repository.player.getProgressToNextLevel()
-                ProgressBar(progress, ProgressBarColors.experience, rowHeight, ImageVector.vectorResource(R.drawable.stars_2_24px), "Experience")
+                ProgressBar(levelProgress, ProgressBarColors.experience, rowHeight, ImageVector.vectorResource(R.drawable.stars_2_24px), "Experience")
             }
-            item { CenteredText("Lv. ${repository.player.player.collectAsState().value.level}", rowHeight) }
-            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.money_bag_24px_1_), rowHeight, text = "${player.value.money}") }
-            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.local_police_24px), rowHeight, text = "${player.value.bounty}") }
+            item { CenteredText("Lv. ${player.level}", rowHeight) }
+            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.money_bag_24px_1_), rowHeight, text = "${player.money}") }
+            item { TopBarRow(image = ImageVector.vectorResource(R.drawable.local_police_24px), rowHeight, text = "${player.bounty}") }
         }
     }
 }

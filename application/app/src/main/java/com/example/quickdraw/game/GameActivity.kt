@@ -1,35 +1,25 @@
 package com.example.quickdraw.game
 
-import android.app.Activity
-import android.content.ActivityNotFoundException
-import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.media.MediaPlayer
 import android.net.ConnectivityManager
 import android.os.Bundle
-import android.provider.Settings.ACTION_WIFI_SETTINGS
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.QuickdrawApplication
-import com.example.quickdraw.R
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
-import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.components.Popup
 import com.example.quickdraw.game.components.ScreenLoader
 import com.example.quickdraw.game.repo.GameRepository
@@ -46,8 +36,7 @@ import com.example.quickdraw.game.screen.YourPlaceScreen
 import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.game.vm.GlobalPartsVM
 import com.example.quickdraw.game.vm.LeaderboardVM
-import com.example.quickdraw.game.vm.LoadingScreenVM
-import com.example.quickdraw.game.vm.PopupVM
+import com.example.quickdraw.game.vm.MainScreenVM
 import com.example.quickdraw.game.vm.ShopScreenVM
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.music.AudioManager
@@ -75,6 +64,7 @@ class GameNavigation {
 }
 
 class GameActivity : ComponentActivity(){
+    private lateinit var pbr : PermissionBroadcastReceiver
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -88,38 +78,7 @@ class GameActivity : ComponentActivity(){
             globalsVM.loadScreen.hideLoading()
         }
 
-
-
-        val onScoutingFun: ()->Unit ={
-            if(qdapp.peerFinderSingleton.scanning.value){
-                qdapp.peerFinderSingleton.stopScanning()
-            } else {
-                qdapp.peerFinderSingleton.startScanning(Peer(
-                    repository.player.player.value.username ?: "ERROR",
-                    repository.player.player.value.level
-                ), this@GameActivity)
-            }
-        }
-
-
-
-        val onSettingsFun: ()->Unit = {
-            try{
-                //not guaranteeded to exist
-                val i = Intent().apply {
-                    component = ComponentName(
-                        "com.android.settings",
-                        "com.android.settings.wifi.p2p.WifiP2pSettings"
-                    )
-                }
-                startActivity(i)
-            }
-            catch(e: ActivityNotFoundException){
-                val i = Intent(ACTION_WIFI_SETTINGS)
-                startActivity(i)
-            }
-        }
-
+        val qdapp = application as QuickdrawApplication
         qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
             val intent = Intent(this, DuelActivity::class.java)
             intent.putExtra(Game2Duel.groupOwnerKey, groupOwner)
@@ -128,6 +87,9 @@ class GameActivity : ComponentActivity(){
         }
 
         AudioManager.init(this,lifecycle)
+
+        pbr = PermissionBroadcastReceiver(this)
+        registerReceiver(pbr, PermissionBroadcastReceiver.getIntentFilter())
 
         setContent {
             //to place better
@@ -146,7 +108,8 @@ class GameActivity : ComponentActivity(){
                     ShopScreen(vm, controller)
                 }
                 composable<GameNavigation.Map> {
-                    MainScreen(controller, repository, qdapp.peerFinderSingleton,onScoutingFun, onSettingsFun)
+                    val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity, pbr) }
+                    MainScreen(vm, controller)
                 }
                 composable<GameNavigation.BountyBoard> {
                     val vm = viewModel { LeaderboardVM(repository, qdapp.imageLoader) }
@@ -198,16 +161,14 @@ class GameActivity : ComponentActivity(){
                         }
                     })
                 }
-
                 composable<GameNavigation.ManualMatch>{
                     ManualConnectionScreen(controller,repository,localAddress.value)
                 }
             }
             //popup for all pages
             QuickdrawTheme {
-                //force portait
-                val context = LocalContext.current
-                (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                //force portrait
+                this@GameActivity.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
 
                 //global composables
                 ScreenLoader(globalsVM.loadScreen)
@@ -215,5 +176,10 @@ class GameActivity : ComponentActivity(){
                 { }
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        unregisterReceiver(pbr)
     }
 }

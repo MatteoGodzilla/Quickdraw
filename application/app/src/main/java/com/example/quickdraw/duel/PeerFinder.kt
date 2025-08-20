@@ -188,14 +188,19 @@ class PeerFinder (
     }
     //Assume that this function is called when the user understands
     private fun requestScanPermissions(helper: Activity){
+        val permsToAsk = mutableListOf<String>()
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PERMISSION_GRANTED){
-            ActivityCompat.requestPermissions(helper, arrayOf(Manifest.permission.ACCESS_FINE_LOCATION), 0)
+            permsToAsk.add(Manifest.permission.ACCESS_FINE_LOCATION)
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if(ContextCompat.checkSelfPermission(context, Manifest.permission.NEARBY_WIFI_DEVICES) != PERMISSION_GRANTED){
-                ActivityCompat.requestPermissions(helper, arrayOf(Manifest.permission.NEARBY_WIFI_DEVICES), 0)
+                permsToAsk.add(Manifest.permission.NEARBY_WIFI_DEVICES)
             }
+        }
+
+        if(permsToAsk.size > 0){
+            ActivityCompat.requestPermissions(helper, permsToAsk.toTypedArray(), 0)
         }
 
         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
