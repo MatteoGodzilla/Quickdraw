@@ -80,15 +80,15 @@ class GameActivity : ComponentActivity(){
         enableEdgeToEdge()
         val repository = GameRepository(dataStore)
         val globalsVM = GlobalPartsVM()
-
+        val qdapp = application as QuickdrawApplication
         //TODO: run repository fetch when it changes screen, not just at start
         lifecycleScope.launch {
-            globalsVM.loadScreen.showLoading("Fetching resources...")
+            globalsVM.loadScreen.showLoading("Obtaining game data...")
             repository.firstLoad()
             globalsVM.loadScreen.hideLoading()
         }
 
-        val qdapp = application as QuickdrawApplication
+
 
         val onScoutingFun: ()->Unit ={
             if(qdapp.peerFinderSingleton.scanning.value){

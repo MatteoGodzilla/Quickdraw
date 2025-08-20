@@ -7,6 +7,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 import okhttp3.Response
 import okio.IOException
+import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 object  ConnectionManager {
@@ -35,6 +36,9 @@ object  ConnectionManager {
             return response
         }
         catch(exception: IOException){
+            return null
+        }
+        catch(exception: SocketTimeoutException){
             return null
         }
     }

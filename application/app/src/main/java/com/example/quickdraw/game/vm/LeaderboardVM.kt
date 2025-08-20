@@ -20,9 +20,9 @@ class LeaderboardVM(
     fun getPlayerImageFlow(id: Int): MutableStateFlow<ImageBitmap>{
         if(!map.containsKey(id)){
             map[id] = MutableStateFlow(imageLoader.imageNotFound.asImageBitmap())
-        }
-        viewModelScope.launch {
-            map[id]!!.value = imageLoader.getPlayerImage(id)
+            viewModelScope.launch {
+                map[id]!!.value = imageLoader.getPlayerImage(id)
+            }
         }
         return map[id]!!
     }
