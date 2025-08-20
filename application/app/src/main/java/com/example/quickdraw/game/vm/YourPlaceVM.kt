@@ -15,6 +15,7 @@ import com.example.quickdraw.dataStore
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.api.updateProfilePicAPI
+import com.example.quickdraw.network.api.useMedikitAPI
 import com.example.quickdraw.runIfAuthenticated
 import com.example.quickdraw.signOff
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -68,6 +69,19 @@ class YourPlaceVM(
 
     private fun updatePlayerPic() = viewModelScope.launch {
         playerImage.value = imageLoader.getPlayerImage(repository.player.player.value.id)
+    }
+
+    fun useMedikit(id: Int) = viewModelScope.launch{
+        runIfAuthenticated(context.dataStore) { authToken ->
+            val res = useMedikitAPI(authToken, id)
+            if(res != null){
+                repository.player.player.value = repository.player.player.value.copy(health = res.newHealth)
+                val decreasingMedikits = repository.inventory.medikits.value.map { m ->
+                    if(m.id == id) m.copy(amount = res.amountLeft) else m
+                }
+                repository.inventory.medikits.value = decreasingMedikits.filter{ m -> m.amount > 0 }
+            }
+        }
     }
 
 }

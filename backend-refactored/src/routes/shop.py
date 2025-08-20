@@ -337,9 +337,10 @@ async def buyMedikit(request: BuyRequest):
     
     #check if player already has bullet or not
     getMedikit = select(Medikit,PlayerMedikit).where(
-         and_(
-              PlayerMedikit.idPlayer==playerInfo.id,
-              PlayerMedikit.idMediKit==medikitInfo[0].id
+        and_(
+            PlayerMedikit.idPlayer==playerInfo.id,
+            PlayerMedikit.idMediKit==medikitInfo[0].id,
+            Medikit.id == PlayerMedikit.idMediKit 
         )
     )
 
@@ -360,7 +361,7 @@ async def buyMedikit(request: BuyRequest):
     else:
         try:
             playerInfo.money-=medikitInfo[1].cost
-            medikitPlayer[1].amount = min(medikitPlayer[1].amount+medikitPlayer[1].amount,medikitPlayer[0].capacity)
+            medikitPlayer[1].amount = min(medikitPlayer[1].amount+medikitInfo[1].quantity,medikitPlayer[0].capacity)
             session.commit()
         except Exception as e:
             session.rollback()

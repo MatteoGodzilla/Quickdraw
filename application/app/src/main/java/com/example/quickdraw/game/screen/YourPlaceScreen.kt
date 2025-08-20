@@ -21,6 +21,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -63,6 +64,64 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
     }
 
     BasicScreen("Your Place", controller, listOf(
+        ContentTab("Inventory") {
+            //Weapons
+            if(weapons.value.isNotEmpty()){
+                SmallHeader("Weapons")
+                for(weapon in weapons.value){
+                    StatsDisplayer(weapon.name, "Damage: ${weapon.damage}")
+                }
+            }
+            //Bullets
+            if(bullets.value.isNotEmpty()){
+                SmallHeader("Bullets")
+                for(bullet in bullets.value){
+                    StatsDisplayer(bullet.description, "Owned: ${bullet.amount}/${bullet.capacity}")
+                }
+            }
+            //Medikits
+            if(medikits.value.isNotEmpty()){
+                SmallHeader("Medikits")
+                val player = viewModel.player.collectAsState().value
+                val stats = viewModel.stats.collectAsState().value
+                val ratio = player.health.toFloat() / stats.maxHealth
+                StatsDisplayer("Your health:", "${player.health}/${stats.maxHealth}")
+                LinearProgressIndicator({ ratio }, modifier = Modifier.fillMaxWidth())
+                for(medikit in medikits.value){
+                    Text(
+                        medikit.description,
+                        fontSize = Typography.titleLarge.fontSize,
+                        modifier = Modifier.padding(8.dp)
+                    )
+                    Row (modifier = Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                        Column {
+                            Text("Health recover:${medikit.healthRecover}")
+                            Text("Owned: ${medikit.amount}/${medikit.capacity}")
+                        }
+                        Button(
+                            onClick = {viewModel.useMedikit(medikit.id)},
+                            enabled = ratio < 1
+                        ) {
+                            Text("Heal")
+                        }
+                    }
+                }
+            }
+            //Upgrades
+            SmallHeader("Upgrades")
+            if(upgrades.value.isNotEmpty()){
+                for (pair in upgrades.value.groupBy { it.type }){
+                    val highest = pair.value.maxBy { x->x.level }
+                    Row (
+                        modifier = Modifier.fillMaxWidth().padding(8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        Text(highest.description, fontSize = Typography.titleLarge.fontSize)
+                        Text("Level ${highest.level}")
+                    }
+                }
+            }
+        },
         ContentTab("Statistics") {
             Row(
                 modifier = Modifier.fillMaxWidth().padding(top=10.dp),
@@ -130,48 +189,6 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
-        },
-        ContentTab("Inventory") {
-                //Weapons
-                if(weapons.value.isNotEmpty()){
-                    SmallHeader("Weapons")
-                    for(weapon in weapons.value){
-                        StatsDisplayer(weapon.name, "Damage: ${weapon.damage}")
-                    }
-                }
-                //Bullets
-                if(bullets.value.isNotEmpty()){
-                    SmallHeader("Bullets")
-                    for(bullet in bullets.value){
-                        StatsDisplayer(bullet.description, "Owned: ${bullet.amount}/${bullet.capacity}")
-                    }
-                }
-                //Medikits
-                if(medikits.value.isNotEmpty()){
-                    SmallHeader("Medikits")
-                    for(medikit in medikits.value){
-                        Text(
-                            medikit.description,
-                            fontSize = Typography.titleLarge.fontSize,
-                            modifier = Modifier.padding(8.dp)
-                        )
-                        StatsDisplayer("Health recover:${medikit.healthRecover}", "Owned: ${medikit.amount}/${medikit.capacity}")
-                    }
-                }
-                //Upgrades
-                SmallHeader("Upgrades")
-                if(upgrades.value.isNotEmpty()){
-                    for (pair in upgrades.value.groupBy { it.type }){
-                        val highest = pair.value.maxBy { x->x.level }
-                        Row (
-                            modifier = Modifier.fillMaxWidth().padding(8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
-                        ){
-                            Text(highest.description, fontSize = Typography.titleLarge.fontSize)
-                            Text("Level ${highest.level}")
-                        }
-                    }
-                }
         },
         ContentTab("Settings") {
             Box(contentAlignment = Alignment.BottomCenter,

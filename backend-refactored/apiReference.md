@@ -271,6 +271,17 @@ Per la quantità dei medikit, fare riferimento all'inventario
 - Response: [number]
 Lista di punti exp richiesti, in ordine crescente, dal livello 1 in poi
 
+### /use/medikit
+- Richiesta POST
+- Request: {
+    authToken: string,
+    id: number
+}
+- Response: {
+    newHealth: number,
+    amountLeft: number
+}
+
 ## Duel
 ### /duel/
 TODO: da migliorare una volta implementato il loop vero di gioco
