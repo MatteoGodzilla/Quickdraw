@@ -10,6 +10,7 @@ import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.LocationManager
 import android.net.wifi.WifiManager
 import android.os.Build
+import android.provider.Settings
 import android.provider.Settings.ACTION_WIFI_SETTINGS
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
@@ -33,6 +34,7 @@ class MainScreenVM(
 
     var permFineLocation = false
     var permNearbyDevices = false
+    var wifiP2PActive = false
     //handled by pbr
     var wifiActive = pbr.wifiActive
     var gpsActive = pbr.gpsActive
@@ -46,14 +48,9 @@ class MainScreenVM(
             permNearbyDevices = true
         }
 
-        /*
         val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
-        wifiActive = wifiManager.isWifiEnabled
+        wifiP2PActive = wifiManager.isP2pSupported
 
-        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
-        gpsActive = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-
-         */
         return permFineLocation && permNearbyDevices && wifiActive.value && gpsActive.value
     }
 
@@ -68,7 +65,12 @@ class MainScreenVM(
         }
     }
 
-    fun onSettings() {
+    fun onWifiSettings(){
+        val intent = Intent(ACTION_WIFI_SETTINGS)
+        context.startActivity(intent)
+    }
+
+    fun onWifiP2PSettings() {
         try{
             val i = Intent().apply {
                 component = ComponentName(
@@ -82,6 +84,11 @@ class MainScreenVM(
             val i = Intent(ACTION_WIFI_SETTINGS)
             context.startActivity(i)
         }
+    }
+
+    fun onLocationSettings(){
+        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+        context.startActivity(intent)
     }
 
     fun startMatchWithPeer(peer: Peer) = peerFinder.startMatchWithPeer(peer)

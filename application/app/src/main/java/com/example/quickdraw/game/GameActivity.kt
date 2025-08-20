@@ -71,6 +71,7 @@ class GameActivity : ComponentActivity(){
         val repository = GameRepository(dataStore)
         val globalsVM = GlobalPartsVM()
         val qdapp = application as QuickdrawApplication
+
         //TODO: run repository fetch when it changes screen, not just at start
         lifecycleScope.launch {
             globalsVM.loadScreen.showLoading("Obtaining game data...")
@@ -78,7 +79,6 @@ class GameActivity : ComponentActivity(){
             globalsVM.loadScreen.hideLoading()
         }
 
-        val qdapp = application as QuickdrawApplication
         qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
             val intent = Intent(this, DuelActivity::class.java)
             intent.putExtra(Game2Duel.groupOwnerKey, groupOwner)

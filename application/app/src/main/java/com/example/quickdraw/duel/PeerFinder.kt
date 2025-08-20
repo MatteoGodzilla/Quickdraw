@@ -94,7 +94,6 @@ class PeerFinder (
         if(scanning.value)
             return
         Log.i(TAG, "[PeerFinder] Started scanning")
-        explainPermissionsToUser()
         requestScanPermissions(helper)
 
         ContextCompat.registerReceiver(
@@ -183,10 +182,6 @@ class PeerFinder (
         })
     }
 
-    private fun explainPermissionsToUser(){
-        //TODO
-    }
-    //Assume that this function is called when the user understands
     private fun requestScanPermissions(helper: Activity){
         val permsToAsk = mutableListOf<String>()
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PERMISSION_GRANTED){
@@ -260,7 +255,6 @@ class PeerFinder (
             callback(info.isGroupOwner, info.groupOwnerAddress)
         }
     }
-
 
     //--- BROADCAST RECEIVER ---
     private class PeerFinderBroadcastReceiver(

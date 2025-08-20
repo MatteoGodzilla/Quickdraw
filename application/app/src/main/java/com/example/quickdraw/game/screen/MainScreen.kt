@@ -6,6 +6,7 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,8 +21,11 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,6 +33,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -49,6 +55,7 @@ import com.example.quickdraw.ui.theme.Typography
 @Composable
 fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
     val ok = viewModel.checkValidScan()
+    val showPermissionDialog = remember { mutableStateOf(false) }
 
     QuickdrawTheme {
         //rotation if scouting
@@ -86,8 +93,9 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                         Text("Manual match")
                     }
                     //connection settings
+                    /*
                     Button(
-                        onClick = viewModel::onSettings,
+                        onClick = viewModel::onWifiP2PSettings,
                         colors = ButtonColors(
                             containerColor = MaterialTheme.colorScheme.secondary,
                             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -99,6 +107,8 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                         Icon(imageVector = ImageVector.vectorResource(R.drawable.settings_24px),"Scout")
                         Text("Open settings")
                     }
+
+                     */
                 }
                 for (p in viewModel.peers.collectAsState().value) {
                     Row (
@@ -120,9 +130,9 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                 //scouting
                 Row (
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { showPermissionDialog.value = true }
                 ) {
-                    Text("Fine location permission")
+                    Text("Fine location permission (i)")
                     if(viewModel.permFineLocation){
                         Icon(Icons.Default.Done, "GRANTED", tint = Color.Green) //TODO: expand palette
                     } else {
@@ -131,9 +141,9 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                 }
                 Row (
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { showPermissionDialog.value = true }
                 ) {
-                    Text("Nearby devices permission")
+                    Text("Nearby devices permission (i)")
                     if(viewModel.permNearbyDevices){
                         Icon(Icons.Default.Done, "GRANTED", tint = Color.Green) //TODO: expand palette
                     } else {
@@ -142,7 +152,18 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                 }
                 Row (
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { viewModel.onWifiP2PSettings() }
+                ) {
+                    Text("Wifi Direct supported?")
+                    if(viewModel.wifiP2PActive){
+                        Icon(Icons.Default.Done, "WIFI ACTIVE", tint = Color.Green) //TODO: expand palette
+                    } else {
+                        Icon(Icons.Default.Close, "WIFI NOT ACTIVE", tint = Color.Red) //TODO: expand palette
+                    }
+                }
+                Row (
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { viewModel.onWifiSettings() }
                 ) {
                     Text("Wifi active?")
                     if(viewModel.wifiActive.collectAsState().value){
@@ -153,7 +174,7 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                 }
                 Row (
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(8.dp)
+                    modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { viewModel.onLocationSettings() }
                 ) {
                     Text("Gps active?")
                     if(viewModel.gpsActive.collectAsState().value){
@@ -185,4 +206,23 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
             }
         }
     }
+    if(showPermissionDialog.value){
+        PermissionExplainationDialog{ showPermissionDialog.value = false }
+    }
+}
+
+@Composable
+fun PermissionExplainationDialog(onclick: () -> Unit){
+    val explaination = StringBuilder()
+    explaination.appendLine("In order to scout other players, Quickdraw uses Wifi Direct to scan for nearby devices.")
+    explaination.appendLine("Since this technology can in theory be used to get the precise location, the Android team has decided to also require location permission to the user.")
+    explaination.appendLine()
+    explaination.appendLine("NO LOCATION DATA IS EVER SENT TO THE SERVER, it is required only to scan for nearby devices.")
+
+    AlertDialog(
+        onDismissRequest = onclick,
+        confirmButton = { Button(onClick = onclick) { Text("Got it")}},
+        title = { Text("Why does Quickdraw need my location?")},
+        text = { Text(explaination.toString())},
+    )
 }
