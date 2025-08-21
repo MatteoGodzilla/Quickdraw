@@ -61,10 +61,9 @@ class MainScreenVM(
         if(peerFinder.scanning.value){
             peerFinder.stopScanning()
         } else {
-            peerFinder.startScanning(Peer(
-                repository.player.player.value.username,
-                repository.player.player.value.level
-            ), context)
+            val self = repository.player.player.value
+            val stats = repository.player.stats.value
+            peerFinder.startScanning(Peer(self.username, self.level, self.health, stats.maxHealth), context)
         }
     }
 

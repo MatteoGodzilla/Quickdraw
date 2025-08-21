@@ -30,12 +30,19 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.quickdraw.TAG
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import java.net.InetAddress
+import kotlin.math.max
 
 data class Peer(
     val username: String,
     val level: Int,
+    val health: Int,
+    val maxHealth: Int
 )
 
 //Class responsible for finding other players nearby
@@ -50,6 +57,8 @@ class PeerFinder (
 
         const val USERNAME_KEY = "username"
         const val LEVEL_KEY = "level"
+        const val HEALTH_KEY = "health"
+        const val MAX_HEALTH_KEY = "maxHealth"
     }
 
     var scanning: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -66,6 +75,7 @@ class PeerFinder (
     private var peerFinderBroadcastReceiver : PeerFinderBroadcastReceiver
 
     private var playerServiceInfo: WifiP2pServiceInfo? = null
+    private var localScope = CoroutineScope(Dispatchers.IO)
     //listeners
     private var onConnectionListeners : MutableList< (groupOwner: Boolean, groupOwnerAddress: InetAddress)->Unit > = mutableListOf()
 
@@ -95,7 +105,18 @@ class PeerFinder (
             return
         Log.i(TAG, "[PeerFinder] Started scanning")
         requestScanPermissions(helper)
+        scanning.value = true
+        localScope.launch {
+            while(scanning.value) {
+                startScanningLoop(self)
+                delay(10000)
+                stopScanningLoop()
+            }
+        }
+    }
 
+    private fun startScanningLoop(self: Peer){
+        Log.i(TAG, "[PeerFinder] Start Scanning Loop")
         ContextCompat.registerReceiver(
             context,
             peerFinderBroadcastReceiver,
@@ -108,7 +129,9 @@ class PeerFinder (
             QUICKDRAW_SERVICE_TYPE,
             mapOf(
                 USERNAME_KEY to self.username,
-                LEVEL_KEY to self.level.toString()
+                LEVEL_KEY to self.level.toString(),
+                HEALTH_KEY to self.health.toString(),
+                MAX_HEALTH_KEY to self.maxHealth.toString()
             )
         )
         p2pManager.addLocalService(channel, playerServiceInfo, object: ActionListener {
@@ -128,12 +151,9 @@ class PeerFinder (
                 Log.i(TAG, "[PeerFinder] There was an error discovering peers: $reason")
             }
         })
-        scanning.value = true
     }
 
-    fun stopScanning(){
-        if(!scanning.value)
-            return
+    private fun stopScanningLoop(){
         p2pManager.removeLocalService(channel, playerServiceInfo!!, object : ActionListener {
             override fun onSuccess() {
                 Log.i(TAG, "[PeerFinder] Removed local service")
@@ -151,6 +171,11 @@ class PeerFinder (
                 Log.i(TAG, "[PeerFinder] Failed to stop SCANNING: $reason")
             }
         })
+    }
+
+    fun stopScanning(){
+        if(!scanning.value)
+            return
         scanning.value = false
     }
 
@@ -214,7 +239,9 @@ class PeerFinder (
                 val dictionary = deviceAddressToTxt[dev]?.second
                 val username: String = dictionary?.get(USERNAME_KEY) ?: ""
                 val level = dictionary?.get(LEVEL_KEY)?.toInt() ?: 0
-                val peer = Peer(username, level)
+                val health = dictionary?.get(HEALTH_KEY)?.toInt() ?: 100
+                val maxHealth = dictionary?.get(MAX_HEALTH_KEY)?.toInt() ?: 100
+                val peer = Peer(username, level, health, maxHealth)
                 list.add(peer)
                 peerToDeviceAddress[peer] = dev
             }
