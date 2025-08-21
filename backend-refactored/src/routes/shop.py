@@ -149,16 +149,6 @@ async def bullets(request: BasicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-  
-    #SELECT us.idUpgrade, us.type, min(us.level), us.cost FROM UpgradeShop us 
-    #LEFT JOIN (
-    #	SELECT type as t, max(level) as maxLevel FROM PlayerUpgrade pu
-	#    JOIN UpgradeShop us ON pu.idUpgrade = us.idUpgrade
-	#    WHERE pu.idPlayer = 1
-	#    GROUP BY type
-    #) as pml ON us.type = pml.t
-    #WHERE pml.maxLevel IS NULL OR us.level = pml.maxLevel + 1
-    #GROUP BY us.type
 
     player_max_upgrades = select(UpgradeShop.type.label("type"), func.max(UpgradeShop.level).label("maxLevel")).where(and_(
             PlayerUpgrade.idPlayer == player.idPlayer,
@@ -398,11 +388,7 @@ async def buyWeapon(request: BuyRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    obtain_weapon = select(Weapon).where(
-         and_(
-              Weapon.id == request.id
-         )
-    )
+    obtain_weapon = select(Weapon).where(Weapon.id == request.id)
 
     result = safe_exec(obtain_weapon)
     weaponInfo = result.first()
@@ -435,7 +421,7 @@ async def buyWeapon(request: BuyRequest):
             content={"message":"Insuffucient level"}
         )
     
-    #check if player already has bullet or not
+    #check if player already has weapon or not
     getWeapon = select(Weapon,PlayerWeapon).where(
          and_(
               PlayerWeapon.idWeapon==weaponInfo.id,
@@ -452,7 +438,6 @@ async def buyWeapon(request: BuyRequest):
             playerInfo.money-=weaponInfo.cost
             playerRow = PlayerWeapon(idPlayer=player.idPlayer,idWeapon=weaponInfo.id)
             session.add(playerRow)
-            session.commit()
         except:
             session.rollback()
             return JSONResponse(status_code=HTTP_500_INTERNAL_SERVER_ERROR,content={"message":"error while doing purchase"})
@@ -460,6 +445,21 @@ async def buyWeapon(request: BuyRequest):
     else:
         return JSONResponse(status_code=HTTP_406_NOT_ACCEPTABLE,content={"message":"Player already owns the weapon"})
 
+    # Add player bullet row if it's the first time
+    getBullets = select(PlayerBullet).where(and_(
+        PlayerBullet.idPlayer == player.idPlayer,
+        PlayerBullet.idBullet == weaponInfo.bulletType
+    ))
+
+    result = safe_exec(getBullets)
+    bulletsPlayer = result.first()
+
+    if bulletsPlayer is None:
+        try: 
+            add_bullet=PlayerBullet(idPlayer=player.idPlayer, idBullet=weaponInfo.bulletType, amount=0)
+            session.add(add_bullet)
+        
+    session.commit()
 
     response = BuyWeaponResponse(
         id = weaponInfo.id,

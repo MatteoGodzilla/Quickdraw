@@ -5,6 +5,7 @@ import android.content.Intent
 import android.content.pm.ActivityInfo
 import android.net.ConnectivityManager
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -16,8 +17,11 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.example.quickdraw.DEFAULT_VOLUME
 import com.example.quickdraw.Game2Duel
+import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.QuickdrawApplication
+import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.game.components.Popup
@@ -42,7 +46,10 @@ import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.music.AudioManager
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.ui.theme.QuickdrawTheme
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
 import java.net.Inet4Address
 
@@ -79,14 +86,18 @@ class GameActivity : ComponentActivity(){
             globalsVM.loadScreen.hideLoading()
         }
 
+        runBlocking {
+            val volume = dataStore.data.map { pref -> pref[PrefKeys.musicVolume] }.first() ?: DEFAULT_VOLUME
+            Log.i(TAG, "Initial volume: $volume")
+            AudioManager.init(this@GameActivity, this@GameActivity.lifecycle, volume)
+        }
+
         qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
             val intent = Intent(this, DuelActivity::class.java)
             intent.putExtra(Game2Duel.groupOwnerKey, groupOwner)
             intent.putExtra(Game2Duel.groupOwnerAddressKey, groupOwnerAddress)
             startActivity(intent)
         }
-
-        AudioManager.init(this,lifecycle)
 
         pbr = PermissionBroadcastReceiver(this)
         registerReceiver(pbr, PermissionBroadcastReceiver.getIntentFilter())

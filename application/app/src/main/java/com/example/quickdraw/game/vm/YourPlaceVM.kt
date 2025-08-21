@@ -5,20 +5,30 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.datastore.dataStore
+import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.quickdraw.DEFAULT_VOLUME
 import com.example.quickdraw.ImageLoader
+import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.login.LoginActivity
+import com.example.quickdraw.music.AudioManager
 import com.example.quickdraw.network.api.updateProfilePicAPI
 import com.example.quickdraw.network.api.useMedikitAPI
 import com.example.quickdraw.runIfAuthenticated
 import com.example.quickdraw.signOff
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlin.io.encoding.Base64
 
@@ -36,8 +46,15 @@ class YourPlaceVM(
     val stats = repository.player.stats
     val playerImage: MutableStateFlow<ImageBitmap> = MutableStateFlow(imageLoader.imageNotFound.asImageBitmap())
 
+    val musicVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)
+    val sfxVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)
+
     init{
         updatePlayerPic()
+        viewModelScope.launch {
+            musicVolumeSlider.floatValue = context.dataStore.data.map { pref -> pref[PrefKeys.musicVolume] }.first() ?: DEFAULT_VOLUME
+            sfxVolumeSlider.floatValue = context.dataStore.data.map { pref -> pref[PrefKeys.sfxVolume] }.first() ?: DEFAULT_VOLUME
+        }
     }
 
     fun getProgressToNextLevel() = repository.player.getProgressToNextLevel()
@@ -84,4 +101,13 @@ class YourPlaceVM(
         }
     }
 
+    fun setMusicVolume(value: Float) = viewModelScope.launch {
+        context.dataStore.edit { pref->pref[PrefKeys.musicVolume] = value }
+        musicVolumeSlider.floatValue = value
+        AudioManager.setMusicVolume(value)
+    }
+    fun setSFXVolume(value: Float) = viewModelScope.launch {
+        context.dataStore.edit { pref->pref[PrefKeys.sfxVolume] = value }
+        sfxVolumeSlider.floatValue = value
+    }
 }

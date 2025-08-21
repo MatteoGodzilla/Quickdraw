@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.quickdraw.network.ConnectionManager
@@ -16,6 +17,7 @@ import kotlinx.coroutines.withContext
 val Context.dataStore by preferencesDataStore("login")
 
 const val TAG = "QUICKDRAW"
+const val DEFAULT_VOLUME = 0.5f
 
 class PrefKeys{
     companion object{
@@ -23,6 +25,8 @@ class PrefKeys{
         val username = stringPreferencesKey("username")
         val level = stringPreferencesKey("level")
         val server = stringPreferencesKey("server")
+        val musicVolume = floatPreferencesKey("music")
+        val sfxVolume = floatPreferencesKey("sfx")
     }
 }
 

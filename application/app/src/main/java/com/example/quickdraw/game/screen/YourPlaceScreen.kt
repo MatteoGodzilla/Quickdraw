@@ -23,10 +23,13 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -45,6 +48,8 @@ import com.example.quickdraw.game.components.ProgressBar
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.ui.theme.ProgressBarColors
 import com.example.quickdraw.ui.theme.Typography
+import kotlin.math.floor
+import kotlin.math.round
 
 
 @Composable
@@ -69,7 +74,9 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             if(weapons.value.isNotEmpty()){
                 SmallHeader("Weapons")
                 for(weapon in weapons.value){
-                    StatsDisplayer(weapon.name, "Damage: ${weapon.damage}")
+                    Text(weapon.name, fontSize = Typography.titleLarge.fontSize, modifier = Modifier.padding(8.dp))
+                    val bulletUsed = bullets.value.first { b -> b.type == weapon.bulletType }
+                    StatsDisplayer("Damage: ${weapon.damage}", "Bullet used: ${bulletUsed.description}")
                 }
             }
             //Bullets
@@ -191,22 +198,38 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             )
         },
         ContentTab("Settings") {
-            Box(contentAlignment = Alignment.BottomCenter,
-                    modifier = Modifier.fillMaxSize().padding(5.dp)){
-                Button(
-                    onClick = viewModel::logout,
-                    colors = ButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        disabledContainerColor = MaterialTheme.colorScheme.primary,
-                        disabledContentColor = MaterialTheme.colorScheme.onSurface
-                    ),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                ) {
-                    Icon(Icons.AutoMirrored.Default.ArrowBack,"go back")
-                    Text("Logout", fontSize = Typography.titleLarge.fontSize)
-                }
+            /*
+            Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier.fillMaxSize().padding(5.dp)){
+            }
+
+             */
+            SmallHeader("Audio")
+            StatsDisplayer("Music", "${floor(viewModel.musicVolumeSlider.floatValue * 100).toInt()}%")
+            Slider(
+                value = viewModel.musicVolumeSlider.floatValue,
+                onValueChange = { viewModel.setMusicVolume(it) },
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+            )
+            StatsDisplayer("Sound effects", "${floor(viewModel.sfxVolumeSlider.floatValue * 100).toInt()}%")
+            Slider(
+                value = viewModel.sfxVolumeSlider.floatValue,
+                onValueChange = { viewModel.setSFXVolume(it) },
+                modifier = Modifier.padding(start = 16.dp, end = 16.dp)
+            )
+            SmallHeader("")
+            Button(
+                onClick = viewModel::logout,
+                colors = ButtonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
+                    disabledContainerColor = MaterialTheme.colorScheme.primary,
+                    disabledContentColor = MaterialTheme.colorScheme.onSurface
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Icon(Icons.AutoMirrored.Default.ArrowBack,"go back")
+                Text("Logout", fontSize = Typography.titleLarge.fontSize)
             }
         }
     ), money = player.value.money)

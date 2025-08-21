@@ -42,10 +42,6 @@ data class Stats(
 class PlayerRepository(
     private val dataStore: DataStore<Preferences>
 ) {
-    //Status
-    //TODO: Merge status with level, as to have a single object with everything
-    //(It doesn't make sense to have _just_ the level separated
-
     var player: MutableStateFlow<Player> = MutableStateFlow( Player(0, 0, 0, 0, 0, 0,"" ) )
         private set
     var stats: MutableStateFlow<Stats> = MutableStateFlow(Stats(50,100,100,100,1))
