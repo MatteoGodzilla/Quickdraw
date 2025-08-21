@@ -75,9 +75,12 @@ class GameActivity : ComponentActivity(){
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        val repository = GameRepository(dataStore)
+
         val globalsVM = GlobalPartsVM()
         val qdapp = application as QuickdrawApplication
+
+        qdapp.repository = GameRepository(dataStore)
+        val repository = qdapp.repository
 
         //TODO: run repository fetch when it changes screen, not just at start
         lifecycleScope.launch {

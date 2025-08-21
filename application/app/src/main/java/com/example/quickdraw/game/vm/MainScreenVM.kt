@@ -7,17 +7,20 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
-import android.location.LocationManager
 import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.ACTION_WIFI_SETTINGS
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import com.example.quickdraw.TAG
+import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.PeerFinder
 import com.example.quickdraw.game.PermissionBroadcastReceiver
 import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.network.NoConnectionActivity
 
 class MainScreenVM(
     private val repository: GameRepository,
@@ -91,7 +94,12 @@ class MainScreenVM(
         context.startActivity(intent)
     }
 
-    fun startMatchWithPeer(peer: Peer) = peerFinder.startMatchWithPeer(peer)
+    fun startMatchWithPeer(peer: Peer)  {
+        //peerFinder.startMatchWithPeer(peer)
+        Log.i(TAG,"Button pressed")
+        val intent =  Intent(this.context, DuelActivity::class.java)
+        this.context.startActivity(intent)
+    }
 
     fun levelProgress() = repository.player.getProgressToNextLevel()
 }

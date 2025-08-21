@@ -1,5 +1,6 @@
 package com.example.quickdraw.game.screen
 
+import android.content.Intent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
@@ -45,10 +46,12 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
+import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.game.components.BottomNavBar
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.game.vm.MainScreenVM
+import com.example.quickdraw.network.NoConnectionActivity
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
 
@@ -117,7 +120,9 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
                         Text("${p.username} (Level: ${p.level})")
-                        Button(onClick = { viewModel.startMatchWithPeer(p) }, enabled = ok) {
+                        Button(
+                            onClick = { viewModel.startMatchWithPeer(p) }, enabled = true)
+                        {
                             Text("Duel")
                         }
                     }
