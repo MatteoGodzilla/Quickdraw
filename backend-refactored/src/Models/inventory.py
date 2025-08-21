@@ -22,6 +22,7 @@ class InventoryResponseUpgrade(BaseModel):
     modifier:int
 
 class InventoryResponseWeapon(BaseModel):
+    id:int
     name:str
     damage:int
     cost:int

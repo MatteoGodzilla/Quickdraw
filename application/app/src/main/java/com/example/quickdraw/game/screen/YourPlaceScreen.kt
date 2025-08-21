@@ -1,5 +1,6 @@
 package com.example.quickdraw.game.screen
 
+import android.graphics.Paint.Align
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -74,42 +75,57 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             if(weapons.value.isNotEmpty()){
                 SmallHeader("Weapons")
                 for(weapon in weapons.value){
-                    Text(weapon.name, fontSize = Typography.titleLarge.fontSize, modifier = Modifier.padding(8.dp))
-                    val bulletUsed = bullets.value.first { b -> b.type == weapon.bulletType }
-                    StatsDisplayer("Damage: ${weapon.damage}", "Bullet used: ${bulletUsed.description}")
+                    Row (verticalAlignment = Alignment.CenterVertically){
+                        Image(
+                            viewModel.loadWeaponImage(weapon.id).collectAsState().value,
+                            weapon.name,
+                            modifier = Modifier.size(48.dp)
+                        )
+                        Column {
+                            Text(weapon.name, fontSize = Typography.titleLarge.fontSize, modifier = Modifier.padding(8.dp))
+                            val bulletUsed = bullets.value.first { b -> b.type == weapon.bulletType }
+                            StatsDisplayer("Damage: ${weapon.damage}", "Bullet used: ${bulletUsed.description}")
+                        }
+                    }
                 }
             }
             //Bullets
             if(bullets.value.isNotEmpty()){
                 SmallHeader("Bullets")
                 for(bullet in bullets.value){
-                    StatsDisplayer(bullet.description, "Owned: ${bullet.amount}/${bullet.capacity}")
+                    Row(verticalAlignment = Alignment.CenterVertically){
+                        Image(viewModel.loadBulletImage(bullet.type).collectAsState().value, bullet.description, modifier = Modifier.size(48.dp))
+                        StatsDisplayer(bullet.description, "Owned: ${bullet.amount}/${bullet.capacity}")
+                    }
                 }
             }
             //Medikits
             if(medikits.value.isNotEmpty()){
                 SmallHeader("Medikits")
-                val player = viewModel.player.collectAsState().value
-                val stats = viewModel.stats.collectAsState().value
-                val ratio = player.health.toFloat() / stats.maxHealth
-                StatsDisplayer("Your health:", "${player.health}/${stats.maxHealth}")
+                val ratio = player.value.health.toFloat() / stats.value.maxHealth
+                StatsDisplayer("Your health:", "${player.value.health}/${stats.value.maxHealth}")
                 LinearProgressIndicator({ ratio }, modifier = Modifier.fillMaxWidth())
                 for(medikit in medikits.value){
-                    Text(
-                        medikit.description,
-                        fontSize = Typography.titleLarge.fontSize,
-                        modifier = Modifier.padding(8.dp)
-                    )
-                    Row (modifier = Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(verticalAlignment = Alignment.CenterVertically){
+                        Image(viewModel.loadMedikitImage(medikit.id).collectAsState().value, medikit.description, modifier = Modifier.size(48.dp))
                         Column {
-                            Text("Health recover:${medikit.healthRecover}")
-                            Text("Owned: ${medikit.amount}/${medikit.capacity}")
-                        }
-                        Button(
-                            onClick = {viewModel.useMedikit(medikit.id)},
-                            enabled = ratio < 1
-                        ) {
-                            Text("Heal")
+                            Text(
+                                medikit.description,
+                                fontSize = Typography.titleLarge.fontSize,
+                                modifier = Modifier.padding(8.dp)
+                            )
+                            Row (modifier = Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween) {
+                                Column {
+                                    Text("Health recover:${medikit.healthRecover}")
+                                    Text("Owned: ${medikit.amount}/${medikit.capacity}")
+                                }
+                                Button(
+                                    onClick = {viewModel.useMedikit(medikit.id)},
+                                    enabled = ratio < 1
+                                ) {
+                                    Text("Heal")
+                                }
+                            }
                         }
                     }
                 }
@@ -119,12 +135,15 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             if(upgrades.value.isNotEmpty()){
                 for (pair in upgrades.value.groupBy { it.type }){
                     val highest = pair.value.maxBy { x->x.level }
-                    Row (
-                        modifier = Modifier.fillMaxWidth().padding(8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        Text(highest.description, fontSize = Typography.titleLarge.fontSize)
-                        Text("Level ${highest.level}")
+                    Row(verticalAlignment = Alignment.CenterVertically){
+                        Image(viewModel.loadUpgradeImage(pair.key).collectAsState().value, highest.description, modifier = Modifier.size(48.dp))
+                        Row (
+                            modifier = Modifier.fillMaxWidth().padding(8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ){
+                            Text(highest.description, fontSize = Typography.titleLarge.fontSize)
+                            Text("Level ${highest.level}")
+                        }
                     }
                 }
             }
@@ -198,11 +217,6 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             )
         },
         ContentTab("Settings") {
-            /*
-            Box(contentAlignment = Alignment.BottomCenter, modifier = Modifier.fillMaxSize().padding(5.dp)){
-            }
-
-             */
             SmallHeader("Audio")
             StatsDisplayer("Music", "${floor(viewModel.musicVolumeSlider.floatValue * 100).toInt()}%")
             Slider(

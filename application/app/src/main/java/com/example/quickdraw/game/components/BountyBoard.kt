@@ -1,4 +1,4 @@
-package com.example.quickdraw.game.dataDisplayers
+package com.example.quickdraw.game.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background

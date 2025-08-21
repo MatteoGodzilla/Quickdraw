@@ -458,6 +458,8 @@ async def buyWeapon(request: BuyRequest):
         try: 
             add_bullet=PlayerBullet(idPlayer=player.idPlayer, idBullet=weaponInfo.bulletType, amount=0)
             session.add(add_bullet)
+        except:
+            session.rollback()
         
     session.commit()
 

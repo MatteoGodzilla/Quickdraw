@@ -29,10 +29,13 @@ class ShopScreenVM(
     val ownedWeapons = repository.inventory.weapons
     val ownedMedikits = repository.inventory.medikits
 
+    /*
     private val weaponIcons: MutableMap<Int, MutableStateFlow<ImageBitmap>> = mutableMapOf()
     private val bulletIcons: MutableMap<Int, MutableStateFlow<ImageBitmap>> = mutableMapOf()
     private val medikitIcons: MutableMap<Int, MutableStateFlow<ImageBitmap>> = mutableMapOf()
     private val upgradeIcons: MutableMap<Int, MutableStateFlow<ImageBitmap>> = mutableMapOf()
+
+     */
 
     fun onBuyBullet(toBuy: ShopBullet) {
         viewModelScope.launch { repository.shop.buyBullet(toBuy) }
@@ -53,6 +56,11 @@ class ShopScreenVM(
     }
 
     //Icon stuff
+    fun getWeaponIcon(id:Int) = imageLoader.getWeaponFlow(id)
+    fun getBulletIcon(id:Int) = imageLoader.getBulletFlow(id)
+    fun getMedikitIcon(id:Int) = imageLoader.getMedikitFlow(id)
+    fun getUpgradeIcon(id:Int) = imageLoader.getUpgradeFlow(id)
+    /*
     fun getWeaponIcon(id: Int): MutableStateFlow<ImageBitmap> {
         if(weaponIcons.containsKey(id)){
             return weaponIcons[id]!!
@@ -92,5 +100,7 @@ class ShopScreenVM(
         viewModelScope.launch { res.value = imageLoader.getUpgradeBitmap(id) }
         return res
     }
+
+     */
 
 }

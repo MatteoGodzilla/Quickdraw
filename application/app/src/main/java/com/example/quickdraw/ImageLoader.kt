@@ -16,18 +16,31 @@ import com.example.quickdraw.network.api.getMedikitImageAPI
 import com.example.quickdraw.network.api.getPlayerImageAPI
 import com.example.quickdraw.network.api.getUpgradeImageAPI
 import com.example.quickdraw.network.api.getWeaponImageAPI
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 class ImageLoader(context: Context) {
     var imageNotFound : Bitmap = AppCompatResources.getDrawable(context, R.drawable.question_mark_24px)!!.toBitmap(512, 512)
 
+    private val localScope = CoroutineScope(Dispatchers.IO)
+
+    /*
     private val weaponCache: MutableMap<Int,Bitmap> = mutableMapOf()
     private val bulletCache: MutableMap<Int,Bitmap> = mutableMapOf()
     private val medikitCache: MutableMap<Int,Bitmap> = mutableMapOf()
     private val upgradeCache: MutableMap<Int,Bitmap> = mutableMapOf()
     private val playerCache: MutableMap<Int,Bitmap> = mutableMapOf()
+
+     */
+    private val weaponCache: MutableMap<Int,MutableStateFlow<ImageBitmap>> = mutableMapOf()
+    private val bulletCache: MutableMap<Int,MutableStateFlow<ImageBitmap>> = mutableMapOf()
+    private val medikitCache: MutableMap<Int,MutableStateFlow<ImageBitmap>> = mutableMapOf()
+    private val upgradeCache: MutableMap<Int,MutableStateFlow<ImageBitmap>> = mutableMapOf()
+    private val playerCache: MutableMap<Int,MutableStateFlow<ImageBitmap>> = mutableMapOf()
 
     private val weaponLoading: MutableMap<Int,Boolean> = mutableMapOf()
     private val bulletLoading: MutableMap<Int,Boolean> = mutableMapOf()
@@ -35,103 +48,94 @@ class ImageLoader(context: Context) {
     private val upgradeLoading: MutableMap<Int,Boolean> = mutableMapOf()
     private val playerLoading: MutableMap<Int,Boolean> = mutableMapOf()
 
-
-    suspend fun getWeaponBitmap(id: Int): ImageBitmap = withContext(Dispatchers.IO){
-        while(weaponLoading.containsKey(id) && weaponLoading[id] ==true){
-            delay(2)
-            Log.i(TAG,"DELAYING")
+    fun getWeaponFlow(id: Int): MutableStateFlow<ImageBitmap> {
+        if(!weaponCache.containsKey(id)) {
+            weaponCache[id] = MutableStateFlow(imageNotFound.asImageBitmap())
+            localScope.launch{
+                weaponLoading[id] = true
+                Log.i(TAG, "[ImageLoader] Weapon $id")
+                val response = getWeaponImageAPI(id)
+                if(response != null){
+                    val bytes = Base64.decode(response.image, DEFAULT)
+                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
+                    weaponCache[id]!!.value = result.asImageBitmap()
+                }
+                weaponLoading[id] = false
+            }
         }
-
-        if(weaponCache.containsKey(id)){
-            return@withContext weaponCache[id]!!.asImageBitmap()
-        }
-        //attempt to get image from server
-        weaponLoading[id] = true
-        val response = getWeaponImageAPI(id)
-        if(response != null){
-            val bytes = Base64.decode(response.image, DEFAULT)
-            val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
-            weaponCache[id] = result
-            weaponLoading[id] = false
-            return@withContext result.asImageBitmap()
-        }
-        weaponLoading[id] = false
-        return@withContext imageNotFound.asImageBitmap()
+        return weaponCache[id]!!
     }
 
-    suspend fun getBulletBitmap(id: Int): ImageBitmap = withContext(Dispatchers.IO){
-
-        if(bulletCache.containsKey(id)){
-            return@withContext bulletCache[id]!!.asImageBitmap()
+    fun getBulletFlow(id: Int): MutableStateFlow<ImageBitmap> {
+        if(!bulletCache.containsKey(id)) {
+            bulletCache[id] = MutableStateFlow(imageNotFound.asImageBitmap())
+            localScope.launch{
+                bulletLoading[id] = true
+                Log.i(TAG, "[ImageLoader] Bullet $id")
+                val response = getBulletImageAPI(id)
+                if(response != null){
+                    val bytes = Base64.decode(response.image, DEFAULT)
+                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
+                    bulletCache[id]!!.value = result.asImageBitmap()
+                }
+                bulletLoading[id] = false
+            }
         }
-        //attempt to get image from server
-        bulletLoading[id] = true
-        val response = getBulletImageAPI(id)
-        if(response != null){
-            val bytes = Base64.decode(response.image, DEFAULT)
-            val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
-            bulletCache[id] = result
-            bulletLoading[id] = false
-            return@withContext result.asImageBitmap()
-        }
-        bulletLoading[id] = false
-        return@withContext imageNotFound.asImageBitmap()
+        return bulletCache[id]!!
     }
 
-    suspend fun getMedikitBitmap(id: Int): ImageBitmap = withContext(Dispatchers.IO){
-
-        if(medikitCache.containsKey(id)){
-            return@withContext medikitCache[id]!!.asImageBitmap()
+    fun getMedikitFlow(id: Int): MutableStateFlow<ImageBitmap> {
+        if(!medikitCache.containsKey(id)) {
+            medikitCache[id] = MutableStateFlow(imageNotFound.asImageBitmap())
+            localScope.launch{
+                medikitLoading[id] = true
+                Log.i(TAG, "[ImageLoader] Medikit $id")
+                val response = getMedikitImageAPI(id)
+                if(response != null){
+                    val bytes = Base64.decode(response.image, DEFAULT)
+                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
+                    medikitCache[id]!!.value = result.asImageBitmap()
+                }
+                medikitLoading[id] = false
+            }
         }
-        //attempt to get image from server
-        medikitLoading[id] = true
-        val response = getMedikitImageAPI(id)
-        if(response != null){
-            val bytes = Base64.decode(response.image, DEFAULT)
-            val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
-            medikitLoading[id] = false
-            medikitCache[id] = result
-            return@withContext result.asImageBitmap()
-        }
-        medikitLoading[id] = false
-        return@withContext imageNotFound.asImageBitmap()
+        return medikitCache[id]!!
     }
 
-    suspend fun getUpgradeBitmap(id: Int): ImageBitmap = withContext(Dispatchers.IO){
-        if(upgradeCache.containsKey(id)){
-            return@withContext upgradeCache[id]!!.asImageBitmap()
+    fun getUpgradeFlow(id: Int): MutableStateFlow<ImageBitmap> {
+        if(!upgradeCache.containsKey(id)) {
+            upgradeCache[id] = MutableStateFlow(imageNotFound.asImageBitmap())
+            localScope.launch{
+                upgradeLoading[id] = true
+                Log.i(TAG, "[ImageLoader] Upgrade $id")
+                val response = getUpgradeImageAPI(id)
+                if(response != null){
+                    val bytes = Base64.decode(response.image, DEFAULT)
+                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
+                    upgradeCache[id]!!.value = result.asImageBitmap()
+                }
+                upgradeLoading[id] = false
+            }
         }
-
-        upgradeLoading[id] = true
-        //attempt to get image from server
-        val response = getUpgradeImageAPI(id)
-        if(response != null){
-            val bytes = Base64.decode(response.image, DEFAULT)
-            val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
-            upgradeCache[id] = result
-            upgradeLoading[id] = false
-            return@withContext result.asImageBitmap()
-        }
-        upgradeLoading[id] = false
-        return@withContext imageNotFound.asImageBitmap()
+        return upgradeCache[id]!!
     }
 
-    suspend fun getPlayerImage(id: Int) : ImageBitmap = withContext(Dispatchers.IO){
-        if(playerCache.containsKey(id)){
-            return@withContext playerCache[id]!!.asImageBitmap()
+    fun getPlayerFlow(id: Int): MutableStateFlow<ImageBitmap> {
+        if(!playerCache.containsKey(id)) {
+            playerCache[id] = MutableStateFlow(imageNotFound.asImageBitmap())
+            localScope.launch{
+                playerLoading[id] = true
+                Log.i(TAG, "[ImageLoader] Player $id")
+                val response = getPlayerImageAPI(id)
+                if(response != null){
+                    val bytes = Base64.decode(response.image, DEFAULT)
+                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
+                    playerCache[id]!!.value = result.asImageBitmap()
+                }
+                playerLoading[id] = false
+            }
         }
-        //attempt to get image from server
-        playerLoading[id] = true
-        val response = getPlayerImageAPI(id)
-        if(response != null){
-            val bytes = Base64.decode(response.image, Base64.DEFAULT)
-            val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
-            playerCache[id] = result
-            playerLoading[id] = false
-            return@withContext result.asImageBitmap()
-        }
-        playerLoading[id] = false
-        return@withContext imageNotFound.asImageBitmap()
+        return playerCache[id]!!
     }
 
     fun invalidatePlayerImage(id: Int){
@@ -139,26 +143,26 @@ class ImageLoader(context: Context) {
     }
 
     suspend fun loadFrom(repo: GameRepository){
-        getPlayerImage(repo.player.player.value.id)
+        getPlayerFlow(repo.player.player.value.id)
         //shop bullets
         for(bullet in repo.shop.bullets.value){
-            getBulletBitmap(bullet.id)
+            getBulletFlow(bullet.id)
         }
         //shop weapons
         for(w in repo.shop.weapons.value){
-            getBulletBitmap(w.id)
+            getWeaponFlow(w.id)
         }
         //shop medikits
         for(m in repo.shop.medikits.value){
-            getBulletBitmap(m.id)
+            getMedikitFlow(m.id)
         }
         //shop upgrades
         for(u in repo.shop.upgrades.value){
-            getBulletBitmap(u.id)
+            getUpgradeFlow(u.id)
         }
         //bounty leaderboard
         for(p in repo.leaderboard.global.value){
-            getPlayerImage(p.id )
+            getPlayerFlow(p.id )
         }
     }
 }

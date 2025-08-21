@@ -34,9 +34,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.game.GameNavigation
+import com.example.quickdraw.game.components.AssignableMercenary
 import com.example.quickdraw.game.components.RowDivider
-import com.example.quickdraw.game.dataDisplayers.ActiveContract
-import com.example.quickdraw.game.dataDisplayers.AssignableMercenary
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.network.data.AvailableContract

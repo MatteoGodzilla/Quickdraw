@@ -1,9 +1,6 @@
 package com.example.quickdraw.game.screen
 
 
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -11,21 +8,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.ImageLoader
 import com.example.quickdraw.game.GameNavigation
+import com.example.quickdraw.game.components.ActiveContractUI
+import com.example.quickdraw.game.components.AvailableContractUI
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
-import com.example.quickdraw.game.components.RowDivider
+import com.example.quickdraw.game.components.EmployedMercenaryPost
+import com.example.quickdraw.game.components.LockedMercenaryPost
+import com.example.quickdraw.game.components.MercenaryShopEntry
 import com.example.quickdraw.game.components.TopScreenInfo
+import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
-import com.example.quickdraw.game.repo.GameRepository
-import com.example.quickdraw.game.dataDisplayers.*
 import com.example.quickdraw.network.data.HireableMercenary
 import kotlinx.coroutines.delay
 
@@ -55,7 +52,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
             TopScreenInfo("Executing ${activeContracts.value.size}/${stats.value.maxContracts} contracts")
             var timeSeconds by remember { mutableLongStateOf(0L) }
             for(contract in activeContracts.value){
-                ActiveContract(contract, timeSeconds) {
+                ActiveContractUI(contract, timeSeconds) {
                     callbacks.onRedeemContract(contract)
                 }
             }
@@ -71,7 +68,7 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
                 TopScreenInfo("All your slots are being used,wait for contracts to finish and redeem them!")
             }
             for(contract in availableContracts.value){
-                AvailableContract(contract,
+                AvailableContractUI(contract,
                     {
                         controller.navigate(GameNavigation.StartContract(contract.id))
                     },

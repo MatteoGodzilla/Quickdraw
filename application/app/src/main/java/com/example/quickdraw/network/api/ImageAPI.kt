@@ -19,7 +19,6 @@ private fun getImage(id:Int, url: String): ImageResponse?{
      val response = ConnectionManager.attempt(requestBody, url,true,5000)
      if(response != null && response.code == 200){
         val body = response.body.string()
-        Log.i(TAG, body)
         return Json.decodeFromString<ImageResponse>(body)
      }
      return null

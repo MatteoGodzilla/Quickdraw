@@ -1,5 +1,6 @@
-package com.example.quickdraw.game.dataDisplayers
+package com.example.quickdraw.game.components
 
+import android.media.Image
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -105,10 +106,10 @@ fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit, icon: ImageBitmap, purc
 }
 
 @Composable
-fun LockedWeapon(weapon:ShopWeapon){
+fun LockedWeapon(weapon:ShopWeapon, icon:ImageBitmap){
     LockedContainer(){
-        Image(Icons.Default.Settings, "Icon", modifier = Modifier.size(48.dp))
-        Column() {
+        Image(icon, "Icon", modifier = Modifier.size(48.dp))
+        Column {
             Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
             Text("Unlock at level ${weapon.level}")
         }

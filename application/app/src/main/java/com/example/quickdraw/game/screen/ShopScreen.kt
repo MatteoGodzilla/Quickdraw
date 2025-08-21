@@ -4,13 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.navigation.NavHostController
 import com.example.quickdraw.game.components.BasicScreen
+import com.example.quickdraw.game.components.BulletShopEntry
 import com.example.quickdraw.game.components.ContentTab
+import com.example.quickdraw.game.components.LockedWeapon
+import com.example.quickdraw.game.components.MedikitEntryShop
 import com.example.quickdraw.game.components.RowDivider
-import com.example.quickdraw.game.dataDisplayers.BulletShopEntry
-import com.example.quickdraw.game.dataDisplayers.LockedWeapon
-import com.example.quickdraw.game.dataDisplayers.MedikitEntryShop
-import com.example.quickdraw.game.dataDisplayers.UpgradeEntryShop
-import com.example.quickdraw.game.dataDisplayers.WeaponEntryShop
+import com.example.quickdraw.game.components.UpgradeEntryShop
+import com.example.quickdraw.game.components.WeaponEntryShop
 import com.example.quickdraw.game.vm.ShopScreenVM
 
 @Composable
@@ -36,12 +36,12 @@ fun ShopScreen (viewModel: ShopScreenVM, controller: NavHostController) {
 
             if(weapons.value.isNotEmpty()){
                 for (w in weapons.value.sortedBy { x->x.level }.filter { x->x.level<=nextUnlock }){
+                    val icon = viewModel.getWeaponIcon(w.id).collectAsState().value
                     if(w.level>player.value.level){
-                        LockedWeapon(w)
+                        LockedWeapon(w, icon)
                         RowDivider()
                     }
                     else{
-                        val icon = viewModel.getWeaponIcon(w.id).collectAsState().value
                         WeaponEntryShop(w, { viewModel.onBuyWeapon(w) }, icon,player.value.money>=w.cost)
                     }
                 }

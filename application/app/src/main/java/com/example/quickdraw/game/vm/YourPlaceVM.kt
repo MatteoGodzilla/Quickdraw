@@ -1,19 +1,15 @@
 package com.example.quickdraw.game.vm
 
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.datastore.dataStore
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.quickdraw.DEFAULT_VOLUME
 import com.example.quickdraw.ImageLoader
 import com.example.quickdraw.PrefKeys
@@ -44,13 +40,12 @@ class YourPlaceVM(
 
     val player = repository.player.player
     val stats = repository.player.stats
-    val playerImage: MutableStateFlow<ImageBitmap> = MutableStateFlow(imageLoader.imageNotFound.asImageBitmap())
+    var playerImage: MutableStateFlow<ImageBitmap> = imageLoader.getPlayerFlow(repository.player.player.value.id)
 
     val musicVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)
     val sfxVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)
 
     init{
-        updatePlayerPic()
         viewModelScope.launch {
             musicVolumeSlider.floatValue = context.dataStore.data.map { pref -> pref[PrefKeys.musicVolume] }.first() ?: DEFAULT_VOLUME
             sfxVolumeSlider.floatValue = context.dataStore.data.map { pref -> pref[PrefKeys.sfxVolume] }.first() ?: DEFAULT_VOLUME
@@ -70,7 +65,6 @@ class YourPlaceVM(
                 val result = updateProfilePicAPI( authToken, Base64.encode(bytes) )
                 if(result){
                     imageLoader.invalidatePlayerImage(repository.player.player.value.id)
-                    updatePlayerPic()
                 }
                 input.close()
             }
@@ -82,10 +76,6 @@ class YourPlaceVM(
         val intent = Intent(context, LoginActivity::class.java)
         context.startActivity(intent)
         Log.i(TAG, "Sending from Register to Game activity")
-    }
-
-    private fun updatePlayerPic() = viewModelScope.launch {
-        playerImage.value = imageLoader.getPlayerImage(repository.player.player.value.id)
     }
 
     fun useMedikit(id: Int) = viewModelScope.launch{
@@ -110,4 +100,10 @@ class YourPlaceVM(
         context.dataStore.edit { pref->pref[PrefKeys.sfxVolume] = value }
         sfxVolumeSlider.floatValue = value
     }
+
+    fun loadWeaponImage(id:Int) = imageLoader.getWeaponFlow(id)
+    fun loadBulletImage(id: Int) = imageLoader.getBulletFlow(id)
+    fun loadMedikitImage(id: Int) = imageLoader.getMedikitFlow(id)
+    fun loadUpgradeImage(id: Int) = imageLoader.getMedikitFlow(id)
+
 }

@@ -61,7 +61,7 @@ async def get_inventory(request: BasicAuthTokenRequest):
     weapons = result.fetchall()
     response_weapons = []
     for playerWeapon,weapon in weapons:
-        response_object = InventoryResponseWeapon(name=weapon.name, damage=weapon.damage, cost = weapon.cost, bulletType=weapon.bulletType)
+        response_object = InventoryResponseWeapon(id=weapon.id, name=weapon.name, damage=weapon.damage, cost = weapon.cost, bulletType=weapon.bulletType)
         response_weapons.append(response_object)
     #obtain medkits
     medkit_query  = select (PlayerMedikit,Medikit).where(and_(PlayerMedikit.idPlayer == player.idPlayer , Medikit.id == PlayerMedikit.idMediKit))
@@ -72,7 +72,10 @@ async def get_inventory(request: BasicAuthTokenRequest):
         response_object = InventoryResponseMedkit(healthRecover=medkit.healthRecover, capacity=medkit.capacity, description = medkit.description,amount=playerMedkit.amount,id=playerMedkit.idMediKit)
         response_medkits.append(response_object)
     #obtain bullets
-    bullets_query  = select (PlayerBullet,Bullet).where(and_(PlayerBullet.idPlayer == player.idPlayer , Bullet.type == PlayerBullet.idBullet))
+    bullets_query  = select (PlayerBullet,Bullet).where(and_(
+        PlayerBullet.idPlayer == player.idPlayer,
+        Bullet.type == PlayerBullet.idBullet
+    ))
     result = safe_exec(bullets_query)
     bullets = result.fetchall()
     response_bullets = []

@@ -1,4 +1,4 @@
-package com.example.quickdraw.game.dataDisplayers
+package com.example.quickdraw.game.components
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -49,7 +49,7 @@ import kotlinx.coroutines.flow.update
 import kotlin.collections.plus
 
 @Composable
-fun ActiveContract(contract: ActiveContract, timeSeconds: Long, onRedeemClick: ()->Unit){
+fun ActiveContractUI(contract: ActiveContract, timeSeconds: Long, onRedeemClick: ()->Unit){
     Row (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -79,7 +79,7 @@ fun ActiveContract(contract: ActiveContract, timeSeconds: Long, onRedeemClick: (
 }
 
 @Composable
-fun AvailableContract(contract: AvailableContract, onStartButton: ()->Unit,startable:Boolean=true){
+fun AvailableContractUI(contract: AvailableContract, onStartButton: ()->Unit,startable:Boolean=true){
     Row (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

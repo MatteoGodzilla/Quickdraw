@@ -11,6 +11,7 @@ data class InventoryBullet(
 )
 @Serializable
 data class InventoryWeapon(
+    val id: Int,
     val name: String,
     val damage: Int,
     val cost: Int,

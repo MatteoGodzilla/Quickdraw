@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import com.example.quickdraw.game.components.BasicScreen
+import com.example.quickdraw.game.components.BountyEntry
 import com.example.quickdraw.game.components.ContentTab
-import com.example.quickdraw.game.dataDisplayers.BountyEntry
 import com.example.quickdraw.game.vm.LeaderboardVM
 import kotlinx.coroutines.runBlocking
 
@@ -25,7 +25,7 @@ fun LeaderBoardScreen ( viewModel: LeaderboardVM, controller: NavHostController 
             if(friends.value.isNotEmpty()){
                 var counter = 1
                 for(entry in friends.value) {
-                    BountyEntry(entry,counter, viewModel.getPlayerImageFlow(entry.id).collectAsState().value )
+                    BountyEntry(entry,counter, viewModel.getPlayerImage(entry.id).collectAsState().value )
                     counter++
                 }
             } else {
@@ -39,7 +39,7 @@ fun LeaderBoardScreen ( viewModel: LeaderboardVM, controller: NavHostController 
             if(globals.value.isNotEmpty()){
                 var counter = 1
                 for(entry in globals.value) {
-                    BountyEntry(entry,counter, viewModel.getPlayerImageFlow(entry.id).collectAsState().value)
+                    BountyEntry(entry,counter, viewModel.getPlayerImage(entry.id).collectAsState().value)
                     counter++
                 }
             }
