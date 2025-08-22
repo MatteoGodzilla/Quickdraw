@@ -19,7 +19,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.QuickdrawApplication
 import com.example.quickdraw.TAG
 import com.example.quickdraw.duel.VMs.WeaponSelectionViewModel
-import com.example.quickdraw.duel.components.DuelContainer
+import com.example.quickdraw.duel.components.PlayScreen
 import com.example.quickdraw.duel.components.PresentationScreen
 import com.example.quickdraw.duel.components.WeaponSelectionScreen
 import com.example.quickdraw.ui.theme.QuickdrawTheme
@@ -33,16 +33,13 @@ class DuelNavigation {
     object Presentation
 
     @Serializable
-    object duelLobby
+    object DuelLobby
 
     @Serializable
     object WeaponSelect
 
     @Serializable
-    object steadyScreen
-
-    @Serializable
-    object bangScreen
+    object Play
 }
 
 class DuelActivity : ComponentActivity() {
@@ -89,8 +86,11 @@ class DuelActivity : ComponentActivity() {
                     }
 
                     composable<DuelNavigation.WeaponSelect>{
-
                         WeaponSelectionScreen(controller,duelGameLogic,repository,vm)
+                    }
+
+                    composable<DuelNavigation.Play>{
+                        PlayScreen(controller,duelGameLogic,repository)
                     }
                 }
             }

@@ -107,6 +107,18 @@ fun Popup(duration:Long, popupVm: PopupVM, onEnd:()->Unit){
         }
 }
 
+@Composable
+fun infiniteRotation(): Float{
+    val infiniteTransition = rememberInfiniteTransition()
+    val rotation by infiniteTransition.animateFloat(
+        initialValue = 0f,
+        targetValue = 360f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(durationMillis = 1000, easing = LinearEasing)
+        )
+    )
+    return rotation
+}
 
 
 @Composable
@@ -116,14 +128,7 @@ fun ScreenLoader(
     val isLoading by loadVM.isLoading
     val msg by loadVM.message
     if (isLoading) {
-        val infiniteTransition = rememberInfiniteTransition()
-        val rotation by infiniteTransition.animateFloat(
-            initialValue = 0f,
-            targetValue = 360f,
-            animationSpec = infiniteRepeatable(
-                animation = tween(durationMillis = 1000, easing = LinearEasing)
-            )
-        )
+
         Dialog(
             onDismissRequest = {},
             properties = DialogProperties(
@@ -145,7 +150,7 @@ fun ScreenLoader(
                     contentDescription = "Loading icon",
                     modifier = Modifier
                         .size(64.dp)
-                        .rotate(rotation)
+                        .rotate(infiniteRotation())
                 )
                 Text(msg)
             }

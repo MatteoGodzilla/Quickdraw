@@ -1,6 +1,7 @@
 package com.example.quickdraw.duel.VMs
 
 import androidx.lifecycle.ViewModel
+import com.example.quickdraw.game.repo.InventoryRepository
 import com.example.quickdraw.network.data.InventoryWeapon
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.any
@@ -22,6 +23,22 @@ class WeaponSelectionViewModel(
     fun selectMostDamage(){
         val selected = weapons.value.maxBy { x->x.damage }
         select(selected.id)
+    }
+
+    fun selectMostBullets(invetory: InventoryRepository){
+        var best = 0
+        var choice = weapons.value.first().id
+
+        for(w in weapons.value){
+            if(invetory.bullets.value.any { x->x.type==w.id }){
+                val amount = invetory.bullets.value.first{x->x.type==w.id}.amount
+               if(best < amount){
+                    best = amount
+                    choice = w.id
+               }
+            }
+        }
+        select(choice)
     }
 
     fun unselect(){
