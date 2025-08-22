@@ -73,4 +73,5 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.core)
+    implementation(libs.qr.kit)
 }

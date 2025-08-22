@@ -71,6 +71,11 @@ class GameNavigation {
 }
 
 class GameActivity : ComponentActivity(){
+
+    private fun openCamera(){
+
+    }
+
     private lateinit var pbr : PermissionBroadcastReceiver
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -176,7 +181,7 @@ class GameActivity : ComponentActivity(){
                     })
                 }
                 composable<GameNavigation.ManualMatch>{
-                    ManualConnectionScreen(controller,repository,localAddress.value)
+                    ManualConnectionScreen(controller,repository,localAddress.value,{})
                 }
             }
             //popup for all pages

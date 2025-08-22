@@ -63,7 +63,7 @@ class PeerFinder (
 
     var scanning: MutableStateFlow<Boolean> = MutableStateFlow(false)
         private set
-    var peers: MutableStateFlow<List<Peer>> = MutableStateFlow(listOf(Peer("Test",10)))
+    var peers: MutableStateFlow<List<Peer>> = MutableStateFlow(listOf(Peer("Test",10,100,100)))
         private set
 
     private var p2pManager: WifiP2pManager = context.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
