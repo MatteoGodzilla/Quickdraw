@@ -4,7 +4,7 @@ import java.net.Socket
 
 enum class Type {
     ACK, //data contains type of message acknowledged
-    HELLO, //for checking that the other side is a Quickdraw peer, must be acknowledged
+    SETUP, //for checking that the other side is a Quickdraw peer, must be acknowledged
     READY, //for notifying that a player has chosen a gun
     STEADY, //for starting the round
     BANG, //for when a player shoots a bullet

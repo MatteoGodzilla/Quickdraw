@@ -64,22 +64,20 @@ fun QrCodeImage(text: String, width: Dp =200.dp, height: Dp =200.dp,modifier:Mod
 
 @Composable
 fun QrScanner(onScan:(res:String)->Unit){
-    var scanning by remember { mutableStateOf(true) }
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center){
-            QrCodeScanner(modifier = Modifier.padding(20.dp),
-                flashlightOn = false,
-                onCompletion = {result -> onScan(result)},
-                cameraLens = CameraLens.Back,
-                overlayShape = OverlayShape.Square,
-                overlayColor = MaterialTheme.colorScheme.background,
-                overlayBorderColor = Color.White,
-                zoomLevel = 0.5f,
-                maxZoomLevel = 1.0f,
-                customOverlay = {}) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center){
+        QrCodeScanner(modifier = Modifier.padding(20.dp),
+            flashlightOn = false,
+            onCompletion = {result -> onScan(result)},
+            cameraLens = CameraLens.Back,
+            overlayShape = OverlayShape.Square,
+            overlayColor = MaterialTheme.colorScheme.background,
+            overlayBorderColor = Color.White,
+            zoomLevel = 0.5f,
+            maxZoomLevel = 1.0f,
+            customOverlay = {}) {
 
-            }
         }
-
+    }
 }

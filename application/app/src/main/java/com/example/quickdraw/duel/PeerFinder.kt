@@ -35,9 +35,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
 import java.net.InetAddress
 import kotlin.math.max
 
+@Serializable
 data class Peer(
     val username: String,
     val level: Int,
@@ -63,7 +65,7 @@ class PeerFinder (
 
     var scanning: MutableStateFlow<Boolean> = MutableStateFlow(false)
         private set
-    var peers: MutableStateFlow<List<Peer>> = MutableStateFlow(listOf(Peer("Test",10,100,100)))
+    var peers: MutableStateFlow<List<Peer>> = MutableStateFlow(listOf())
         private set
 
     private var p2pManager: WifiP2pManager = context.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
@@ -193,6 +195,7 @@ class PeerFinder (
                 Log.i(TAG, "[PeerFinder] There was a problem connecting with peer: $reason")
             }
         })
+        stopScanning()
     }
 
     fun disconnectFromPeer(){

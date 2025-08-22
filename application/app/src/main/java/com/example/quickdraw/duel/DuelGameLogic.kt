@@ -1,9 +1,9 @@
 package com.example.quickdraw.duel
 
 import android.util.Log
-import androidx.compose.runtime.mutableStateOf
 import com.example.quickdraw.TAG
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.serialization.json.Json
 import java.net.Socket
 import kotlin.random.Random
 
@@ -16,9 +16,10 @@ enum class DuelState {
 }
 
 //Higher level logic for actually handling the game part
-class DuelGameLogic : MessageHandler{
+class DuelGameLogic(private var peer: Peer) : MessageHandler{
     val selfState = MutableStateFlow(DuelState.UNKNOWN)
     val peerState = MutableStateFlow(DuelState.UNKNOWN)
+    var otherPeer:Peer? = null
 
     //deciding when players should shoot
     private var selfChosenDelay = 0.0
@@ -38,22 +39,23 @@ class DuelGameLogic : MessageHandler{
 
     override suspend fun onConnection(duelServer: DuelServer) {
         this.duelServer = duelServer
-        duelServer.enqueueOutgoing(Message(Type.HELLO))
+        duelServer.enqueueOutgoing(Message(Type.SETUP, Json.encodeToString(peer)))
     }
 
     override suspend fun handleIncoming(message: Message, other: Socket) {
         when(message.type){
             Type.ACK -> {
-                if(peerState.value == DuelState.UNKNOWN){
-                    if(message.data == Type.HELLO.toString()){
+                if(selfState.value == DuelState.UNKNOWN){
+                    if(message.data == Type.SETUP.toString()){
                         selfState.value = DuelState.CAN_PLAY
                         printStatus()
                     } //otherwise it should throw something or error
                 }
             }
-            Type.HELLO -> {
+            Type.SETUP -> {
                 if(peerState.value == DuelState.UNKNOWN){
                     peerState.value = DuelState.CAN_PLAY
+                    otherPeer = Json.decodeFromString(message.data)
                     printStatus()
                     duelServer.enqueueOutgoing(Message(Type.ACK, message.type.toString()))
                 }
@@ -150,7 +152,7 @@ class DuelGameLogic : MessageHandler{
     }
 
     //Option 1
-    private fun didSelfWin() = selfBangDelta > 0 && selfBangDelta < peerBangDelta
+    private fun didSelfWin() = selfBangDelta > 0 && if(peerBangDelta > 0) selfBangDelta < peerBangDelta else true
 
     private fun printStatus(){
         Log.i(TAG, "S:${selfState.value}\tP:${peerState.value}")

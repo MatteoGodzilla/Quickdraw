@@ -113,6 +113,17 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
 
                      */
                 }
+                //Test match
+                Row (
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ){
+                    Text("Test match (Level: 69)")
+                    Button( onClick = viewModel::testMatch, enabled = true) {
+                        Text("Test duel")
+                    }
+                }
                 for (p in viewModel.peers.collectAsState().value) {
                     Row (
                         modifier = Modifier.fillMaxWidth(),
@@ -120,9 +131,7 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
                         Text("${p.username} (Level: ${p.level})")
-                        Button(
-                            onClick = { viewModel.startMatchWithPeer(p) }, enabled = true)
-                        {
+                        Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = true) {
                             Text("Duel")
                         }
                     }

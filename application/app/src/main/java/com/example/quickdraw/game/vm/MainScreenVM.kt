@@ -26,7 +26,7 @@ class MainScreenVM(
     private val repository: GameRepository,
     private val peerFinder: PeerFinder,
     private val context: Activity,
-    pbr: PermissionBroadcastReceiver
+    pbr: PermissionBroadcastReceiver,
 ) : ViewModel() {
 
     val player = repository.player.player
@@ -93,10 +93,11 @@ class MainScreenVM(
         context.startActivity(intent)
     }
 
-    fun startMatchWithPeer(peer: Peer)  {
-        //peerFinder.startMatchWithPeer(peer)
-        Log.i(TAG,"Button pressed")
+    fun startMatchWithPeer(peer:Peer) = peerFinder.startMatchWithPeer(peer)
+
+    fun testMatch(){
         val intent =  Intent(this.context, DuelActivity::class.java)
+        intent.putExtra("DEBUG", true)
         this.context.startActivity(intent)
     }
 

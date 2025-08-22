@@ -1,16 +1,13 @@
 package com.example.quickdraw.game
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.pm.ActivityInfo
-import android.net.ConnectivityManager
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -24,6 +21,7 @@ import com.example.quickdraw.QuickdrawApplication
 import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
+import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.components.Popup
 import com.example.quickdraw.game.components.ScreenLoader
 import com.example.quickdraw.game.repo.GameRepository
@@ -41,6 +39,7 @@ import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.game.vm.GlobalPartsVM
 import com.example.quickdraw.game.vm.LeaderboardVM
 import com.example.quickdraw.game.vm.MainScreenVM
+import com.example.quickdraw.game.vm.ManualConnectionVM
 import com.example.quickdraw.game.vm.ShopScreenVM
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.music.AudioManager
@@ -51,7 +50,6 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.Serializable
-import java.net.Inet4Address
 
 class GameNavigation {
     @Serializable
@@ -72,11 +70,8 @@ class GameNavigation {
 
 class GameActivity : ComponentActivity(){
 
-    private fun openCamera(){
-
-    }
-
     private lateinit var pbr : PermissionBroadcastReceiver
+    @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -100,22 +95,15 @@ class GameActivity : ComponentActivity(){
             AudioManager.init(this@GameActivity, this@GameActivity.lifecycle, volume)
         }
 
+        //For when another peer is connecting through wifi-p2p
         qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
-            val intent = Intent(this, DuelActivity::class.java)
-            intent.putExtra(Game2Duel.groupOwnerKey, groupOwner)
-            intent.putExtra(Game2Duel.groupOwnerAddressKey, groupOwnerAddress)
-            startActivity(intent)
+            goToDuel(groupOwner, groupOwnerAddress.hostAddress!!, true)
         }
 
         pbr = PermissionBroadcastReceiver(this)
         registerReceiver(pbr, PermissionBroadcastReceiver.getIntentFilter())
 
         setContent {
-            //to place better
-            val localAddress = remember { mutableStateOf("") }
-            val connectivityManager = this.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            localAddress.value = connectivityManager.getLinkProperties(connectivityManager.activeNetwork)?.linkAddresses!!.first { x->x.address is Inet4Address }.toString().split("/")[0]
-            val musicContext = this
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
                 composable<GameNavigation.YourPlace>{
@@ -181,7 +169,12 @@ class GameActivity : ComponentActivity(){
                     })
                 }
                 composable<GameNavigation.ManualMatch>{
-                    ManualConnectionScreen(controller,repository,localAddress.value,{})
+                    val vm = viewModel {
+                        ManualConnectionVM(repository, this@GameActivity ) { isServer, serverAddress ->
+                            goToDuel(isServer, serverAddress, false)
+                        }
+                    }
+                    ManualConnectionScreen(vm, controller)
                 }
             }
             //popup for all pages
@@ -195,6 +188,14 @@ class GameActivity : ComponentActivity(){
                 { }
             }
         }
+    }
+
+    private fun goToDuel(isServer: Boolean, address: String, usingP2P: Boolean){
+        val intent = Intent(this, DuelActivity::class.java)
+        intent.putExtra(Game2Duel.IS_SERVER_KEY, isServer)
+        intent.putExtra(Game2Duel.SERVER_ADDRESS_KEY, address)
+        intent.putExtra(Game2Duel.USING_WIFI_P2P, usingP2P)
+        startActivity(intent)
     }
 
     override fun onStop() {
