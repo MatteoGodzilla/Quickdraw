@@ -12,6 +12,7 @@ import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.ACTION_WIFI_SETTINGS
 import android.util.Log
+import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import com.example.quickdraw.TAG
@@ -34,6 +35,8 @@ class MainScreenVM(
 
     val peers = peerFinder.peers
     val scanning = peerFinder.scanning
+
+    val expandedChecks = mutableStateOf(false)
 
     var permFineLocation = false
     var permNearbyDevices = false

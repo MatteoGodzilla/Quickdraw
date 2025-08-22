@@ -20,8 +20,11 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
+import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
@@ -141,60 +144,95 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                 verticalArrangement = Arrangement.Bottom,
                 modifier = Modifier.fillMaxSize().padding(padding)
             ){
-                //scouting
+                //Permissions not expanded
                 Row (
                     horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { showPermissionDialog.value = true }
-                ) {
-                    Text("Fine location permission (i)")
+                    modifier = Modifier.fillMaxWidth().clickable { viewModel.expandedChecks.value = !viewModel.expandedChecks.value }
+                ){
                     if(viewModel.permFineLocation){
                         Icon(Icons.Default.Done, "GRANTED", tint = Color.Green) //TODO: expand palette
                     } else {
                         Icon(Icons.Default.Close, "NOT GRANTED", tint = Color.Red) //TODO: expand palette
                     }
-                }
-                Row (
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { showPermissionDialog.value = true }
-                ) {
-                    Text("Nearby devices permission (i)")
                     if(viewModel.permNearbyDevices){
                         Icon(Icons.Default.Done, "GRANTED", tint = Color.Green) //TODO: expand palette
                     } else {
                         Icon(Icons.Default.Close, "NOT GRANTED", tint = Color.Red) //TODO: expand palette
                     }
-                }
-                Row (
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { viewModel.onWifiP2PSettings() }
-                ) {
-                    Text("Wifi Direct supported?")
                     if(viewModel.wifiP2PActive){
                         Icon(Icons.Default.Done, "WIFI ACTIVE", tint = Color.Green) //TODO: expand palette
                     } else {
                         Icon(Icons.Default.Close, "WIFI NOT ACTIVE", tint = Color.Red) //TODO: expand palette
                     }
-                }
-                Row (
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { viewModel.onWifiSettings() }
-                ) {
-                    Text("Wifi active?")
                     if(viewModel.wifiActive.collectAsState().value){
                         Icon(Icons.Default.Done, "WIFI ACTIVE", tint = Color.Green) //TODO: expand palette
                     } else {
                         Icon(Icons.Default.Close, "WIFI NOT ACTIVE", tint = Color.Red) //TODO: expand palette
                     }
-                }
-                Row (
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { viewModel.onLocationSettings() }
-                ) {
-                    Text("Gps active?")
                     if(viewModel.gpsActive.collectAsState().value){
                         Icon(Icons.Default.Done, "GPS ACTIVE", tint = Color.Green) //TODO: expand palette
                     } else {
                         Icon(Icons.Default.Close, "GPS NOT ACTIVE", tint = Color.Red) //TODO: expand palette
+                    }
+                    Icon(if(viewModel.expandedChecks.value) Icons.Default.KeyboardArrowDown else Icons.Default.KeyboardArrowUp, "Expand")
+                }
+
+                if(viewModel.expandedChecks.value){
+                    //scouting
+                    Row (
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { showPermissionDialog.value = true }
+                    ) {
+                        Text("Fine location permission (i)")
+                        if(viewModel.permFineLocation){
+                            Icon(Icons.Default.Done, "GRANTED", tint = Color.Green) //TODO: expand palette
+                        } else {
+                            Icon(Icons.Default.Close, "NOT GRANTED", tint = Color.Red) //TODO: expand palette
+                        }
+                    }
+                    Row (
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { showPermissionDialog.value = true }
+                    ) {
+                        Text("Nearby devices permission (i)")
+                        if(viewModel.permNearbyDevices){
+                            Icon(Icons.Default.Done, "GRANTED", tint = Color.Green) //TODO: expand palette
+                        } else {
+                            Icon(Icons.Default.Close, "NOT GRANTED", tint = Color.Red) //TODO: expand palette
+                        }
+                    }
+                    Row (
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { viewModel.onWifiP2PSettings() }
+                    ) {
+                        Text("Wifi Direct supported?")
+                        if(viewModel.wifiP2PActive){
+                            Icon(Icons.Default.Done, "WIFI ACTIVE", tint = Color.Green) //TODO: expand palette
+                        } else {
+                            Icon(Icons.Default.Close, "WIFI NOT ACTIVE", tint = Color.Red) //TODO: expand palette
+                        }
+                    }
+                    Row (
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { viewModel.onWifiSettings() }
+                    ) {
+                        Text("Wifi active?")
+                        if(viewModel.wifiActive.collectAsState().value){
+                            Icon(Icons.Default.Done, "WIFI ACTIVE", tint = Color.Green) //TODO: expand palette
+                        } else {
+                            Icon(Icons.Default.Close, "WIFI NOT ACTIVE", tint = Color.Red) //TODO: expand palette
+                        }
+                    }
+                    Row (
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { viewModel.onLocationSettings() }
+                    ) {
+                        Text("Gps active?")
+                        if(viewModel.gpsActive.collectAsState().value){
+                            Icon(Icons.Default.Done, "GPS ACTIVE", tint = Color.Green) //TODO: expand palette
+                        } else {
+                            Icon(Icons.Default.Close, "GPS NOT ACTIVE", tint = Color.Red) //TODO: expand palette
+                        }
                     }
                 }
                 Button(
@@ -208,7 +246,7 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
-                    "Scout",
+                        "Scout",
                         modifier = Modifier.rotate( if(!viewModel.scanning.collectAsState().value) 0.0f else rotation )
                     )
                     if(viewModel.scanning.collectAsState().value){
@@ -218,6 +256,7 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                     }
                 }
             }
+
         }
     }
     if(showPermissionDialog.value){
