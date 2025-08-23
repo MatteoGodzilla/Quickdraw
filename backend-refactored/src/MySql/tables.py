@@ -1,5 +1,7 @@
+from datetime import datetime
 import enum
-from sqlmodel import Field, SQLModel,Column,LargeBinary
+
+from sqlmodel import Field, SQLModel,Column,LargeBinary,TIMESTAMP
 
 
 class Evaluation(enum.Enum):
@@ -146,3 +148,41 @@ class BaseStats(SQLModel, table=True):
     upgradeType:int = Field(primary_key=True,foreign_key="UpgradeTypes.id")
     baseValue: int = Field(default=1)
     evaluation: str = Field(default=str(Evaluation.INCREMENT))
+
+class Bandit(SQLModel, table=True):
+    __tablename__ = "Bandit"
+    id:int = Field(primary_key=True)
+    name: str = Field(default="Bandit")
+    hp:int = Field(default=100)
+    minDamage:int = Field(default=1)
+    maxDamage:int = Field(default=10)
+    minExp:int = Field(default=1)
+    maxExp:int = Field(default=10)
+    minSpeed:int = Field(default=500)
+    maxSpeed:int = Field(default=1000)
+    minMoney:int = Field(default=1)
+    maxMoney:int = Field(default=100)
+
+
+class PoolRequest(SQLModel, table=True):
+    __tablename__ = "PoolRequest"
+    id:int = Field(primary_key=True)
+    idPlayer:int = Field(foreign_key="Player.id")
+    expireTime:datetime  = Field()
+
+class BanditIstance(SQLModel,table=True):
+    __tablename__ = "BanditIstance"
+    id:int = Field(primary_key=True)
+    idBandit:int = Field(foreign_key="Bandit.id")
+    idRequest:int = Field(foreign_key="PoolRequest.id")
+    defeated:bool = Field(default=False)
+    frozen:bool = Field(default=False)
+
+class BanditPool(SQLModel,table = True):
+    __tablename__ = "BanditPool"
+    id:int = Field(primary_key=True)
+    banditId:int = Field(foreign_key="Bandit.id")
+    levelRequired:int = Field(default=1)
+    spawnChance:int = Field(default=100)
+    minSpawn:int = Field(default=1)
+    maxSpawn:int = Field(default=1)

@@ -31,7 +31,7 @@ class WeaponSelectionViewModel(
 
         for(w in weapons.value){
             if(invetory.bullets.value.any { x->x.type==w.id }){
-                val amount = invetory.bullets.value.first{x->x.type==w.id}.amount
+                val amount = invetory.bullets.value.first{x->x.type==w.bulletType}.amount
                if(best < amount){
                     best = amount
                     choice = w.id

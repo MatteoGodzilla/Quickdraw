@@ -3,7 +3,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from sqlmodel import Session
 from starlette.status import *
-from routes import auth, contracts, inventory, status, shop, bountyboard,mercenaries, images, use
+from routes import auth, contracts, inventory, status, shop, bountyboard,mercenaries, images, use, bandits
 from MySql import connection
 from pymysql.err import *
 
@@ -18,6 +18,7 @@ app.include_router(shop.router)
 app.include_router(bountyboard.router)
 app.include_router(images.router)
 app.include_router(use.router)
+app.include_router(bandits.router)
 connection.rebuild_tables()
 
 
