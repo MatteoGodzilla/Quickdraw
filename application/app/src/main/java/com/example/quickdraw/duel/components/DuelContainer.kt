@@ -11,23 +11,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
 import com.example.quickdraw.duel.DuelGameLogic
+import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.repo.GameRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun DuelContainer(controller: NavHostController, gameLogic: DuelGameLogic, repo: GameRepository, content:@Composable ()->Unit){
-    //pass to next state
-    val selfState = gameLogic.selfState.collectAsState()
-    val opponentState = gameLogic.peerState.collectAsState()
-    //selfState.value== DuelState.CAN_PLAY && opponentState.value== DuelState.CAN_PLAY
-        Scaffold(
-            topBar = { DuelBar("Test opponent",Color.Red) },
-            bottomBar = { DuelBar(repo.player.player.collectAsState().value.username,Color.Blue) },
-            modifier = Modifier.fillMaxSize()
-        ){ padding->
-            Box(modifier = Modifier.padding(padding)){
-                content()
-            }
-
+fun DuelContainer(self: Peer, opponent: Peer, content:@Composable ()->Unit){
+    Scaffold(
+        topBar = { DuelBar(opponent.username,Color.Red) },
+        bottomBar = { DuelBar(self.username,Color.Blue) },
+        modifier = Modifier.fillMaxSize()
+    ){ padding->
+        Box(modifier = Modifier.padding(padding)){
+            content()
         }
     }
+}

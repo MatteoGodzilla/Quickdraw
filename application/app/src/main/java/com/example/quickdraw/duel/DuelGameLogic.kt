@@ -2,8 +2,12 @@ package com.example.quickdraw.duel
 
 import android.util.Log
 import com.example.quickdraw.TAG
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
+import okhttp3.Dispatcher
 import java.net.Socket
 import kotlin.random.Random
 
@@ -19,13 +23,15 @@ enum class DuelState {
 class DuelGameLogic(private var peer: Peer) : MessageHandler{
     val selfState = MutableStateFlow(DuelState.UNKNOWN)
     val peerState = MutableStateFlow(DuelState.UNKNOWN)
-    var otherPeer:Peer? = null
+    var otherPeer = MutableStateFlow(Peer("", 1, 100, 100))
+
 
     //deciding when players should shoot
     private var selfChosenDelay = 0.0
     private var peerChosenDelay = 0.0
     var agreedBangDelay = 0.0
         private set
+    private var damageToPeer: Int = 0
     //Time delta when players actually shot
     private var selfBangDelta = 0.0
     private var peerBangDelta = 0.0
@@ -33,9 +39,9 @@ class DuelGameLogic(private var peer: Peer) : MessageHandler{
     var referenceTimeMS = 0L
         private set
 
-    private var damageToPeer: Int = 0
 
     private lateinit var duelServer: DuelServer
+    private val localScope = CoroutineScope(Dispatchers.IO)
 
     override suspend fun onConnection(duelServer: DuelServer) {
         this.duelServer = duelServer
@@ -55,7 +61,7 @@ class DuelGameLogic(private var peer: Peer) : MessageHandler{
             Type.SETUP -> {
                 if(peerState.value == DuelState.UNKNOWN){
                     peerState.value = DuelState.CAN_PLAY
-                    otherPeer = Json.decodeFromString(message.data)
+                    otherPeer.value = Json.decodeFromString(message.data)
                     printStatus()
                     duelServer.enqueueOutgoing(Message(Type.ACK, message.type.toString()))
                 }
@@ -98,15 +104,15 @@ class DuelGameLogic(private var peer: Peer) : MessageHandler{
 
     //UI Functions
 
-    suspend fun setReady(damageToPeer: Int) {
+    fun setReady(damageToPeer: Int) = localScope.launch{
         selfState.value = DuelState.READY
         printStatus()
-        this.damageToPeer = damageToPeer
+        this@DuelGameLogic.damageToPeer = damageToPeer
         duelServer.enqueueOutgoing(Message(Type.READY))
         checkReady()
     }
 
-    suspend fun bang(){
+     fun bang() = localScope.launch{
         selfState.value = DuelState.BANG
         printStatus()
         selfBangDelta = System.currentTimeMillis() - referenceTimeMS - agreedBangDelay
@@ -114,7 +120,7 @@ class DuelGameLogic(private var peer: Peer) : MessageHandler{
         checkBang()
     }
 
-    suspend fun nextRound(){
+    fun nextRound() = localScope.launch{
         selfState.value = DuelState.CAN_PLAY
         printStatus()
         duelServer.enqueueOutgoing(Message(Type.RESET))

@@ -23,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
+import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.VMs.WeaponSelectionViewModel
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.repo.GameRepository
@@ -31,8 +32,8 @@ import com.example.quickdraw.network.data.InventoryWeapon
 import com.example.quickdraw.ui.theme.Typography
 
 @Composable
-fun WeaponSelectionScreen(controller: NavHostController, gameLogic: DuelGameLogic, repo: GameRepository, vm: WeaponSelectionViewModel){
-    DuelContainer(controller,gameLogic,repo,{
+fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer, gameLogic: DuelGameLogic, repo: GameRepository, vm: WeaponSelectionViewModel){
+    DuelContainer(self, other){
         val bullets = repo.inventory.bullets.collectAsState()
         Column(modifier = Modifier.fillMaxWidth()){
             Text("Select Weapon",modifier = Modifier.fillMaxWidth().padding(top=5.dp),
@@ -42,7 +43,7 @@ fun WeaponSelectionScreen(controller: NavHostController, gameLogic: DuelGameLogi
             Column(
                 modifier = Modifier.padding(vertical = 10.dp).verticalScroll(rememberScrollState())
             ){
-                //display mercenaries
+                //display weapons
                 Spacer(modifier= Modifier.height(24.dp))
                 RowDivider()
                 for(w in repo.inventory.weapons.collectAsState().value){
@@ -73,7 +74,10 @@ fun WeaponSelectionScreen(controller: NavHostController, gameLogic: DuelGameLogi
                     Text("Most Bullets")
                 }
             }
-            Button(onClick = {controller.navigate(DuelNavigation.Play)}, modifier = Modifier.fillMaxWidth(),
+            Button(onClick = {
+                //controller.navigate(DuelNavigation.Play)
+                gameLogic.setReady(vm.power.value)
+            }, modifier = Modifier.fillMaxWidth(),
                 colors = ButtonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onSurface,
@@ -84,7 +88,7 @@ fun WeaponSelectionScreen(controller: NavHostController, gameLogic: DuelGameLogi
                 Text("Start!")
             }
         }
-    })
+    }
 }
 
 @Composable

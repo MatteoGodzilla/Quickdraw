@@ -1,5 +1,6 @@
 package com.example.quickdraw.duel.components
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.size
@@ -19,7 +20,8 @@ import com.example.quickdraw.game.components.infiniteRotation
 import com.example.quickdraw.game.repo.GameRepository
 
 @Composable
-fun PlayScreen(controller: NavHostController, gameLogic: DuelGameLogic, repo: GameRepository){
+fun PlayScreen(gameLogic: DuelGameLogic){
+    /*
     DuelContainer(controller,gameLogic,repo) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
             Icon(
@@ -29,5 +31,18 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelGameLogic, repo: Ga
                 modifier = Modifier.size(72.dp)
             )
         }
+    }
+
+     */
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize().clickable(onClick = gameLogic::bang)
+    ){
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.local_police_24px),
+            "",
+            tint = Color.Black,
+            modifier = Modifier.size(72.dp)
+        )
     }
 }

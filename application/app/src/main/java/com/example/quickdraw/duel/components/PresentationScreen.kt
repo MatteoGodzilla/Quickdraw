@@ -22,19 +22,18 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.R
 import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
+import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.components.infiniteRotation
 import com.example.quickdraw.game.repo.GameRepository
 import kotlinx.coroutines.delay
 
 @Composable
-fun PresentationScreen(controller: NavHostController, gameLogic: DuelGameLogic, repo: GameRepository){
-    if(true){
-        LaunchedEffect(true) {
-            delay(3000)
-            controller.navigate(DuelNavigation.WeaponSelect)
-        }
+fun PresentationScreen(controller: NavHostController, self: Peer, other: Peer){
+    LaunchedEffect(true) {
+        delay(3000)
+        controller.navigate(DuelNavigation.WeaponSelect)
     }
-    DuelContainer(controller,gameLogic,repo,{
+    DuelContainer(self, other) {
         Box(modifier=Modifier.padding(5.dp).fillMaxSize()){
             Column(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.Center)) {
                 Text("Starting match...", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
@@ -46,5 +45,5 @@ fun PresentationScreen(controller: NavHostController, gameLogic: DuelGameLogic, 
                 )
             }
         }
-    })
+    }
 }

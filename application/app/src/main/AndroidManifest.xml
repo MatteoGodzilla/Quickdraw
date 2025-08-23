@@ -40,16 +40,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <!--
-        <activity
-            android:name=".duel.ScanningActivity"
-            android:exported="true"
-            android:label="@string/title_activity_duel"
-            android:theme="@style/Theme.Quickdraw">
-        </activity>
-        -->
-        <activity android:name=".duel.DuelActivity"
-            android:exported="true" />
+        <activity android:name=".duel.DuelActivity" android:exported="true" />
+        <activity android:name=".game.ManualConnectionActivity" android:exported="true" />
 
         <activity
             android:name=".game.GameActivity"

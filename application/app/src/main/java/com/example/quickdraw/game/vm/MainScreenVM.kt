@@ -19,6 +19,7 @@ import com.example.quickdraw.TAG
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.PeerFinder
+import com.example.quickdraw.game.ManualConnectionActivity
 import com.example.quickdraw.game.PermissionBroadcastReceiver
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.network.NoConnectionActivity
@@ -96,13 +97,12 @@ class MainScreenVM(
         context.startActivity(intent)
     }
 
-    fun startMatchWithPeer(peer:Peer) = peerFinder.startMatchWithPeer(peer)
-
-    fun testMatch(){
-        val intent =  Intent(this.context, DuelActivity::class.java)
-        intent.putExtra("DEBUG", true)
-        this.context.startActivity(intent)
+    fun goToManualMatch(){
+        val intent = Intent(context, ManualConnectionActivity::class.java)
+        context.startActivity(intent)
     }
+
+    fun startMatchWithPeer(peer:Peer) = peerFinder.startMatchWithPeer(peer)
 
     fun levelProgress() = repository.player.getProgressToNextLevel()
 }

@@ -86,7 +86,7 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                 Row (modifier = Modifier.fillMaxWidth()) {
                     //manual match
                     Button(
-                        onClick = {controller.navigate(GameNavigation.ManualMatch)},
+                        onClick = viewModel::goToManualMatch,
                         colors = ButtonColors(
                             containerColor = MaterialTheme.colorScheme.secondary,
                             contentColor = MaterialTheme.colorScheme.onSurface,
@@ -117,16 +117,6 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                      */
                 }
                 //Test match
-                Row (
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Text("Test match (Level: 69)")
-                    Button( onClick = viewModel::testMatch, enabled = true) {
-                        Text("Test duel")
-                    }
-                }
                 for (p in viewModel.peers.collectAsState().value) {
                     Row (
                         modifier = Modifier.fillMaxWidth(),

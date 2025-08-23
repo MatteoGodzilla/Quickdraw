@@ -81,8 +81,8 @@ fun BottomNavBar(navigation: NavHostController, height: Dp = 96.dp){
                     color = bottomBarButtonColors(currentDestination?.hasRoute<GameNavigation.Map>() == true),
                     content = {
                         BarIcon(
-                            icon=R.drawable.baseline_map_24,
-                            description="Map"
+                            icon=R.drawable.radar_24px,
+                            description="Duel"
                         )
                     }
                 )

@@ -64,13 +64,11 @@ class GameNavigation {
     object Contracts
     @Serializable
     data class StartContract(val idContract:Int)
-    @Serializable
-    object ManualMatch
 }
 
 class GameActivity : ComponentActivity(){
 
-    private lateinit var pbr : PermissionBroadcastReceiver
+    private var pbr : PermissionBroadcastReceiver? = null
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -97,11 +95,9 @@ class GameActivity : ComponentActivity(){
 
         //For when another peer is connecting through wifi-p2p
         qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
-            goToDuel(groupOwner, groupOwnerAddress.hostAddress!!, true)
+            goToDuel(groupOwner, groupOwnerAddress.hostAddress!!)
         }
 
-        pbr = PermissionBroadcastReceiver(this)
-        registerReceiver(pbr, PermissionBroadcastReceiver.getIntentFilter())
 
         setContent {
             val controller = rememberNavController()
@@ -115,7 +111,7 @@ class GameActivity : ComponentActivity(){
                     ShopScreen(vm, controller)
                 }
                 composable<GameNavigation.Map> {
-                    val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity, pbr) }
+                    val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity, pbr!!) }
                     MainScreen(vm, controller)
                 }
                 composable<GameNavigation.BountyBoard> {
@@ -168,14 +164,6 @@ class GameActivity : ComponentActivity(){
                         }
                     })
                 }
-                composable<GameNavigation.ManualMatch>{
-                    val vm = viewModel {
-                        ManualConnectionVM(repository, this@GameActivity ) { isServer, serverAddress ->
-                            goToDuel(isServer, serverAddress, false)
-                        }
-                    }
-                    ManualConnectionScreen(vm, controller)
-                }
             }
             //popup for all pages
             QuickdrawTheme {
@@ -190,16 +178,26 @@ class GameActivity : ComponentActivity(){
         }
     }
 
-    private fun goToDuel(isServer: Boolean, address: String, usingP2P: Boolean){
+    private fun goToDuel(isServer: Boolean, address: String){
         val intent = Intent(this, DuelActivity::class.java)
         intent.putExtra(Game2Duel.IS_SERVER_KEY, isServer)
         intent.putExtra(Game2Duel.SERVER_ADDRESS_KEY, address)
-        intent.putExtra(Game2Duel.USING_WIFI_P2P, usingP2P)
+        intent.putExtra(Game2Duel.USING_WIFI_P2P, true)
         startActivity(intent)
     }
 
-    override fun onStop() {
-        super.onStop()
-        unregisterReceiver(pbr)
+    override fun onResume(){
+        super.onResume()
+
+        pbr = PermissionBroadcastReceiver(this)
+        registerReceiver(pbr, PermissionBroadcastReceiver.getIntentFilter())
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if(pbr != null){
+            unregisterReceiver(pbr)
+            pbr = null
+        }
     }
 }

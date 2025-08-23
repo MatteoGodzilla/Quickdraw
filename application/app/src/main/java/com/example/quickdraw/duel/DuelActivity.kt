@@ -8,6 +8,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.NavHost
@@ -45,51 +46,47 @@ class DuelActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val debug = intent.getBooleanExtra("DEBUG", false)
 
         val qdapp = application as QuickdrawApplication
         val repository = qdapp.repository
         val player = repository.player.player.value
         val stats = repository.player.stats.value
-        val duelGameLogic = DuelGameLogic(Peer(player.username, player.level, player.health, stats.maxHealth))
+        val selfAsPeer = Peer(player.username, player.level, player.health, stats.maxHealth)
+        val duelGameLogic = DuelGameLogic(selfAsPeer)
         val duelServer = DuelServer(duelGameLogic)
 
-        Log.i(TAG, "STARTED DUEL $debug")
+        val isServer = intent.getBooleanExtra(Game2Duel.IS_SERVER_KEY, false)
+        val serverAddress = intent.getStringExtra(Game2Duel.SERVER_ADDRESS_KEY)
+        usingWifiP2P = intent.getBooleanExtra(Game2Duel.USING_WIFI_P2P, false)
 
-        if(!debug){
-            val isServer = intent.getBooleanExtra(Game2Duel.IS_SERVER_KEY, false)
-            val serverAddress = intent.getStringExtra(Game2Duel.SERVER_ADDRESS_KEY)
-            usingWifiP2P = intent.getBooleanExtra(Game2Duel.USING_WIFI_P2P, false)
-
-            lifecycleScope.launch {
+        val vm = WeaponSelectionViewModel(qdapp.repository.inventory.weapons)
+        enableEdgeToEdge()
+        setContent{
+            LaunchedEffect(true) {
                 if(isServer){
                     duelServer.startAsServer()
                 } else {
                     duelServer.startAsClient(InetAddress.getByName(serverAddress))
                 }
             }
-        }
-
-
-        val vm = WeaponSelectionViewModel(qdapp.repository.inventory.weapons)
-        enableEdgeToEdge()
-        setContent{
             QuickdrawTheme {
                 val selfState = duelGameLogic.selfState.collectAsState().value
                 val peerState = duelGameLogic.peerState.collectAsState().value
+                val otherAsPeer = duelGameLogic.otherPeer.collectAsState().value
                 if(selfState == DuelState.STEADY && peerState == DuelState.STEADY) startPolling(duelGameLogic)
+
                 val controller = rememberNavController()
                 NavHost(navController = controller, startDestination = DuelNavigation.Presentation){
                     composable<DuelNavigation.Presentation>{
-                        PresentationScreen(controller,duelGameLogic,repository)
+                        PresentationScreen(controller,selfAsPeer, otherAsPeer)
                     }
 
                     composable<DuelNavigation.WeaponSelect>{
-                        WeaponSelectionScreen(controller,duelGameLogic,repository,vm)
+                        WeaponSelectionScreen(controller,selfAsPeer, otherAsPeer, duelGameLogic, repository,vm)
                     }
 
                     composable<DuelNavigation.Play>{
-                        PlayScreen(controller,duelGameLogic,repository)
+                        PlayScreen(duelGameLogic)
                     }
                 }
             }

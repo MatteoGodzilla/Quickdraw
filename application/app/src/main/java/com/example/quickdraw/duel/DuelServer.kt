@@ -3,7 +3,6 @@ package com.example.quickdraw.duel
 import android.util.Log
 import com.example.quickdraw.TAG
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.withContext
 import java.io.BufferedReader
 import java.io.InputStreamReader
@@ -15,27 +14,30 @@ import java.net.Socket
 //Internal game server that handles the lower level communications
 class DuelServer(private val receiver: MessageHandler) {
     private val outQueue: MutableList<Message> = mutableListOf()
+    private var serverSocket : ServerSocket? = null
+    private var clientSocket : Socket? = null
+
+    init {
+        Log.i(TAG, "CREATED DUEL SERVER")
+    }
 
     suspend fun startAsServer() = withContext(Dispatchers.IO){
+        if(serverSocket != null)
+            return@withContext
         Log.i(TAG, "[DuelServer] Starting as server")
-        val socket = ServerSocket(PORT)
-        val client = socket.accept()
+        serverSocket = ServerSocket(PORT)
+        val client = serverSocket!!.accept()
         Log.i(TAG, "[DuelServer] Accepted socket: $client")
         peerLoop(client)
     }
 
     suspend fun startAsClient(address: InetAddress) = withContext(Dispatchers.IO){
+        if(clientSocket != null)
+            return@withContext
         Log.i(TAG, "[DuelServer] Starting as client")
-        repeat(10){
-            try{
-                val server = Socket(address,PORT)
-                Log.i(TAG, "[DuelServer] Connected to server")
-                peerLoop(server)
-            } catch (e: Exception){
-                Log.e(TAG, e.message.toString())
-            }
-            delay(1000)
-        }
+        clientSocket = Socket(address,PORT)
+        Log.i(TAG, "[DuelServer] Connected to server")
+        peerLoop(clientSocket!!)
     }
 
     suspend fun peerLoop(other: Socket) = withContext(Dispatchers.IO){

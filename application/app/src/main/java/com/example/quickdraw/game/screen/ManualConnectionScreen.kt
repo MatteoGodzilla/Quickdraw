@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.BottomAppBar
@@ -37,7 +39,7 @@ import com.example.quickdraw.ui.theme.Typography
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ManualConnectionScreen(viewModel: ManualConnectionVM, controller: NavHostController, ){
+fun ManualConnectionScreen(viewModel: ManualConnectionVM, onBack: () -> Unit ){
     QuickdrawTheme {
         Scaffold (
             topBar = {
@@ -45,10 +47,7 @@ fun ManualConnectionScreen(viewModel: ManualConnectionVM, controller: NavHostCon
                     title = { Text("Manual match") },
                     modifier = Modifier.padding(0.dp),
                     navigationIcon = {
-                        IconButton(onClick = {
-                            controller.navigate(GameNavigation.Map)
-                            viewModel.closeServer()
-                        } ) {
+                        IconButton(onClick = onBack ) {
                             Icon(Icons.AutoMirrored.Default.ArrowBack,"go back")
                         }
                     }
@@ -73,7 +72,7 @@ fun ManualConnectionScreen(viewModel: ManualConnectionVM, controller: NavHostCon
             }
         ) { padding ->
             Column(
-                modifier = Modifier.padding(padding).fillMaxSize()
+                modifier = Modifier.padding(padding).fillMaxSize().verticalScroll(rememberScrollState())
             ){
                 Spacer(modifier = Modifier.fillMaxHeight(0.1f))
                 if(viewModel.scanning.collectAsState().value){
