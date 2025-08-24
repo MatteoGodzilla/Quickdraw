@@ -361,3 +361,41 @@ lista ordinata dall'utente con il bounty più alto a quello più basso
 - Response: 
     - Se non viene mandata un'immagine -> HTTP 400
     - Successo -> HTTP 200 Ok
+
+### /bandits/pool
+- Richiesta POST
+- Request: {
+    authToken: string
+}
+    - In caso di dati mancanti -> HTTP 400
+-Response:
+    - se il player ha già una pool request attiva, si restituiscono le banditIstance presenti
+    - se il player ha una pool request scaduta, si aggiorna la timestamp di scadenza e si creano nuove banditIstance
+{idIstance: int , expires:timestamp, stats:bandit}
+dove bandit è una riga della table Bandit
+
+### /bandit/freeze
+- Richiesta POST
+- Request: {
+    authToken: string,
+    idIstance: string
+}
+
+Per evitare che un player affronti un bandit prima della scadenza della request,per poi finire la partita dopo la scadenza, si freeza l'istance.
+Solo un istance alla volta di bandit per player può essere frozen
+
+### /bandit/fight
+- Richiesta POST
+- Request: {
+    authToken: string,
+    idIstance: string,
+    rounds: [pair(playerWinsRound:bool,damage)]
+}
+    - In caso di dati mancanti -> HTTP 400
+    - In caso di istance non valida -> HTTP 403 
+    - In caso il bandit non fosse frozen -> HTTP 403
+
+(assoulatamente cheattabile da un player ma non è il momento di preocuparsi di ciò)
+
+- se i rounds indicano vittoria del player: restituire prize in base al bandit,set defeated = true
+- se i rounds indicano vittoria del bot: restituire array vuoto

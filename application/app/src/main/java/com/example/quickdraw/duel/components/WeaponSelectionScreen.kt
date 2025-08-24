@@ -47,7 +47,7 @@ fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer
                 Spacer(modifier= Modifier.height(24.dp))
                 RowDivider()
                 for(w in repo.inventory.weapons.collectAsState().value){
-                    WeaponOption(w,vm,bullets.value.firstOrNull{x->x.type==w.id})
+                    WeaponOption(w,vm,bullets.value.firstOrNull{x->x.type==w.bulletType})
                 }
             }
             Spacer(modifier= Modifier.weight(0.1f))
