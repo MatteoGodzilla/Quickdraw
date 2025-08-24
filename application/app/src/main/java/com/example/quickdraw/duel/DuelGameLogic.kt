@@ -1,13 +1,16 @@
 package com.example.quickdraw.duel
 
+import android.content.Context
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import com.example.quickdraw.TAG
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
-import okhttp3.Dispatcher
 import java.net.Socket
 import kotlin.random.Random
 
@@ -16,15 +19,22 @@ enum class DuelState {
     CAN_PLAY,
     READY,
     STEADY,
-    BANG
+    BANG,
+    DONE
 }
 
 //Higher level logic for actually handling the game part
-class DuelGameLogic(private var peer: Peer) : MessageHandler{
+class DuelGameLogic(
+    peer: Peer,
+    private val rounds: Int,
+    private val context: Context
+) : MessageHandler{
     val selfState = MutableStateFlow(DuelState.UNKNOWN)
     val peerState = MutableStateFlow(DuelState.UNKNOWN)
-    var otherPeer = MutableStateFlow(Peer("", 1, 100, 100))
-
+    val selfPeer = MutableStateFlow(peer)
+    val otherPeer = MutableStateFlow(Peer("", 1, 100, 100))
+    val shouldShoot = MutableStateFlow(false)
+    val currentRound = MutableStateFlow(0)
 
     //deciding when players should shoot
     private var selfChosenDelay = 0.0
@@ -40,12 +50,15 @@ class DuelGameLogic(private var peer: Peer) : MessageHandler{
         private set
 
 
+    private val MIN_DELAY = 5000.0
+    private val MAX_DELAY = 10000.0
+
     private lateinit var duelServer: DuelServer
     private val localScope = CoroutineScope(Dispatchers.IO)
 
     override suspend fun onConnection(duelServer: DuelServer) {
         this.duelServer = duelServer
-        duelServer.enqueueOutgoing(Message(Type.SETUP, Json.encodeToString(peer)))
+        duelServer.enqueueOutgoing(Message(Type.SETUP, Json.encodeToString(selfPeer.value)))
     }
 
     override suspend fun handleIncoming(message: Message, other: Socket) {
@@ -89,14 +102,21 @@ class DuelGameLogic(private var peer: Peer) : MessageHandler{
             Type.DAMAGE -> {
                 //apply damage from opponent if self has lost the round
                 if(!didSelfWin()) {
-                    val damageToSelf = message.data.toInt()
-                    Log.i(TAG, "Accepting damage: $damageToSelf")
+                    val damageReceived = message.data.toInt()
+                    Log.i(TAG, "Accepting damage: $damageReceived")
+                    selfPeer.value = selfPeer.value.copy(health = selfPeer.value.health - damageReceived)
+                    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                    vibrator.vibrate(VibrationEffect.createOneShot(1500, VibrationEffect.DEFAULT_AMPLITUDE))
                 } else {
                     Log.i(TAG, "There is DEFINETLY SOMETHING WRONG")
                 }
             }
-            Type.RESET -> {
+            Type.NEW_ROUND -> {
                 peerState.value = DuelState.CAN_PLAY
+                printStatus()
+            }
+            Type.DONE -> {
+                peerState.value = DuelState.DONE
                 printStatus()
             }
         }
@@ -106,6 +126,7 @@ class DuelGameLogic(private var peer: Peer) : MessageHandler{
 
     fun setReady(damageToPeer: Int) = localScope.launch{
         selfState.value = DuelState.READY
+        shouldShoot.value = false
         printStatus()
         this@DuelGameLogic.damageToPeer = damageToPeer
         duelServer.enqueueOutgoing(Message(Type.READY))
@@ -121,17 +142,39 @@ class DuelGameLogic(private var peer: Peer) : MessageHandler{
     }
 
     fun nextRound() = localScope.launch{
-        selfState.value = DuelState.CAN_PLAY
-        printStatus()
-        duelServer.enqueueOutgoing(Message(Type.RESET))
+        if(canGoToNextRound()){
+            selfState.value = DuelState.CAN_PLAY
+            printStatus()
+            duelServer.enqueueOutgoing(Message(Type.NEW_ROUND))
+            currentRound.value++
+        } else {
+            selfState.value = DuelState.DONE
+            printStatus()
+            duelServer.enqueueOutgoing(Message(Type.DONE))
+        }
     }
+
+    private fun startPolling() = localScope.launch{
+        delay(MIN_DELAY.toLong() / 2)
+        while(selfState.value == DuelState.STEADY)  {
+            val delta = System.currentTimeMillis() - referenceTimeMS - agreedBangDelay
+            if(delta > 0){
+                //start vibrating
+                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
+                shouldShoot.value = true
+                break;
+            }
+        }
+    }
+    fun canGoToNextRound() = currentRound.value + 1 < rounds
 
     //Stuff to do when both peers are in the same state
     private suspend fun checkReady(){
         if(selfState.value == DuelState.READY && peerState.value == DuelState.READY) {
             selfState.value = DuelState.STEADY
             printStatus()
-            selfChosenDelay = Random.nextDouble(5000.0,10000.0) //milliseconds
+            selfChosenDelay = Random.nextDouble(MIN_DELAY,MAX_DELAY) //milliseconds
             duelServer.enqueueOutgoing(Message(Type.STEADY, selfChosenDelay.toString()))
             checkSteady()
         }
@@ -143,6 +186,7 @@ class DuelGameLogic(private var peer: Peer) : MessageHandler{
             referenceTimeMS = System.currentTimeMillis()
             agreedBangDelay = (selfChosenDelay + peerChosenDelay) / 2
             Log.i(TAG, "[] Agreed on delay $agreedBangDelay")
+            startPolling()
         }
     }
 
@@ -153,7 +197,10 @@ class DuelGameLogic(private var peer: Peer) : MessageHandler{
             //Option 1: to win the delay must be positive, but the smallest
             //Option 2: closest to target wins, even if it's early
 
-            if(didSelfWin()) duelServer.enqueueOutgoing(Message(Type.DAMAGE, damageToPeer.toString()))
+            if(didSelfWin()) {
+                duelServer.enqueueOutgoing(Message(Type.DAMAGE, damageToPeer.toString()))
+                otherPeer.value = otherPeer.value.copy(health = otherPeer.value.health - damageToPeer)
+            }
         }
     }
 

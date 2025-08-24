@@ -17,10 +17,6 @@ class DuelServer(private val receiver: MessageHandler) {
     private var serverSocket : ServerSocket? = null
     private var clientSocket : Socket? = null
 
-    init {
-        Log.i(TAG, "CREATED DUEL SERVER")
-    }
-
     suspend fun startAsServer() = withContext(Dispatchers.IO){
         if(serverSocket != null)
             return@withContext

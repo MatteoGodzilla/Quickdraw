@@ -26,6 +26,7 @@ class ManualConnectionVM(
 ) : ViewModel() {
     val scanning = MutableStateFlow(false)
     private var server: ServerSocket? = null
+    private var alreadyStarted = false
 
     init {
         listenAsServer()
@@ -41,6 +42,9 @@ class ManualConnectionVM(
     }
 
     fun onScan(value:String) = viewModelScope.launch(Dispatchers.IO){
+        if(alreadyStarted)
+            return@launch
+        alreadyStarted = true
         try {
             val data = Json.decodeFromString<ManualClientConnection>(value)
             val otherSocket = Socket(data.address, DISCOVER_PORT)
