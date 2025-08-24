@@ -18,8 +18,8 @@ import com.example.quickdraw.game.repo.GameRepository
 @Composable
 fun DuelContainer(self: Peer, opponent: Peer, content:@Composable ()->Unit){
     Scaffold(
-        topBar = { DuelBar(opponent.username,Color.Red) },
-        bottomBar = { DuelBar(self.username,Color.Blue) },
+        topBar = { DuelBar(opponent.username, opponent.health.toFloat() / opponent.maxHealth, Color.Red) },
+        bottomBar = { DuelBar(self.username,self.health.toFloat() / self.maxHealth, Color.Blue) },
         modifier = Modifier.fillMaxSize()
     ){ padding->
         Box(modifier = Modifier.padding(padding)){
