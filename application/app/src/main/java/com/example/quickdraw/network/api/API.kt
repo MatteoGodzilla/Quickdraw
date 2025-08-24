@@ -46,6 +46,8 @@ const val IMAGE_UPDATE_PLAYER_PIC = "/image/updatePic"
 
 const val USE_MEDIKIT = "/use/medikit"
 
+const val BANDITS_GET = "/bandit/pool"
+
 inline fun <reified T> T.toRequestBody(): RequestBody {
     val jsonString = Json.encodeToString(this)
     return jsonString.toRequestBody("application/json".toMediaType())

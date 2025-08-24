@@ -59,9 +59,10 @@ import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
 
 @Composable
-fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
+fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,onScan:()->Unit){
     val ok = viewModel.checkValidScan()
     val showPermissionDialog = remember { mutableStateOf(false) }
+    val bandits = viewModel.bandits.collectAsState()
 
     QuickdrawTheme {
         //rotation if scouting
@@ -127,6 +128,19 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                         Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = true) {
                             Text("Duel")
                         }
+                    }
+                }
+
+                for(b in bandits.value){
+                    Text("${b.name} (Hp: ${b.hp})")
+                    Button( onClick = {}, enabled = true,
+                        colors = ButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondary,
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                            disabledContainerColor = MaterialTheme.colorScheme.primary,
+                            disabledContentColor = MaterialTheme.colorScheme.onSurface
+                        )) {
+                        Text("Duel")
                     }
                 }
             }
@@ -226,7 +240,7 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController){
                     }
                 }
                 Button(
-                    onClick = viewModel::onScan,
+                    onClick = onScan,
                     colors = ButtonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onSurface,

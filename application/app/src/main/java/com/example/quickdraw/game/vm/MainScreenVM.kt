@@ -33,6 +33,7 @@ class MainScreenVM(
 
     val player = repository.player.player
     val stats = repository.player.stats
+    val bandits = repository.bandits.bandits
 
     val peers = peerFinder.peers
     val scanning = peerFinder.scanning

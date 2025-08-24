@@ -24,6 +24,7 @@ class GameRepository(
     val contracts = ContractsRepository(dataStore, mercenaries, player)
     val leaderboard = LeaderboardRepository(dataStore)
     val shop = ShopRepository(dataStore, player, inventory)
+    val bandits = BanditRepository(dataStore,player)
 
     suspend fun firstLoad() {
         player.firstLoad()

@@ -397,5 +397,5 @@ Solo un istance alla volta di bandit per player può essere frozen
 
 (assoulatamente cheattabile da un player ma non è il momento di preocuparsi di ciò)
 
-- se i rounds indicano vittoria del player: restituire prize in base al bandit,set defeated = true
+- se i rounds indicano vittoria del player: restituire prize in base al bandit-> {money:int,exp:int}
 - se i rounds indicano vittoria del bot: restituire array vuoto

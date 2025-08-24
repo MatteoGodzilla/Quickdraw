@@ -112,7 +112,12 @@ class GameActivity : ComponentActivity(){
                 }
                 composable<GameNavigation.Map> {
                     val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity, pbr!!) }
-                    MainScreen(vm, controller)
+                    MainScreen(vm, controller,{
+                        lifecycleScope.launch{
+                            repository.bandits.getBandits()
+                            vm.onScan()
+                        }
+                    })
                 }
                 composable<GameNavigation.BountyBoard> {
                     val vm = viewModel { LeaderboardVM(repository, qdapp.imageLoader) }

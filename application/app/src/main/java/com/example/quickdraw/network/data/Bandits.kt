@@ -1,7 +1,6 @@
-package com.example.quickdraw.network.api
+package com.example.quickdraw.network.data
 
 import kotlinx.serialization.Serializable
-import java.util.Date
 
 @Serializable
 data class Bandit(

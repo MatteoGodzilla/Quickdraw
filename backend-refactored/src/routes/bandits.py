@@ -20,7 +20,7 @@ from routes.middlewares.checkAuthTokenExpiration import *
 from routes.middlewares.getPlayer import *
 from Models.commons import BasicAuthTokenRequest
 from routes.middlewares.getPlayer import *
-from Models.bandit import BanditData, BanditRepsonse
+from Models.bandit import BanditData, BanditFreezeRequest, BanditRepsonse
 from routes.middlewares.exp import getLevel
 
 router = APIRouter(
@@ -77,7 +77,8 @@ async def pool(request: BasicAuthTokenRequest):
                 bandits = session.exec(toEliminate).fetchall()
                 result.expireTime = newPool.expireTime
                 for bandit in bandits:
-                    session.delete(bandit)
+                    if bandit.frozen==False:
+                        session.delete(bandit)
                 session.flush()
     else:
         #add request first
@@ -120,8 +121,57 @@ async def pool(request: BasicAuthTokenRequest):
               
               
 @router.post("/freeze")
-async def login(request: AuthRequest):
-    return []
+async def freeze(request: BanditFreezeRequest):
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken)
+    if obtain_player[SUCCESS] == False:
+            return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+    loginInfo:Login=obtain_player[PLAYER]
+    
+    #check a pool request exists
+    getRequest = select(PoolRequest).where(PoolRequest.idPlayer==loginInfo.idPlayer)
+    pool:PoolRequest = session.exec(getRequest).first()
+    if pool==None:
+         return JSONResponse(status_code=HTTP_403_FORBIDDEN,content={"message":"player has no bandits associated"})
+    
+    banditIstance = select(BanditIstance).where(
+         and_(
+              BanditIstance.id==request.idIstance,
+              BanditIstance.idRequest == pool.id
+         )
+    )
+    bandit = session.exec(banditIstance).first()
+    if bandit==None:
+         return JSONResponse(status_code=HTTP_403_FORBIDDEN,content={"message":"bandit not found"})
+    
+    #check if another bandit is frozen and unfreeze it if expired
+    froze_bandits = select(BanditIstance).where(
+         and_(
+              BanditIstance.id != bandit.id,
+              BanditIstance.idRequest == pool.id,
+              BanditIstance.frozen == True
+         )
+    )
+
+    result = session.exec(froze_bandits).fetchall()
+    for x in result:
+         x.frozen = False
+         session.commit()
+    
+    bandit.frozen = True
+    session.commit()
+
+    return JSONResponse(status_code=HTTP_200_OK,content={"success":True})
+    
 
 @router.post("/fight")
 async def tokenLogin(request: AuthRequestWithToken):
