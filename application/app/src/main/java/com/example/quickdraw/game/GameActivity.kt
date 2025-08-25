@@ -15,6 +15,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.example.quickdraw.DEFAULT_VOLUME
+import com.example.quickdraw.Game2Bandit
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.QuickdrawApplication
@@ -22,6 +23,7 @@ import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
+import com.example.quickdraw.duelBandit.DuelBanditActivity
 import com.example.quickdraw.game.components.Popup
 import com.example.quickdraw.game.components.ScreenLoader
 import com.example.quickdraw.game.repo.GameRepository
@@ -43,6 +45,7 @@ import com.example.quickdraw.game.vm.ManualConnectionVM
 import com.example.quickdraw.game.vm.ShopScreenVM
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.music.AudioManager
+import com.example.quickdraw.network.data.Bandit
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.flow.first
@@ -188,6 +191,17 @@ class GameActivity : ComponentActivity(){
         intent.putExtra(Game2Duel.IS_SERVER_KEY, isServer)
         intent.putExtra(Game2Duel.SERVER_ADDRESS_KEY, address)
         intent.putExtra(Game2Duel.USING_WIFI_P2P, true)
+        startActivity(intent)
+    }
+
+    private fun goToBanditDuel(bandit: Bandit){
+        val intent = Intent(this, DuelBanditActivity::class.java)
+        intent.putExtra(Game2Bandit.BANDIT_HP, bandit.hp)
+        intent.putExtra(Game2Bandit.BANDIT_MAX_DAM, bandit.maxDamage)
+        intent.putExtra(Game2Bandit.BANDIT_MIN_DAM, bandit.minDamage)
+        intent.putExtra(Game2Bandit.BANDIT_MAX_SPEED, bandit.maxSpeed)
+        intent.putExtra(Game2Bandit.BANDIT_MIN_SPEED, bandit.minSpeed)
+        intent.putExtra(Game2Bandit.NAME,bandit.name)
         startActivity(intent)
     }
 

@@ -58,3 +58,12 @@ object Game2Duel{
     const val SERVER_ADDRESS_KEY = "groupOwnerAddress"
     const val USING_WIFI_P2P = "wifi-direct?"
 }
+
+object Game2Bandit{
+    const val BANDIT_HP = "bandit_hp"
+    const val BANDIT_MIN_DAM= "bandit_min_dam"
+    const val BANDIT_MAX_DAM = "bandit_max_dam"
+    const val BANDIT_MIN_SPEED = "bandit_min_spd"
+    const val BANDIT_MAX_SPEED = "bandit_max_spd"
+    const val NAME = "name"
+}

@@ -132,15 +132,21 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,onScan:()-
                 }
 
                 for(b in bandits.value){
-                    Text("${b.name} (Hp: ${b.hp})")
-                    Button( onClick = {}, enabled = true,
-                        colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                            disabledContainerColor = MaterialTheme.colorScheme.primary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurface
-                        )) {
-                        Text("Duel")
+                    Row (
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        Text("${b.name} (Hp: ${b.hp})")
+                        Button( onClick = {}, enabled = true,
+                            colors = ButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                disabledContainerColor = MaterialTheme.colorScheme.primary,
+                                disabledContentColor = MaterialTheme.colorScheme.onSurface
+                            )) {
+                            Text("Duel")
+                        }
                     }
                 }
             }
