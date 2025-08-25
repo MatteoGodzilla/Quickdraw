@@ -22,14 +22,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.duel.DuelGameLogic
-import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.Peer
-import com.example.quickdraw.duel.VMs.WeaponSelectionViewModel
+import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.network.data.InventoryBullet
 import com.example.quickdraw.network.data.InventoryWeapon
 import com.example.quickdraw.ui.theme.Typography
+import com.example.quickdraw.ui.theme.primaryButtonColors
+import com.example.quickdraw.ui.theme.secondaryButtonColors
 
 @Composable
 fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer, gameLogic: DuelGameLogic, repo: GameRepository, vm: WeaponSelectionViewModel){
@@ -51,39 +52,19 @@ fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer
                 }
             }
             Spacer(modifier= Modifier.weight(0.1f))
-            Row(modifier=Modifier.padding(horizontal = 10.dp).fillMaxWidth()){
-                Button(onClick = {vm.selectMostDamage()},
-                    colors = ButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        disabledContainerColor = MaterialTheme.colorScheme.primary,
-                        disabledContentColor = MaterialTheme.colorScheme.onSurface
-                    )
-                ) {
+            Row(modifier=Modifier.fillMaxWidth()){
+                Button(onClick = {vm.selectMostDamage()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
                     Text("Most Damage")
                 }
-                Spacer(modifier= Modifier.weight(0.5f))
-                Button(onClick = {vm.selectMostBullets(repo.inventory)},
-                    colors = ButtonColors(
-                        containerColor = MaterialTheme.colorScheme.secondary,
-                        contentColor = MaterialTheme.colorScheme.onSurface,
-                        disabledContainerColor = MaterialTheme.colorScheme.primary,
-                        disabledContentColor = MaterialTheme.colorScheme.onSurface
-                    )
-                ) {
+                Button(onClick = {vm.selectMostBullets()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
                     Text("Most Bullets")
                 }
             }
             Button(onClick = {
                 //controller.navigate(DuelNavigation.Play)
-                gameLogic.setReady(vm.power.value)
+                gameLogic.setReady( vm.selectedWeapon.value)
             }, modifier = Modifier.fillMaxWidth(),
-                colors = ButtonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    disabledContainerColor = MaterialTheme.colorScheme.primary,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface
-                )
+                colors = primaryButtonColors
             ) {
                 Text("Start!")
             }
@@ -92,8 +73,7 @@ fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer
 }
 
 @Composable
-fun WeaponOption(weapon: InventoryWeapon,vm: WeaponSelectionViewModel, bullet: InventoryBullet? = null){
-    var checked = vm.power.collectAsState().value == weapon.damage
+fun WeaponOption(weapon: InventoryWeapon, vm: WeaponSelectionViewModel, bullet: InventoryBullet? = null){
     Row (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -103,18 +83,7 @@ fun WeaponOption(weapon: InventoryWeapon,vm: WeaponSelectionViewModel, bullet: I
             Text("${weapon.name} (${bullet?.amount ?: 0} hits)", fontSize = Typography.titleLarge.fontSize)
             Text("Damage: ${weapon.damage}")
         }
-        RadioButton(enabled=true, onClick =
-            {
-                if(checked){
-                    vm.unselect()
-                }
-                else{
-                    vm.select(weapon.id )
-                }
-                checked= !checked
-            }
-            , selected = checked
-        )
+        RadioButton(enabled=true, onClick = { vm.select(weapon) }, selected = vm.selectedWeapon.collectAsState().value == weapon)
     }
     RowDivider()
 }
