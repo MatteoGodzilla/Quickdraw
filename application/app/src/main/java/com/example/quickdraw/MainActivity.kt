@@ -18,6 +18,8 @@ import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.NoConnectionActivity
+import com.example.quickdraw.network.api.VERSION
+import com.example.quickdraw.network.api.VERSION_ENDPOINT
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -55,11 +57,22 @@ class MainActivity : ComponentActivity() {
             loadingScreenVM.showLoading()
             if(tokenId != null){
                 try {
+                    val versionResponse = ConnectionManager.attemptGet(VERSION_ENDPOINT)
+                    if(versionResponse == null || versionResponse.body.string().toInt() != VERSION){
+                        //no connection available,send to no connection activity
+                        loadingScreenVM.hideLoading()
+                        val intent = Intent(this@MainActivity, NoConnectionActivity::class.java)
+                        intent.putExtra("invalidVersion", true)
+                        startActivity(intent)
+                        return@launch;
+                    }
+
                     val response = ConnectionManager.attempt(TokenRequest(tokenId).toRequestBody(),TOKEN_LOGIN_ENDPOINT)
                     if(response == null){
                         //no connection available,send to no connection activity
                         loadingScreenVM.hideLoading()
                         val intent = Intent(this@MainActivity, NoConnectionActivity::class.java)
+                        intent.putExtra("invalidVersion", false)
                         startActivity(intent)
                         return@launch;
                     }

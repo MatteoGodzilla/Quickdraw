@@ -41,6 +41,8 @@ import java.io.IOException
 class NoConnectionActivity: ComponentActivity()  {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val invalidVersion = intent.getBooleanExtra("invalidVersion", false)
+
         enableEdgeToEdge()
         setContent {
             QuickdrawTheme {
@@ -50,6 +52,11 @@ class NoConnectionActivity: ComponentActivity()  {
                     modifier = Modifier.fillMaxSize().background(color= MaterialTheme.colorScheme.background)
                 ){
                     Text("Could not connect to server")
+                    if(invalidVersion) {
+                        Text("Version mismatch between client and server")
+                    } else {
+                        Text("Server not found")
+                    }
                     Button(onClick = {
                         val intent = Intent(this@NoConnectionActivity, MainActivity::class.java)
                         startActivity(intent)

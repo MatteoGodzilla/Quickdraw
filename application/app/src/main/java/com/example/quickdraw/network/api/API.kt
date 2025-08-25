@@ -5,6 +5,9 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
+const val VERSION = 1
+const val VERSION_ENDPOINT = "/version"
+
 const val LOGIN_ENDPOINT = "/auth/login"
 const val TOKEN_LOGIN_ENDPOINT = "/auth/tokenLogin"
 const val REGISTER_ENDPOINT = "/auth/register"
