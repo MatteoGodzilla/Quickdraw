@@ -60,6 +60,7 @@ object Game2Duel{
 }
 
 object Game2Bandit{
+    const val BANDIT_ID = "bandit_id"
     const val BANDIT_HP = "bandit_hp"
     const val BANDIT_MIN_DAM= "bandit_min_dam"
     const val BANDIT_MAX_DAM = "bandit_max_dam"

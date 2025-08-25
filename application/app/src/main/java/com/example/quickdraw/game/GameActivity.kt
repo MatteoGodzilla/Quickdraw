@@ -29,6 +29,7 @@ import com.example.quickdraw.game.components.ScreenLoader
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.ContractsCallbacks
 import com.example.quickdraw.game.screen.ContractsScreen
+import com.example.quickdraw.game.screen.DuelCallbacks
 import com.example.quickdraw.game.screen.LeaderBoardScreen
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
@@ -115,11 +116,24 @@ class GameActivity : ComponentActivity(){
                 }
                 composable<GameNavigation.Map> {
                     val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity, pbr!!) }
-                    MainScreen(vm, controller,{
-                        lifecycleScope.launch{
-                            repository.bandits.getBandits()
-                            vm.onScan()
+                    MainScreen(vm, controller,object: DuelCallbacks{
+                        override fun onScan() {
+                            {
+                                lifecycleScope.launch{
+                                    repository.bandits.getBandits()
+                                    vm.onScan()
+                                }
+                            }
                         }
+
+                        override fun onDuel() {
+
+                        }
+
+                        override fun onDuelBandit(id:Int) {
+                            goToBanditDuel(id)
+                        }
+
                     })
                 }
                 composable<GameNavigation.BountyBoard> {
@@ -194,14 +208,9 @@ class GameActivity : ComponentActivity(){
         startActivity(intent)
     }
 
-    private fun goToBanditDuel(bandit: Bandit){
+    private fun goToBanditDuel(id:Int){
         val intent = Intent(this, DuelBanditActivity::class.java)
-        intent.putExtra(Game2Bandit.BANDIT_HP, bandit.hp)
-        intent.putExtra(Game2Bandit.BANDIT_MAX_DAM, bandit.maxDamage)
-        intent.putExtra(Game2Bandit.BANDIT_MIN_DAM, bandit.minDamage)
-        intent.putExtra(Game2Bandit.BANDIT_MAX_SPEED, bandit.maxSpeed)
-        intent.putExtra(Game2Bandit.BANDIT_MIN_SPEED, bandit.minSpeed)
-        intent.putExtra(Game2Bandit.NAME,bandit.name)
+        intent.putExtra(Game2Bandit.BANDIT_ID, id)
         startActivity(intent)
     }
 

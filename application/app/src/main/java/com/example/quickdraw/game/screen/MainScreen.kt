@@ -1,12 +1,10 @@
 package com.example.quickdraw.game.screen
 
-import android.content.Intent
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -20,16 +18,13 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -46,20 +41,22 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
-import com.example.quickdraw.duel.DuelActivity
-import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.game.components.BottomNavBar
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.game.vm.MainScreenVM
-import com.example.quickdraw.network.NoConnectionActivity
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
 
+interface DuelCallbacks{
+    fun onScan()
+    fun onDuel()
+    fun onDuelBandit(id:Int)
+}
+
 @Composable
-fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,onScan:()->Unit){
+fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,callbacks: DuelCallbacks){
     val ok = viewModel.checkValidScan()
     val showPermissionDialog = remember { mutableStateOf(false) }
     val bandits = viewModel.bandits.collectAsState()
@@ -114,14 +111,14 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,onScan:()-
                     }
                 }
 
-                for(b in bandits.value){
+                for(entry in bandits.value){
                     Row (
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
-                        Text("${b.name} (Hp: ${b.hp})")
-                        Button( onClick = {}, enabled = true,
+                        Text("${entry.value.name} (Hp: ${entry.value.name})")
+                        Button( onClick = {callbacks.onDuelBandit(entry.key)}, enabled = true,
                             colors = ButtonColors(
                                 containerColor = MaterialTheme.colorScheme.secondary,
                                 contentColor = MaterialTheme.colorScheme.onSurface,
@@ -229,7 +226,7 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,onScan:()-
                     }
                 }
                 Button(
-                    onClick = onScan,
+                    onClick = callbacks::onScan,
                     colors = ButtonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onSurface,

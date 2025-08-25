@@ -20,15 +20,17 @@ class BanditRepository(
     private val dataStore: DataStore<Preferences>,
     private val playerRepository: PlayerRepository
 ) {
-    val bandits: MutableStateFlow<List<Bandit>> = MutableStateFlow(listOf())
+    val bandits: MutableStateFlow<Map<Int, Bandit>> = MutableStateFlow(mapOf())
     val poolExpires: MutableStateFlow<LocalDateTime> = MutableStateFlow(LocalDateTime.now())
 
-    suspend fun getBandits()= runIfAuthenticated(dataStore) { auth ->
+    suspend fun getBandits() = runIfAuthenticated(dataStore) { auth ->
         val now = LocalDateTime.now()
-        if(now.isAfter(poolExpires.value) ){
+        if (now.isAfter(poolExpires.value)) {
             val response = getBanditsAPI(auth)
-            Log.i(TAG,response.toString())
-            bandits.update { response.map { x->x.stats } }
+            Log.i(TAG, response.toString())
+            bandits.update {
+                response.associate { x -> x.idIstance to x.stats }
+            }
         }
     }
 }
