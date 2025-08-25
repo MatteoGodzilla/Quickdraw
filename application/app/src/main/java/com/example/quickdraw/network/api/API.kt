@@ -48,6 +48,8 @@ const val USE_MEDIKIT = "/use/medikit"
 
 const val BANDITS_GET = "/bandit/pool"
 
+const val DUEL_ENDPOINT = "/duel"
+
 inline fun <reified T> T.toRequestBody(): RequestBody {
     val jsonString = Json.encodeToString(this)
     return jsonString.toRequestBody("application/json".toMediaType())

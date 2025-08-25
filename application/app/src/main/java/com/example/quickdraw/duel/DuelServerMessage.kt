@@ -10,7 +10,7 @@ enum class MessageType {
     BANG,   //for when a player shoots a bullet
     DAMAGE, //sent from winner to loser, to mark what gun has been used (damage is derived from that)
     NEW_ROUND,  //Sent to notify that a peer wants to start a new round, so state should reset,
-    DONE    //Sent at the end of the entire duel
+    GOODBYE    //Sent at the end of the entire duel
 }
 
 data class Message (val type: MessageType, val data: String = ""){

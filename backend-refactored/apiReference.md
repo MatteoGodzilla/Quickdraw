@@ -288,6 +288,7 @@ TODO: da migliorare una volta implementato il loop vero di gioco
 - Richiesta POST 
 - Request: {
     authToken: string,
+    idOpponent: number,
     rounds:[{
         won: boolean,
         idWeaponUsed: number,

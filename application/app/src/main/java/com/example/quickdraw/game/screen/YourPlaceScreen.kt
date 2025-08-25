@@ -85,6 +85,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                             Text(weapon.name, fontSize = Typography.titleLarge.fontSize, modifier = Modifier.padding(8.dp))
                             val bulletUsed = bullets.value.first { b -> b.type == weapon.bulletType }
                             StatsDisplayer("Damage: ${weapon.damage}", "Bullet used: ${bulletUsed.description}")
+                            Text("Bullets shot: ${weapon.bulletsShot}", modifier = Modifier.padding(8.dp))
                         }
                     }
                 }

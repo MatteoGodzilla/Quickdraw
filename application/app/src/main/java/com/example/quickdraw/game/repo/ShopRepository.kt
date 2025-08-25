@@ -125,7 +125,7 @@ class ShopRepository(
         if (response != null) {
             playerRepository.player.update { x -> x.copy(money = x.money - weapon.cost) }
             weapons.update { it.filter { w -> w.id != weapon.id } }
-            inventoryRepository.weapons.update { x -> x + InventoryWeapon(weapon.id, weapon.name, weapon.damage, weapon.cost, 1) }
+            inventoryRepository.weapons.update { x -> x + InventoryWeapon(weapon.id, weapon.name, weapon.damage, weapon.cost, weapon.bulletType, weapon.bulletsShot) }
         }
     }
 

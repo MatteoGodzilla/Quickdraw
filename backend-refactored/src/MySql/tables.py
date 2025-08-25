@@ -131,6 +131,7 @@ class Weapon(SQLModel,table=True):
     damage:int
     cost:int = Field(default=0)
     bulletType: int = Field(foreign_key="Bullet.type")
+    bulletsShot: int = Field(default=1)
     requiredLevel:int
 
 class PlayerWeapon(SQLModel,table=True):
@@ -186,3 +187,21 @@ class BanditPool(SQLModel,table = True):
     spawnChance:int = Field(default=100)
     minSpawn:int = Field(default=1)
     maxSpawn:int = Field(default=1)
+
+class Duel(SQLModel, table = True):
+    __tablename__ = "Duel"
+    id: int = Field(primary_key=True)
+    idPlayerA: int = Field(foreign_key="Player.id")
+    idPlayerB: int = Field(foreign_key="Player.id")
+    status: int = Field(default = 0)
+    timestamp: int = Field(default = None)
+
+class Round(SQLModel, table = True):
+    __tablename__ = "Round"
+    idDuel: int = Field(primary_key = True)
+    roundNumber: int = Field(primary_key = True)
+    idPlayer: int = Field(primary_key = True)
+    won: int
+    idWeaponUsed: int = Field(foreign_key="Weapon.id")
+    bulletsUsed: int = Field(default = 1)
+    damage: int

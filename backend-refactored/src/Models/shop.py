@@ -28,6 +28,8 @@ class BuyWeaponResponse(BaseModel):
     damage: int
     cost: int
     level:int
+    bulletType: int
+    bulletsShot: int
 
 class BuyableUpgrade(BaseModel):
     id: int

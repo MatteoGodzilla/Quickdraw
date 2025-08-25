@@ -8,7 +8,9 @@ data class ShopWeapon(
     val name: String,
     val damage: Int,
     val cost: Int,
-    val level:Int
+    val level:Int,
+    val bulletType:Int,
+    val bulletsShot:Int
 )
 
 @Serializable

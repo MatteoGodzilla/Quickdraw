@@ -1,5 +1,6 @@
 package com.example.quickdraw.duel.components
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -26,6 +28,7 @@ import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.game.screen.StatsDisplayer
 import com.example.quickdraw.network.data.InventoryBullet
 import com.example.quickdraw.network.data.InventoryWeapon
 import com.example.quickdraw.ui.theme.Typography
@@ -34,56 +37,84 @@ import com.example.quickdraw.ui.theme.secondaryButtonColors
 
 @Composable
 fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer, gameLogic: DuelGameLogic, repo: GameRepository, vm: WeaponSelectionViewModel){
+    val canDoRound = canSelfDoRound(repo)
     DuelContainer(self, other){
         val bullets = repo.inventory.bullets.collectAsState()
         Column(modifier = Modifier.fillMaxWidth()){
-            Text("Select Weapon",modifier = Modifier.fillMaxWidth().padding(top=5.dp),
-                fontSize = Typography.titleLarge.fontSize,
-                textAlign = TextAlign.Center
-            )
-            Column(
-                modifier = Modifier.padding(vertical = 10.dp).verticalScroll(rememberScrollState())
-            ){
-                //display weapons
-                Spacer(modifier= Modifier.height(24.dp))
-                RowDivider()
-                for(w in repo.inventory.weapons.collectAsState().value){
-                    WeaponOption(w,vm,bullets.value.firstOrNull{x->x.type==w.bulletType})
+            if(canDoRound){
+                Text("Select Weapon",modifier = Modifier.fillMaxWidth().padding(top=5.dp),
+                    fontSize = Typography.titleLarge.fontSize,
+                    textAlign = TextAlign.Center
+                )
+                Column(
+                    modifier = Modifier.padding(vertical = 10.dp).verticalScroll(rememberScrollState())
+                ){
+                    //display weapons
+                    Spacer(modifier= Modifier.height(24.dp))
+                    RowDivider()
+                    for(w in repo.inventory.weapons.collectAsState().value){
+                        WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType})
+                    }
                 }
-            }
-            Spacer(modifier= Modifier.weight(0.1f))
-            Row(modifier=Modifier.fillMaxWidth()){
-                Button(onClick = {vm.selectMostDamage()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
-                    Text("Most Damage")
+                Spacer(modifier= Modifier.weight(0.1f))
+                Row(modifier=Modifier.fillMaxWidth()){
+                    Button(onClick = {vm.selectMostDamage()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
+                        Text("Most Damage")
+                    }
+                    Button(onClick = {vm.selectMostBullets()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
+                        Text("Most Bullets")
+                    }
                 }
-                Button(onClick = {vm.selectMostBullets()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
-                    Text("Most Bullets")
+                Button(onClick = {
+                    gameLogic.setReady( vm.selectedWeapon.value)
+                }, modifier = Modifier.fillMaxWidth(),
+                    colors = primaryButtonColors
+                ) {
+                    Text("Start!")
                 }
-            }
-            Button(onClick = {
-                //controller.navigate(DuelNavigation.Play)
-                gameLogic.setReady( vm.selectedWeapon.value)
-            }, modifier = Modifier.fillMaxWidth(),
-                colors = primaryButtonColors
-            ) {
-                Text("Start!")
+            } else {
+                Text("No usable weapon found because of missing bullets",modifier = Modifier.fillMaxWidth().padding(top=5.dp),
+                    fontSize = Typography.titleLarge.fontSize,
+                    textAlign = TextAlign.Center
+                )
+                Spacer(modifier= Modifier.weight(0.1f))
+                Button(onClick = {
+                    gameLogic.goodbye()
+                }, modifier = Modifier.fillMaxWidth(),
+                    colors = primaryButtonColors
+                ) {
+                    Text("Forfeit")
+                }
             }
         }
     }
 }
 
 @Composable
-fun WeaponOption(weapon: InventoryWeapon, vm: WeaponSelectionViewModel, bullet: InventoryBullet? = null){
+fun WeaponOption(weapon: InventoryWeapon, vm: WeaponSelectionViewModel, bullet: InventoryBullet){
+    val usable = bullet.amount >= weapon.bulletsShot
     Row (
-        modifier = Modifier.fillMaxWidth().padding(8.dp),
+        modifier = Modifier.fillMaxWidth().background(if(usable) Color.Transparent else Color.Red).padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+
     ){
         Column {
-            Text("${weapon.name} (${bullet?.amount ?: 0} hits)", fontSize = Typography.titleLarge.fontSize)
-            Text("Damage: ${weapon.damage}")
+            Text("${weapon.name} (${bullet.amount} bullets)", fontSize = Typography.titleLarge.fontSize)
+            StatsDisplayer("Damage: ${weapon.damage}", "Bullets shot: ${weapon.bulletsShot}")
         }
         RadioButton(enabled=true, onClick = { vm.select(weapon) }, selected = vm.selectedWeapon.collectAsState().value == weapon)
     }
     RowDivider()
+}
+
+fun canSelfDoRound(repository: GameRepository): Boolean{
+    //player can do a round if it has at least a weapon with enough bullets to shoot
+    for(w in repository.inventory.weapons.value){
+        val bulletsOwned = repository.inventory.bullets.value.first { bullet ->  bullet.type == w.bulletType }
+        if(bulletsOwned.amount >= w.bulletsShot){
+            return true
+        }
+    }
+    return false
 }

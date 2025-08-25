@@ -47,7 +47,7 @@ class DuelActivity : ComponentActivity() {
         val player = repository.player.player.value
         val stats = repository.player.stats.value
         val duelGameLogic = DuelGameLogic(
-            Peer(0, player.username, player.level, player.health, stats.maxHealth),
+            Peer(player.id, player.username, player.level, player.health, stats.maxHealth),
             repository,
             this,
         )
@@ -98,9 +98,7 @@ class DuelActivity : ComponentActivity() {
     fun switchNavigation(selfState: PeerState, peerState: PeerState, controller: NavHostController) {
         if(selfState == PeerState.STEADY && peerState == PeerState.STEADY) {
             controller.navigate(DuelNavigation.Play)
-        } /*else if (selfState == PeerState.BANG && peerState == PeerState.BANG){
-            controller.navigate(DuelNavigation.Results)
-        } */else if (selfState == PeerState.DONE && peerState == PeerState.DONE){
+        } else if (selfState == PeerState.DONE || peerState == PeerState.DONE){
             controller.navigate(DuelNavigation.Results)
         }
     }

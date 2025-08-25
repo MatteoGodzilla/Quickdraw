@@ -1,17 +1,23 @@
 package com.example.quickdraw.duel
 
 import android.content.Context
+import android.content.Intent
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
 import com.example.quickdraw.TAG
+import com.example.quickdraw.dataStore
+import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.network.api.submitDuelAPI
+import com.example.quickdraw.network.data.DuelSubmit
 import com.example.quickdraw.network.data.InventoryWeapon
+import com.example.quickdraw.network.data.RoundSubmit
+import com.example.quickdraw.runIfAuthenticated
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.Socket
@@ -115,7 +121,7 @@ class DuelGameLogic(
                 otherState.value = PeerState.CAN_PLAY
                 printStatus()
             }
-            MessageType.DONE -> {
+            MessageType.GOODBYE -> {
                 otherState.value = PeerState.DONE
                 printStatus()
             }
@@ -140,7 +146,7 @@ class DuelGameLogic(
             selfBangDelta = System.currentTimeMillis() - referenceTimeMS - agreedBangDelay
             duelServer.enqueueOutgoing(Message(MessageType.BANG, selfBangDelta.toString()))
             repository.inventory.bullets.value = repository.inventory.bullets.value.map { b ->
-                if(b.type == chosenWeapon.bulletType) b.copy(amount = b.amount - 1)
+                if(b.type == chosenWeapon.bulletType) b.copy(amount = b.amount - chosenWeapon.bulletsShot)
                 else b
             }
             checkBang()
@@ -156,8 +162,32 @@ class DuelGameLogic(
         } else {
             selfState.value = PeerState.DONE
             printStatus()
-            duelServer.enqueueOutgoing(Message(MessageType.DONE))
+            duelServer.enqueueOutgoing(Message(MessageType.GOODBYE))
         }
+    }
+
+    fun goodbye() = localScope.launch {
+        selfState.value = PeerState.DONE
+        duelServer.enqueueOutgoing(Message(MessageType.GOODBYE))
+        if(duelState.value.roundResults.isNotEmpty()){
+            runIfAuthenticated(context.dataStore){ authToken ->
+                val submitRounds = duelState.value.roundResults.map { round ->
+                    val bulletsUsed = repository.inventory.weapons.value.first {w -> w.id == round.weaponId}.bulletsShot
+                    RoundSubmit(
+                        round.didSelfWin.ordinal,
+                        round.weaponId,
+                        bulletsUsed,
+                        round.damage
+                    )
+                }
+                val submit = DuelSubmit(authToken, otherPeer.value.id, submitRounds)
+                submitDuelAPI(submit)
+                Log.i(TAG, Json.encodeToString(submit))
+            }
+        }
+        //send to main menu
+        val intent = Intent(context, GameActivity::class.java)
+        context.startActivity(intent)
     }
 
     private fun startPolling() = localScope.launch{
@@ -174,7 +204,8 @@ class DuelGameLogic(
         }
     }
     fun canGoToNextRound(): Boolean {
-        return duelState.value.roundResults.count { r -> r.didSelfWin != MatchResult.DRAW } < duelState.value.roundsToWin
+        return selfState.value != PeerState.DONE && otherState.value != PeerState.DONE &&
+            duelState.value.roundResults.count { r -> r.didSelfWin != MatchResult.DRAW } < duelState.value.roundsToWin
     }
 
     //Stuff to do when both peers are in the same state
@@ -205,8 +236,6 @@ class DuelGameLogic(
             duelState.value = duelState.value.copy(roundResults = duelState.value.roundResults +
                 RoundData(didSelfWin(), chosenWeapon.id, chosenWeapon.damage, referenceTimeMS, agreedBangDelay, selfBangDelta, peerBangDelta)
             )
-
-            //send to server for applying damage/use of bullets
 
             if(didSelfWin() == MatchResult.WON) {
                 duelServer.enqueueOutgoing(Message(MessageType.DAMAGE, chosenWeapon.damage.toString()))

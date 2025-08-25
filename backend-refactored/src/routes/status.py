@@ -44,7 +44,6 @@ async def status(request: BasicAuthTokenRequest):
         )
     
     playerData = getPlayerData(obtain_player[PLAYER])
-   
 
     if playerData[SUCCESS] == False:
             return JSONResponse(

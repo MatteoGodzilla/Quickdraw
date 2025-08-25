@@ -53,7 +53,7 @@ async def weapons(request: BasicAuthTokenRequest):
     ))
 
     result = safe_exec(available_weapons) 
-    response_weapons = [BuyWeaponResponse(id=w.id,name=w.name,damage=w.damage,cost=w.cost,level=w.requiredLevel) for w in result.fetchall()]
+    response_weapons = [BuyWeaponResponse(id=w.id,name=w.name,damage=w.damage,cost=w.cost,level=w.requiredLevel, bulletType=w.bulletType, bulletsShot= w.bulletsShot) for w in result.fetchall()]
 
     return JSONResponse(
         status_code = HTTP_200_OK,

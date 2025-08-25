@@ -15,7 +15,8 @@ data class InventoryWeapon(
     val name: String,
     val damage: Int,
     val cost: Int,
-    val bulletType: Int
+    val bulletType: Int,
+    val bulletsShot: Int
 )
 @Serializable
 data class InventoryMedikit(

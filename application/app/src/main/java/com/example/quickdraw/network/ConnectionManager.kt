@@ -11,7 +11,8 @@ import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 object  ConnectionManager {
-    private var mainIP = "http://192.168.1.63:8000"
+    private var mainIP = "http://192.168.1.59:8000"
+    const val DEBUG = true
     private var availableIPs:List<String> = listOf(
         "http://quickdraw.matteogodzilla.net",
         "http://10.10.1.130:8000",
@@ -53,46 +54,44 @@ object  ConnectionManager {
         var request = if(isPost) Request.Builder().url(mainIP+url).post(bodyRequest).build()
             else Request.Builder().url(mainIP+url).get().build()
         var response = query(request,timeout)
-        if(response==null){
-            //attempt with fallback ids
-            for(ip in availableIPs){
-                Log.i(TAG, "Attempting server:$ip")
-                if(ip!=mainIP){
-                    request = Request.Builder().url(ip+url).post(bodyRequest).build()
-                    response = query(request,timeout)
-                    if(response!=null){
-                        mainIP = ip
-                        return response
+        if(!DEBUG){
+            if(response==null){
+                //attempt with fallback ids
+                for(ip in availableIPs){
+                    Log.i(TAG, "Attempting server:$ip")
+                    if(ip!=mainIP){
+                        request = Request.Builder().url(ip+url).post(bodyRequest).build()
+                        response = query(request,timeout)
+                        if(response!=null){
+                            mainIP = ip
+                            return response
+                        }
                     }
                 }
             }
         }
-        else{
-            return response
-        }
-        return null
+        return response
     }
 
      fun attemptGet(url:String,timeout:Int=1500):Response?{
         //attempt with main IP
         var request = Request.Builder().url(mainIP+url).build()
         var response = query(request,timeout)
-        if(response==null){
-            //attempt with fallback ids
-            for(ip in availableIPs){
-                if(ip!=mainIP){
-                    request = Request.Builder().url(ip+url).build()
-                    response = query(request,timeout)
-                    if(response!=null){
-                        mainIP = ip
-                        return response
+        if(!DEBUG){
+            if(response==null){
+                //attempt with fallback ids
+                for(ip in availableIPs){
+                    if(ip!=mainIP){
+                        request = Request.Builder().url(ip+url).build()
+                        response = query(request,timeout)
+                        if(response!=null){
+                            mainIP = ip
+                            return response
+                        }
                     }
                 }
             }
         }
-        else{
-            return response
-        }
-        return null
+        return response
     }
 }

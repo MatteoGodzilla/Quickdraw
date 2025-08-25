@@ -1,11 +1,8 @@
 package com.example.quickdraw.duel.components
 
-import android.R
-import android.graphics.Paint
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
@@ -13,18 +10,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
-import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.MatchResult
+import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.StatsDisplayer
 import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.primaryButtonColors
 import com.example.quickdraw.ui.theme.secondaryButtonColors
-import kotlinx.coroutines.flow.first
 
 @Composable
 fun ResultsScreen(controller: NavHostController, self: Peer, other: Peer, gameLogic: DuelGameLogic, repo: GameRepository){
@@ -33,8 +28,8 @@ fun ResultsScreen(controller: NavHostController, self: Peer, other: Peer, gameLo
     val wonBySelf = roundResults.count { r -> r.didSelfWin == MatchResult.WON }
     val wonByOther = roundResults.count { r -> r.didSelfWin == MatchResult.LOST }
     val roundNumber = roundResults.size
-    val weapon = repo.inventory.weapons.collectAsState().value.first { w -> w.id == roundResults.last().weaponId }
-    val bulletsRemaining = repo.inventory.bullets.collectAsState().value.first { b -> b.type == weapon.bulletType }
+    val weapon = repo.inventory.weapons.collectAsState().value.firstOrNull { w -> w.id == roundResults.last().weaponId }
+    val bulletsRemaining = repo.inventory.bullets.collectAsState().value.firstOrNull { b -> b.type == weapon?.bulletType }
     val isOpponentFriendAlready = repo.leaderboard.friends.collectAsState().value.any { p -> p.id == self.id }
     DuelContainer(self, other) {
         Column {
@@ -48,7 +43,7 @@ fun ResultsScreen(controller: NavHostController, self: Peer, other: Peer, gameLo
                 Text( wonBySelf.toString(), fontSize = Typography.titleLarge.fontSize * 3)
             }
             if(gameLogic.canGoToNextRound()) {
-                StatsDisplayer("Remaining bullets", bulletsRemaining.amount.toString())
+                StatsDisplayer("Remaining bullets", bulletsRemaining?.amount.toString())
                 Button(onClick = {
                         controller.navigate(DuelNavigation.WeaponSelect)
                         gameLogic.nextRound()
@@ -59,7 +54,7 @@ fun ResultsScreen(controller: NavHostController, self: Peer, other: Peer, gameLo
                     Text("Change weapon")
                 }
                 Button(onClick = {
-                        gameLogic.setReady(weapon)
+                        gameLogic.setReady(weapon!!)
                     },
                     colors = primaryButtonColors,
                     modifier = Modifier.fillMaxWidth(),
@@ -80,7 +75,7 @@ fun ResultsScreen(controller: NavHostController, self: Peer, other: Peer, gameLo
                         Text("Send friend request")
                     }
                 }
-                Button(onClick = {},
+                Button(onClick = gameLogic::goodbye,
                     colors = primaryButtonColors,
                     modifier = Modifier.fillMaxWidth()
                 ) {

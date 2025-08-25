@@ -19,6 +19,7 @@ def safe_exec(stmt, retries=1):
                 raise
     raise RuntimeError("Failed after retrying due to connection loss")
 
+# DO NOT USE!!!!!!!
 def safe_commit(retries=1):
     global global_session
     for i in range(retries + 1):

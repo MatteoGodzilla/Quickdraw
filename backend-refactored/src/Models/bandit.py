@@ -28,6 +28,7 @@ class FightAttempt(BaseModel):
     wins:bool
     idWeapon:int
     banditDamage:int
+    damage:int
 
 class FightRequest(BasicAuthTokenRequest):
     idIstance:int

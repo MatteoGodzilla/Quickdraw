@@ -27,6 +27,7 @@ class InventoryResponseWeapon(BaseModel):
     damage:int
     cost:int
     bulletType:int
+    bulletsShot:int
 
 #responses
 class InventoryResponse(BaseModel):
