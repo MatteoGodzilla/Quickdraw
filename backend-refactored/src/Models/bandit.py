@@ -25,10 +25,14 @@ class BanditFreezeResponse(BaseModel):
     success:bool
 
 class FightAttempt(BaseModel):
-    wins:True
-    damage:int
+    wins:bool
+    idWeapon:int
+    banditDamage:int
 
-class FightRequest(BaseModel):
+class FightRequest(BasicAuthTokenRequest):
     idIstance:int
     fights:List[FightAttempt]
 
+class FightRewards(BaseModel):
+    money:int
+    exp:int

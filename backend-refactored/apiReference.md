@@ -389,11 +389,12 @@ Solo un istance alla volta di bandit per player può essere frozen
 - Request: {
     authToken: string,
     idIstance: string,
-    rounds: [pair(playerWinsRound:bool,damage)]
+    rounds: [{winner:bool,weapon:idWeapon,banditDamage:int}]
 }
     - In caso di dati mancanti -> HTTP 400
     - In caso di istance non valida -> HTTP 403 
     - In caso il bandit non fosse frozen -> HTTP 403
+    - In caso di inconsistenza con l 'inventario del player (armi non possedute o proiettili usati eccedono quelli del player)-> HTTP 401
 
 (assoulatamente cheattabile da un player ma non è il momento di preocuparsi di ciò)
 
