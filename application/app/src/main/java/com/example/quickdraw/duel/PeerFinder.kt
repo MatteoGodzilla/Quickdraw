@@ -41,6 +41,7 @@ import kotlin.math.max
 
 @Serializable
 data class Peer(
+    val id: Int,
     val username: String,
     val level: Int,
     val health: Int,
@@ -57,6 +58,7 @@ class PeerFinder (
         const val QUICKDRAW_SERVICE_TYPE = "_quickdraw_tcp"
         const val QUICKDRAW_INSTANCE_NAME = "Quickdraw"
 
+        const val ID_KEY = "id"
         const val USERNAME_KEY = "username"
         const val LEVEL_KEY = "level"
         const val HEALTH_KEY = "health"
@@ -240,11 +242,12 @@ class PeerFinder (
         for(dev in deviceAddressToService.keys) {
             if(deviceAddressToTxt.containsKey(dev)){
                 val dictionary = deviceAddressToTxt[dev]?.second
+                val id: Int = dictionary?.get(ID_KEY)?.toInt() ?: 0
                 val username: String = dictionary?.get(USERNAME_KEY) ?: ""
                 val level = dictionary?.get(LEVEL_KEY)?.toInt() ?: 0
                 val health = dictionary?.get(HEALTH_KEY)?.toInt() ?: 100
                 val maxHealth = dictionary?.get(MAX_HEALTH_KEY)?.toInt() ?: 100
-                val peer = Peer(username, level, health, maxHealth)
+                val peer = Peer(id, username, level, health, maxHealth)
                 list.add(peer)
                 peerToDeviceAddress[peer] = dev
             }

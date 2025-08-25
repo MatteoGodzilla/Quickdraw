@@ -2,7 +2,7 @@ package com.example.quickdraw.duel
 
 import java.net.Socket
 
-enum class Type {
+enum class MessageType {
     ACK,    //data contains type of message acknowledged
     SETUP,  //for checking that the other side is a Quickdraw peer, must be acknowledged
     READY,  //for notifying that a player has chosen a gun
@@ -13,13 +13,13 @@ enum class Type {
     DONE    //Sent at the end of the entire duel
 }
 
-data class Message (val type: Type, val data: String = ""){
+data class Message (val type: MessageType, val data: String = ""){
     companion object {
         fun deserialize(s: String) : Message{
             val tokens = s.split(':')
             val type = tokens.first().toInt()
             val value = tokens.subList(1, tokens.size).joinToString(":")
-            return Message(Type.entries[type], value)
+            return Message(MessageType.entries[type], value)
         }
     }
     fun serialize(): String{

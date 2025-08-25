@@ -1,31 +1,24 @@
 package com.example.quickdraw.duel
 
-import android.content.Context
 import android.os.Bundle
-import android.os.VibrationEffect
-import android.os.Vibrator
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.QuickdrawApplication
-import com.example.quickdraw.TAG
-import com.example.quickdraw.duel.VMs.WeaponSelectionViewModel
+import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.duel.components.PlayScreen
 import com.example.quickdraw.duel.components.PresentationScreen
 import com.example.quickdraw.duel.components.ResultsScreen
 import com.example.quickdraw.duel.components.WeaponSelectionScreen
 import com.example.quickdraw.ui.theme.QuickdrawTheme
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.net.InetAddress
 
@@ -53,15 +46,17 @@ class DuelActivity : ComponentActivity() {
         val repository = qdapp.repository
         val player = repository.player.player.value
         val stats = repository.player.stats.value
-        val duelGameLogic = DuelGameLogic(Peer(player.username, player.level, player.health, stats.maxHealth),
-         3, this) //for now the rounds are fixed
+        val duelGameLogic = DuelGameLogic(
+            Peer(0, player.username, player.level, player.health, stats.maxHealth),
+            repository,
+            this,
+        )
         val duelServer = DuelServer(duelGameLogic)
 
         val isServer = intent.getBooleanExtra(Game2Duel.IS_SERVER_KEY, false)
         val serverAddress = intent.getStringExtra(Game2Duel.SERVER_ADDRESS_KEY)
         usingWifiP2P = intent.getBooleanExtra(Game2Duel.USING_WIFI_P2P, false)
 
-        val vm = WeaponSelectionViewModel(qdapp.repository.inventory.weapons)
         enableEdgeToEdge()
         setContent{
             LaunchedEffect(true) {
@@ -74,7 +69,7 @@ class DuelActivity : ComponentActivity() {
             QuickdrawTheme {
                 val controller = rememberNavController()
                 val selfState = duelGameLogic.selfState.collectAsState().value
-                val peerState = duelGameLogic.peerState.collectAsState().value
+                val peerState = duelGameLogic.otherState.collectAsState().value
                 val selfAsPeer = duelGameLogic.selfPeer.collectAsState().value
                 val otherAsPeer = duelGameLogic.otherPeer.collectAsState().value
                 switchNavigation(selfState, peerState, controller)
@@ -84,25 +79,28 @@ class DuelActivity : ComponentActivity() {
                         PresentationScreen(controller,selfAsPeer, otherAsPeer)
                     }
                     composable<DuelNavigation.WeaponSelect>{
+                        val vm = viewModel {
+                            WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value)
+                        }
                         WeaponSelectionScreen(controller,selfAsPeer, otherAsPeer, duelGameLogic, repository,vm)
                     }
                     composable<DuelNavigation.Play>{
-                        PlayScreen(duelGameLogic)
+                        PlayScreen(controller, duelGameLogic)
                     }
                     composable<DuelNavigation.Results>{
-                        ResultsScreen(controller, selfAsPeer, otherAsPeer, duelGameLogic)
+                        ResultsScreen(controller, selfAsPeer, otherAsPeer, duelGameLogic, repository)
                     }
                 }
             }
         }
     }
 
-    fun switchNavigation(selfState: DuelState, peerState: DuelState, controller: NavHostController) {
-        if(selfState == DuelState.STEADY && peerState == DuelState.STEADY) {
+    fun switchNavigation(selfState: PeerState, peerState: PeerState, controller: NavHostController) {
+        if(selfState == PeerState.STEADY && peerState == PeerState.STEADY) {
             controller.navigate(DuelNavigation.Play)
-        } else if (selfState == DuelState.BANG && peerState == DuelState.BANG){
+        } /*else if (selfState == PeerState.BANG && peerState == PeerState.BANG){
             controller.navigate(DuelNavigation.Results)
-        } else if (selfState == DuelState.DONE && peerState == DuelState.DONE){
+        } */else if (selfState == PeerState.DONE && peerState == PeerState.DONE){
             controller.navigate(DuelNavigation.Results)
         }
     }

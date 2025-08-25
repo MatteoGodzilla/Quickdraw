@@ -99,23 +99,6 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,onScan:()-
                         Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
                         Text("Manual match")
                     }
-                    //connection settings
-                    /*
-                    Button(
-                        onClick = viewModel::onWifiP2PSettings,
-                        colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                            disabledContainerColor = MaterialTheme.colorScheme.primary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurface
-                        ),
-                        modifier = Modifier.fillMaxWidth().weight(1f)
-                    ) {
-                        Icon(imageVector = ImageVector.vectorResource(R.drawable.settings_24px),"Scout")
-                        Text("Open settings")
-                    }
-
-                     */
                 }
                 //Test match
                 for (p in viewModel.peers.collectAsState().value) {
