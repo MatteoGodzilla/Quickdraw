@@ -50,7 +50,7 @@ val primaryButtonColors = ButtonColors(
 val secondaryButtonColors = ButtonColors(
     containerColor = LightColorScheme.secondary,
     contentColor = LightColorScheme.onSurface,
-    disabledContainerColor = LightColorScheme.primary,
+    disabledContainerColor = LightColorScheme.secondary,
     disabledContentColor = LightColorScheme.onSurface
 )
 

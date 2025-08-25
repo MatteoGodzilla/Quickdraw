@@ -4,10 +4,10 @@
     <selectionStates>
       <SelectionState runConfigName="app">
         <option name="selectionMode" value="DROPDOWN" />
-        <DropdownSelection timestamp="2025-08-18T16:51:01.020723001Z">
+        <DropdownSelection timestamp="2025-08-25T10:51:07.049700735Z">
           <Target type="DEFAULT_BOOT">
             <handle>
-              <DeviceId pluginId="LocalEmulator" identifier="path=/home/matteo/.android/avd/Pixel_9a.avd" />
+              <DeviceId pluginId="PhysicalDevice" identifier="serial=5200ff504a11454b" />
             </handle>
           </Target>
         </DropdownSelection>
@@ -15,12 +15,12 @@
           <targets>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=5200ff504a11454b" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=R58M542804B" />
               </handle>
             </Target>
             <Target type="DEFAULT_BOOT">
               <handle>
-                <DeviceId pluginId="PhysicalDevice" identifier="serial=R58M542804B" />
+                <DeviceId pluginId="PhysicalDevice" identifier="serial=5200ff504a11454b" />
               </handle>
             </Target>
           </targets>

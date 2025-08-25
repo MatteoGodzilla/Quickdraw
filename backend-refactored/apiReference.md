@@ -313,6 +313,26 @@ TODO: da migliorare una volta implementato il loop vero di gioco
 }] 
 lista ordinata dall'utente con il bounty più alto a quello più basso
 
+### /bounty/friends/add
+- Richiesta POST
+- Request: {
+    authToken: String,
+    idFriend: number
+}
+    - In caso di dati mancanti -> HTTP 400
+    - In caso idFriend è già amico -> HTTP 400
+- Response: HTTP 200
+
+### /bounty/friends/remove
+- Richiesta POST
+- Request: {
+    authToken: String,
+    idFriend: number
+}
+    - In caso di dati mancanti -> HTTP 400
+    - In caso di id amico non valido -> HTTP 400
+- Response: HTTP 200
+
 ### /bounty/leaderboard/
 - Richiesta GET
 - Response: [{

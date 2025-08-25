@@ -9,6 +9,8 @@ import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.network.api.addFriendAPI
+import com.example.quickdraw.network.api.removeFriendAPI
 import com.example.quickdraw.network.api.submitDuelAPI
 import com.example.quickdraw.network.data.DuelSubmit
 import com.example.quickdraw.network.data.InventoryWeapon
@@ -276,4 +278,22 @@ class DuelGameLogic(
         Log.i(TAG, "S:${selfState.value}\tP:${otherState.value}")
     }
 
+    //TODO: MOVE THIS IN A VM
+    fun addFriend(){
+        localScope.launch {
+            runIfAuthenticated(context.dataStore) { authToken ->
+                addFriendAPI(authToken, otherPeer.value.id)
+            }
+            repository.leaderboard.getFriends()
+        }
+    }
+
+    fun removeFriend(){
+        localScope.launch {
+            runIfAuthenticated(context.dataStore) { authToken ->
+                removeFriendAPI(authToken, otherPeer.value.id)
+            }
+            repository.leaderboard.getFriends()
+        }
+    }
 }

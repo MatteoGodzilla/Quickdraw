@@ -63,15 +63,20 @@ fun ResultsScreen(controller: NavHostController, self: Peer, other: Peer, gameLo
                 }
             } else {
                 Row {
+                    /*
                     Button(onClick = {},
                         colors = secondaryButtonColors,
                         modifier = Modifier.weight(1f)
                     ) {
                         Text("Add memory")
                     }
-                    Button(onClick = {},
+
+                     */
+                    Button(onClick = gameLogic::addFriend,
                         colors = secondaryButtonColors,
-                        modifier = Modifier.weight(1f)) {
+                        modifier = Modifier.weight(1f),
+                        enabled = !isOpponentFriendAlready
+                    ) {
                         Text("Send friend request")
                     }
                 }

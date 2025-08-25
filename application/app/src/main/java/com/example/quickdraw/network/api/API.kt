@@ -29,6 +29,8 @@ const val SHOP_BUY_WEAPON = "$SHOP_WEAPONS/buy"
 const val SHOP_BUY_UPGRADE = "$SHOP_UPGRADES/buy"
 
 const val BOUNTY_FRIENDS = "/bounty/friends"
+const val BOUNTY_FRIENDS_ADD = "/bounty/friends/add"
+const val BOUNTY_FRIENDS_REMOVE = "/bounty/friends/remove"
 const val BOUNTY_LEADERBOARD = "/bounty/leaderboard"
 
 const val MERCENARY_HIREABLE = "/mercenaries/hireable"
