@@ -35,7 +35,6 @@ class DuelBanditLogic(
 ){
     private val localScope = CoroutineScope(Dispatchers.IO)
     val botHP: MutableStateFlow<Int> = MutableStateFlow(banditInfo.hp)
-    val playerHP = repo.player.player.value.health
     val selectedWeapon: MutableStateFlow<InventoryWeapon?> = MutableStateFlow(null)
     val gameState:MutableStateFlow<DuelBanditState> = MutableStateFlow(DuelBanditState.SELECT)
     var banditTimer= MutableStateFlow(0L)
@@ -48,7 +47,7 @@ class DuelBanditLogic(
 
     fun isDuelOver(): Boolean{
         // either someone is defeated or player is out of ammo
-        return botHP.value<= 0 || playerHP <= 0 || repo.inventory.bullets.value.sumOf { x->x.amount } == 0
+        return botHP.value<= 0 || repo.player.player.value.health <= 0 || repo.inventory.bullets.value.sumOf { x->x.amount } == 0
     }
 
     private fun prepareSteady(){

@@ -117,7 +117,7 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,callbacks:
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
-                        Text("${entry.value.name} (Hp: ${entry.value.name})")
+                        Text("${entry.value.name} (Hp: ${entry.value.hp})")
                         Button( onClick = {callbacks.onDuelBandit(entry.key)}, enabled = true,
                             colors = ButtonColors(
                                 containerColor = MaterialTheme.colorScheme.secondary,
