@@ -226,7 +226,7 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,callbacks:
                     }
                 }
                 Button(
-                    onClick = callbacks::onScan,
+                    onClick = {callbacks.onScan()},
                     colors = ButtonColors(
                         containerColor = MaterialTheme.colorScheme.primary,
                         contentColor = MaterialTheme.colorScheme.onSurface,

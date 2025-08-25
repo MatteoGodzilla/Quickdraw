@@ -118,12 +118,11 @@ class GameActivity : ComponentActivity(){
                     val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity, pbr!!) }
                     MainScreen(vm, controller,object: DuelCallbacks{
                         override fun onScan() {
-                            {
-                                lifecycleScope.launch{
-                                    repository.bandits.getBandits()
-                                    vm.onScan()
-                                }
+                            Log.i(TAG,"Calling scan")
+                            lifecycleScope.launch{
+                                repository.bandits.getBandits()
                             }
+                            vm.onScan()
                         }
 
                         override fun onDuel() {
@@ -133,7 +132,6 @@ class GameActivity : ComponentActivity(){
                         override fun onDuelBandit(id:Int) {
                             goToBanditDuel(id)
                         }
-
                     })
                 }
                 composable<GameNavigation.BountyBoard> {
