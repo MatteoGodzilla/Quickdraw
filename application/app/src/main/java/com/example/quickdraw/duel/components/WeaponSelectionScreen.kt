@@ -24,7 +24,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.duel.DuelGameLogic
+import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.Peer
+import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.repo.GameRepository
@@ -85,6 +87,46 @@ fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer
                 ) {
                     Text("Forfeit")
                 }
+            }
+        }
+    }
+}
+
+@Composable
+fun WeaponSelectionScreen(controller: NavHostController, duelLogic: DuelBanditLogic, repo: GameRepository, vm: WeaponSelectionViewModel){
+    DuelContainer(duelLogic,repo.player ){
+        val bullets = repo.inventory.bullets.collectAsState()
+        Column(modifier = Modifier.fillMaxWidth()){
+            Text("Select Weapon",modifier = Modifier.fillMaxWidth().padding(top=5.dp),
+                fontSize = Typography.titleLarge.fontSize,
+                textAlign = TextAlign.Center
+            )
+            Column(
+                modifier = Modifier.padding(vertical = 10.dp).verticalScroll(rememberScrollState())
+            ){
+                //display weapons
+                Spacer(modifier= Modifier.height(24.dp))
+                RowDivider()
+                for(w in repo.inventory.weapons.collectAsState().value){
+                    WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType})
+                }
+            }
+            Spacer(modifier= Modifier.weight(0.1f))
+            Row(modifier=Modifier.fillMaxWidth()){
+                Button(onClick = {vm.selectMostDamage()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
+                    Text("Most Damage")
+                }
+                Button(onClick = {vm.selectMostBullets()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
+                    Text("Most Bullets")
+                }
+            }
+            Button(onClick = {
+                controller.navigate(DuelNavigation.Play)
+                duelLogic.setWeaponAndStart( vm.selectedWeapon.value)
+            }, modifier = Modifier.fillMaxWidth(),
+                colors = primaryButtonColors
+            ) {
+                Text("Start!")
             }
         }
     }

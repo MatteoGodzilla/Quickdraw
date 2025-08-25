@@ -20,11 +20,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
-import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.Peer
+import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.game.components.infiniteRotation
-import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.game.repo.PlayerRepository
 import kotlinx.coroutines.delay
 
 @Composable
@@ -34,6 +34,28 @@ fun PresentationScreen(controller: NavHostController, self: Peer, other: Peer){
         controller.navigate(DuelNavigation.WeaponSelect)
     }
     DuelContainer(self, other) {
+        Box(modifier=Modifier.padding(5.dp).fillMaxSize()){
+            Column(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.Center)) {
+                Text("Starting match...", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
+                    "",
+                    tint = Color.Black,
+                    modifier = Modifier.rotate(infiniteRotation()).align(alignment = Alignment.CenterHorizontally).size(72.dp)
+                )
+            }
+        }
+    }
+}
+
+//for bandits
+@Composable
+fun PresentationScreen(controller: NavHostController, vm: DuelBanditLogic, playerRepo:PlayerRepository){
+    LaunchedEffect(true) {
+        delay(3000)
+        controller.navigate(DuelNavigation.WeaponSelect)
+    }
+    DuelContainer(vm, playerRepo) {
         Box(modifier=Modifier.padding(5.dp).fillMaxSize()){
             Column(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.Center)) {
                 Text("Starting match...", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)

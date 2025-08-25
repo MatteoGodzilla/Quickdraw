@@ -22,8 +22,7 @@ import com.example.quickdraw.QuickdrawApplication
 import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
-import com.example.quickdraw.duel.Peer
-import com.example.quickdraw.duelBandit.DuelBanditActivity
+import com.example.quickdraw.duel.duelBandit.DuelBanditActivity
 import com.example.quickdraw.game.components.Popup
 import com.example.quickdraw.game.components.ScreenLoader
 import com.example.quickdraw.game.repo.GameRepository
@@ -34,7 +33,6 @@ import com.example.quickdraw.game.screen.LeaderBoardScreen
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
-import com.example.quickdraw.game.screen.ManualConnectionScreen
 import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.StartContractScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
@@ -42,11 +40,9 @@ import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.game.vm.GlobalPartsVM
 import com.example.quickdraw.game.vm.LeaderboardVM
 import com.example.quickdraw.game.vm.MainScreenVM
-import com.example.quickdraw.game.vm.ManualConnectionVM
 import com.example.quickdraw.game.vm.ShopScreenVM
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.music.AudioManager
-import com.example.quickdraw.network.data.Bandit
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.flow.first

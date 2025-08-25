@@ -42,6 +42,7 @@
         </activity>
         <activity android:name=".duel.DuelActivity" android:exported="true" />
         <activity android:name=".game.ManualConnectionActivity" android:exported="true" />
+        <activity android:name=".duel.duelBandit.DuelBanditActivity" android:exported="true" />
 
         <activity
             android:name=".game.GameActivity"

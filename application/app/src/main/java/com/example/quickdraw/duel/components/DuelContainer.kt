@@ -9,10 +9,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.navigation.NavHostController
-import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.Peer
-import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
+import com.example.quickdraw.game.repo.PlayerRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -20,6 +19,26 @@ fun DuelContainer(self: Peer, opponent: Peer, content:@Composable ()->Unit){
     Scaffold(
         topBar = { DuelBar(opponent.username, opponent.health.toFloat() / opponent.maxHealth, Color.Red) },
         bottomBar = { DuelBar(self.username,self.health.toFloat() / self.maxHealth, Color.Blue) },
+        modifier = Modifier.fillMaxSize()
+    ){ padding->
+        Box(modifier = Modifier.padding(padding)){
+            content()
+        }
+    }
+}
+
+//for bandits
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun DuelContainer(vm: DuelBanditLogic, playerRepo: PlayerRepository, content:@Composable ()->Unit){
+
+    val banditHp = vm.botHP.collectAsState()
+    val player = playerRepo.player.collectAsState()
+    val stats = playerRepo.stats.collectAsState()
+
+    Scaffold(
+        topBar = { DuelBar(vm.banditInfo.name, banditHp.value.toFloat() / vm.banditInfo.hp, Color.Red) },
+        bottomBar = { DuelBar(player.value.username,player.value.health.toFloat() / stats.value.maxHealth, Color.Blue) },
         modifier = Modifier.fillMaxSize()
     ){ padding->
         Box(modifier = Modifier.padding(padding)){

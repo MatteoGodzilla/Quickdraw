@@ -11,7 +11,7 @@ import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 object  ConnectionManager {
-    private var mainIP = "http://192.168.1.59:8000"
+    private var mainIP = "http://192.168.1.63:8000"
     const val DEBUG = true
     private var availableIPs:List<String> = listOf(
         "http://quickdraw.matteogodzilla.net",
@@ -45,10 +45,16 @@ object  ConnectionManager {
     }
 
     fun setFavourite(ip:String){
-        mainIP = ip
+        if(!DEBUG){
+            mainIP = ip
+        }
+        else{
+            mainIP = "http://192.168.1.63:8000"
+        }
     }
 
     fun attempt(bodyRequest: RequestBody, url: String,isPost:Boolean=true,timeout:Int=1500): Response? {
+        Log.i(TAG,"LE PALLE")
         //attempt with main IP
         Log.i(TAG, "Attempting server:$mainIP")
         var request = if(isPost) Request.Builder().url(mainIP+url).post(bodyRequest).build()
@@ -75,8 +81,10 @@ object  ConnectionManager {
 
      fun attemptGet(url:String,timeout:Int=1500):Response?{
         //attempt with main IP
+         Log.i(TAG,"LE PALLE")
         var request = Request.Builder().url(mainIP+url).build()
         var response = query(request,timeout)
+         Log.i(TAG,response!!.body.toString())
         if(!DEBUG){
             if(response==null){
                 //attempt with fallback ids

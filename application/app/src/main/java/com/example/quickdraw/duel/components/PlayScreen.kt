@@ -34,6 +34,7 @@ import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.MatchResult
 import com.example.quickdraw.duel.PeerState
+import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.game.components.infiniteRotation
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.ui.theme.Typography
@@ -66,6 +67,55 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelGameLogic){
             Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
         }
         if(shouldShoot){
+            Text("SHOOT!", fontSize = Typography.titleLarge.fontSize)
+        } else {
+            Text("Steady")
+        }
+    }
+}
+
+@Composable
+fun PlayScreen(controller: NavHostController, gameLogic: DuelBanditLogic){
+    val shouldShoot = gameLogic.canShoot.collectAsState()
+    val shootTime = gameLogic.shootTimer.collectAsState()
+    val roundEnded = (gameLogic.roundEnds.collectAsState())
+    val lostRound = !gameLogic.playerWon.collectAsState().value
+    val banditTimer = gameLogic.banditTimer.collectAsState().value
+    val duration = 2000 //milliseconds
+    val bloodAnimation = animateFloatAsState(
+        targetValue = if(roundEnded.value && lostRound) 1.0f else 0.0f,
+        animationSpec = TweenSpec(duration, 0, LinearEasing)
+    )
+
+    LaunchedEffect(true) {
+        delay(shootTime.value)
+        gameLogic.allowShooting()
+    }
+
+    if(shouldShoot.value){
+        LaunchedEffect(true) {
+            delay(banditTimer)
+            gameLogic.bang(false)
+        }
+    }
+
+
+    LaunchedEffect(roundEnded.value) {
+        if(roundEnded.value){
+            delay(duration.toLong())
+            controller.navigate(DuelNavigation.Results)
+        }
+    }
+    Box(
+        contentAlignment = Alignment.Center,
+        modifier = Modifier.fillMaxSize().clickable(onClick = {gameLogic.bang(true)}).background(
+            if(shouldShoot.value) Color.Green else Color.Yellow
+        )
+    ){
+        if(roundEnded.value && lostRound){
+            Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
+        }
+        if(shouldShoot.value){
             Text("SHOOT!", fontSize = Typography.titleLarge.fontSize)
         } else {
             Text("Steady")

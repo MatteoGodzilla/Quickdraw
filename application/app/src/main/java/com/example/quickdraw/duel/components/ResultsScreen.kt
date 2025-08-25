@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -14,6 +15,7 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.MatchResult
+import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.StatsDisplayer
@@ -81,6 +83,71 @@ fun ResultsScreen(controller: NavHostController, self: Peer, other: Peer, gameLo
                     }
                 }
                 Button(onClick = gameLogic::goodbye,
+                    colors = primaryButtonColors,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("End duel", fontSize = Typography.titleLarge.fontSize)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun ResultsScreen(controller: NavHostController,  gameLogic: DuelBanditLogic, repo: GameRepository){
+    //this definitely needs a view manager, but
+    val roundResults = gameLogic.duelHistory.collectAsState().value
+    val wonBySelf = roundResults.count { r -> r.wins }
+    val wonByOther = roundResults.count { r -> !r.wins }
+    val roundNumber = roundResults.size
+    val weapon = repo.inventory.weapons.collectAsState().value.first { w -> w.id == roundResults.last().idWeapon }
+    val bulletsRemaining = repo.inventory.bullets.collectAsState().value.first { b -> b.type == weapon.bulletType }
+    DuelContainer(gameLogic, repo.player) {
+        Column {
+            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
+                Text( wonByOther.toString(), fontSize = Typography.titleLarge.fontSize * 3)
+            }
+            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
+                Text( "Round $roundNumber")
+            }
+            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
+                Text( wonBySelf.toString(), fontSize = Typography.titleLarge.fontSize * 3)
+            }
+            if(!gameLogic.isDuelOver()) {
+                StatsDisplayer("Remaining bullets", bulletsRemaining.amount.toString())
+                Button(onClick = {
+                    controller.navigate(DuelNavigation.WeaponSelect)
+                    gameLogic.resetToSelect()
+                },
+                    colors = secondaryButtonColors,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text("Change weapon")
+                }
+                Button(onClick = {
+                    gameLogic.resetToSelect()
+                    gameLogic.setWeaponAndStart(weapon)
+                    controller.navigate(DuelNavigation.Play)
+                },
+                    colors = primaryButtonColors,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Next round", fontSize = Typography.titleLarge.fontSize)
+                }
+            } else {
+                LaunchedEffect(true) {
+                    gameLogic.sendToServer()
+                }
+                Row {
+                    val rewards = repo.bandits.latestReward.collectAsState()
+                    if(rewards.value.money>0 || rewards.value.exp > 0){
+                        Text("You won! You got ${rewards.value.money} coins and ${rewards.value.exp} exp ")
+                    }
+                    else{
+                        Text("No rewards, you lost :(")
+                    }
+                }
+                Button(onClick = {gameLogic.sendBackToMainGame()},
                     colors = primaryButtonColors,
                     modifier = Modifier.fillMaxWidth()
                 ) {

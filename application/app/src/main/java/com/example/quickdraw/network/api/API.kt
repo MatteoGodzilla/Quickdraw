@@ -52,6 +52,7 @@ const val IMAGE_UPDATE_PLAYER_PIC = "/image/updatePic"
 const val USE_MEDIKIT = "/use/medikit"
 
 const val BANDITS_GET = "/bandit/pool"
+const val BANDITS_FIGHT = "/bandit/fight"
 
 const val DUEL_ENDPOINT = "/duel"
 
