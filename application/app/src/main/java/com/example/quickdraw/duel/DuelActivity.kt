@@ -9,6 +9,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -16,12 +17,14 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.QuickdrawApplication
+import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.duel.components.PlayScreen
 import com.example.quickdraw.duel.components.PresentationScreen
 import com.example.quickdraw.duel.components.ResultsScreen
 import com.example.quickdraw.duel.components.WeaponSelectionScreen
 import com.example.quickdraw.ui.theme.QuickdrawTheme
+import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.net.InetAddress
 
@@ -86,6 +89,9 @@ class DuelActivity : ComponentActivity() {
                 composable<DuelNavigation.WeaponSelect>{
                     val vm = viewModel {
                         WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value)
+                    }
+                    lifecycleScope.launch {
+                        duelGameLogic.setFavourite(this@DuelActivity.dataStore,vm)
                     }
                     WeaponSelectionScreen(controller,selfAsPeer, otherAsPeer, duelGameLogic, repository,vm)
                 }

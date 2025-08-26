@@ -5,8 +5,12 @@ import android.content.Intent
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
+import com.example.quickdraw.PrefKeys
 import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
+import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.music.AudioManager
@@ -21,6 +25,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.Socket
@@ -296,6 +303,18 @@ class DuelGameLogic(
                 removeFriendAPI(authToken, otherPeer.value.id)
             }
             repository.leaderboard.getFriends()
+        }
+    }
+
+    suspend fun setFavourite(dataStore: DataStore<Preferences>,vm: WeaponSelectionViewModel){
+        val favourite = dataStore.data.map { pref -> pref[PrefKeys.favouriteWeapon] }.firstOrNull()
+        if(favourite!=null){
+            val weapon = repository.inventory.weapons.value.firstOrNull{x->x.id==favourite}
+            if(weapon!=null){
+                if(repository.inventory.bullets.value.any{x->x.amount >= weapon.bulletsShot && x.type== weapon.bulletType}){
+                    vm.select(weapon)
+                }
+            }
         }
     }
 }

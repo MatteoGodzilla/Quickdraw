@@ -1,6 +1,5 @@
 package com.example.quickdraw.game.screen
 
-import android.graphics.Paint.Align
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,7 +18,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
@@ -29,15 +27,12 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.focus.focusModifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,13 +40,11 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
-import com.example.quickdraw.game.components.ProgressBar
+import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.vm.YourPlaceVM
-import com.example.quickdraw.ui.theme.ProgressBarColors
 import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.secondaryButtonColors
 import kotlin.math.floor
-import kotlin.math.round
 
 
 @Composable
@@ -62,6 +55,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
     val bullets = viewModel.bullets.collectAsState()
     val player = viewModel.player.player.collectAsState()
     val stats = viewModel.stats.collectAsState()
+    val favouriteWeapon = viewModel.favouriteWeapon.collectAsState()
 
     val playerImage = viewModel.playerImage.collectAsState()
     val choosePhoto = rememberLauncherForActivityResult(ActivityResultContracts.PickVisualMedia()) {
@@ -86,9 +80,15 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                             Text(weapon.name, fontSize = Typography.titleLarge.fontSize, modifier = Modifier.padding(8.dp))
                             val bulletUsed = bullets.value.first { b -> b.type == weapon.bulletType }
                             StatsDisplayer("Damage: ${weapon.damage}", "Bullet used: ${bulletUsed.description}")
-                            Text("Bullets shot: ${weapon.bulletsShot}", modifier = Modifier.padding(8.dp))
+                            Box(modifier = Modifier.fillMaxWidth().padding(end = 20.dp)){
+                                Text("Bullets shot: ${weapon.bulletsShot}", modifier = Modifier.padding(8.dp))
+                                FavouriteButton(Modifier.size(36.dp).align(Alignment.BottomEnd),favouriteWeapon.value==weapon.id,){
+                                    viewModel.setOrUnsetFavourite(weapon.id)
+                                }
+                            }
                         }
                     }
+                    RowDivider()
                 }
             }
             //Bullets
@@ -270,4 +270,11 @@ fun StatsDisplayer(left: String, right: String){
         Text(left)
         Text(right)
     }
+}
+
+@Composable
+fun FavouriteButton(modifier: Modifier, selected: Boolean=false, onClick:()->Unit){
+    val color = if(selected) Color.Red else Color.Black
+    Icon(imageVector = ImageVector.vectorResource(R.drawable.favorite_24px), "Favourite",tint = color,
+        modifier = modifier.clickable(onClick=onClick))
 }

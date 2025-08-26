@@ -6,7 +6,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -25,6 +24,7 @@ import com.example.quickdraw.signOff
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.io.encoding.Base64
 
@@ -38,6 +38,8 @@ class YourPlaceVM(
     val upgrades = repository.inventory.upgrades
     val bullets = repository.inventory.bullets
 
+    val favouriteWeapon = MutableStateFlow(-1)
+
     val player = repository.player
     val stats = repository.player.stats
     val otherStatistics = repository.statistics
@@ -50,6 +52,7 @@ class YourPlaceVM(
         viewModelScope.launch {
             musicVolumeSlider.floatValue = context.dataStore.data.map { pref -> pref[PrefKeys.musicVolume] }.first() ?: DEFAULT_VOLUME
             sfxVolumeSlider.floatValue = context.dataStore.data.map { pref -> pref[PrefKeys.sfxVolume] }.first() ?: DEFAULT_VOLUME
+            favouriteWeapon.value = context.dataStore.data.map { pref -> pref[PrefKeys.favouriteWeapon] }.first() ?: -1
         }
     }
 
@@ -107,5 +110,22 @@ class YourPlaceVM(
     fun loadBulletImage(id: Int) = imageLoader.getBulletFlow(id)
     fun loadMedikitImage(id: Int) = imageLoader.getMedikitFlow(id)
     fun loadUpgradeImage(id: Int) = imageLoader.getUpgradeFlow(id)
+
+    fun setOrUnsetFavourite(id:Int){
+        if(favouriteWeapon.value!=id){
+            favouriteWeapon.update { id }
+            viewModelScope.launch {
+                context.dataStore.edit { preferences ->
+                    preferences[PrefKeys.favouriteWeapon] = id
+                }
+            }
+        }
+        else{
+            favouriteWeapon.update { -1 }
+            viewModelScope.launch {
+                context.dataStore.edit { pref->pref.remove(PrefKeys.favouriteWeapon)}
+            }
+        }
+    }
 
 }

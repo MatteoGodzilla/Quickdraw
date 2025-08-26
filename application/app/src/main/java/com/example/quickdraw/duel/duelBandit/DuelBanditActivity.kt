@@ -1,6 +1,7 @@
 package com.example.quickdraw.duel.duelBandit
 
 import android.app.Activity
+import android.content.Context
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,12 +9,14 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.Game2Bandit
 import com.example.quickdraw.QuickdrawApplication
+import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.components.PlayScreen
 import com.example.quickdraw.duel.components.PresentationScreen
@@ -21,6 +24,7 @@ import com.example.quickdraw.duel.components.ResultsScreen
 import com.example.quickdraw.duel.components.WeaponSelectionScreen
 import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.ui.theme.QuickdrawTheme
+import kotlinx.coroutines.launch
 
 class DuelBanditActivity: ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -30,6 +34,7 @@ class DuelBanditActivity: ComponentActivity() {
         val qdapp = application as QuickdrawApplication
         val gameRepo = qdapp.repository
         val duelState = DuelBanditLogic(id,gameRepo.bandits.bandits.value[id]!!, gameRepo,this)
+
         setContent {
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = DuelNavigation.Presentation){
@@ -39,6 +44,9 @@ class DuelBanditActivity: ComponentActivity() {
                 composable<DuelNavigation.WeaponSelect>{
                     val vm = viewModel {
                         WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value)
+                    }
+                    lifecycleScope.launch {
+                        duelState.setFavourite(this@DuelBanditActivity.dataStore,vm)
                     }
                     WeaponSelectionScreen(controller,duelState, gameRepo, vm)
                 }

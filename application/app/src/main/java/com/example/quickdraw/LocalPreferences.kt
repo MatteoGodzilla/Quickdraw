@@ -6,6 +6,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
+import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.quickdraw.network.ConnectionManager
@@ -27,6 +28,7 @@ class PrefKeys{
         val server = stringPreferencesKey("server")
         val musicVolume = floatPreferencesKey("music")
         val sfxVolume = floatPreferencesKey("sfx")
+        val favouriteWeapon = intPreferencesKey("favWeapon")
     }
 }
 

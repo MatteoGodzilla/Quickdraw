@@ -11,7 +11,7 @@ import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 object  ConnectionManager {
-    private var mainIP = "http://192.168.1.59:8000"
+    private var mainIP = "http://192.168.1.63:8000"
     const val DEBUG = true
     private var availableIPs:List<String> = listOf(
         "http://quickdraw.matteogodzilla.net",
