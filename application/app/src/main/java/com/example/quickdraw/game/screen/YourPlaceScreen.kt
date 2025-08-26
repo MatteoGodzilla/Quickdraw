@@ -137,7 +137,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 for (pair in upgrades.value.groupBy { it.type }){
                     val highest = pair.value.maxBy { x->x.level }
                     Row(verticalAlignment = Alignment.CenterVertically){
-                        Image(viewModel.loadUpgradeImage(pair.key).collectAsState().value, highest.description, modifier = Modifier.size(48.dp))
+                        Image(viewModel.loadUpgradeImage(pair.value.maxBy{x->x.level}.idUpgrade).collectAsState().value, highest.description, modifier = Modifier.size(48.dp))
                         Row (
                             modifier = Modifier.fillMaxWidth().padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween

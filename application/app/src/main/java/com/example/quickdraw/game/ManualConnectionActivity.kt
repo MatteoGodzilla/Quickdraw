@@ -29,6 +29,8 @@ class ManualConnectionActivity: ComponentActivity() {
             }
             ManualConnectionScreen(vm){
                 vm.closeServer()
+                val intent = Intent(this, GameActivity::class.java)
+                startActivity(intent)
             }
          }
     }

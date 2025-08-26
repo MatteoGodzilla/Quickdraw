@@ -34,6 +34,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.net.InetAddress
@@ -70,6 +71,7 @@ class PeerFinder (
     var peers: MutableStateFlow<List<Peer>> = MutableStateFlow(listOf())
         private set
 
+    private var isRegistered = MutableStateFlow(false)
     private var p2pManager: WifiP2pManager = context.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
     private var channel: Channel
     //This is awful, i know
@@ -121,12 +123,16 @@ class PeerFinder (
 
     private fun startScanningLoop(self: Peer){
         Log.i(TAG, "[PeerFinder] Start Scanning Loop")
-        ContextCompat.registerReceiver(
-            context,
-            peerFinderBroadcastReceiver,
-            PeerFinderBroadcastReceiver.getIntentFilter(),
-            ContextCompat.RECEIVER_NOT_EXPORTED
-        )
+        if(!isRegistered.value){
+            ContextCompat.registerReceiver(
+                context,
+                peerFinderBroadcastReceiver,
+                PeerFinderBroadcastReceiver.getIntentFilter(),
+                ContextCompat.RECEIVER_NOT_EXPORTED
+            )
+            isRegistered.update { true }
+        }
+
 
         playerServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(
             QUICKDRAW_INSTANCE_NAME,
@@ -166,7 +172,12 @@ class PeerFinder (
                 Log.i(TAG, "[PeerFinder] There was an error removing local service: $reason")
             }
         })
-        context.unregisterReceiver(peerFinderBroadcastReceiver)
+
+        if(isRegistered.value){
+            isRegistered.update { false }
+            context.unregisterReceiver(peerFinderBroadcastReceiver)
+        }
+
         p2pManager.stopPeerDiscovery(channel, object: ActionListener {
             override fun onSuccess() {
                 Log.i(TAG, "[PeerFinder] Stopped scanning")

@@ -104,6 +104,6 @@ class YourPlaceVM(
     fun loadWeaponImage(id:Int) = imageLoader.getWeaponFlow(id)
     fun loadBulletImage(id: Int) = imageLoader.getBulletFlow(id)
     fun loadMedikitImage(id: Int) = imageLoader.getMedikitFlow(id)
-    fun loadUpgradeImage(id: Int) = imageLoader.getMedikitFlow(id)
+    fun loadUpgradeImage(id: Int) = imageLoader.getUpgradeFlow(id)
 
 }
