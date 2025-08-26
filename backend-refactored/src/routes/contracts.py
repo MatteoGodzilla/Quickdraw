@@ -17,6 +17,7 @@ from Models.commons import*
 from routes.middlewares.getPlayer import *
 from routes.middlewares.key_names import *
 from routes.middlewares.checkAuthTokenExpiration import *
+from routes.middlewares.boosts import boostedMoney
 
 router = APIRouter(
     prefix="/contracts",
@@ -144,15 +145,14 @@ async def redeem(request:RedeemContractRequest):
         maxMercenaries=contract[1].maxMercenaries,
         startCost=contract[1].startCost)
     
-    response = ContractRedeemedResponse(success = True,
-        reward=reward,
-        returnableContract=toReclaim
-    )
+    
+
 
     #update player balance and remove column
     try:
         playerData : Player = getPlayerData(player)[PLAYER]
-        playerData.money += reward*int(success)
+        correct_value = boostedMoney(reward,playerData)
+        playerData.money += correct_value*int(success)
         session.exec(delete(ActiveContract).where(ActiveContract.id == contract[0].id))
         session.commit()
     except:
@@ -161,6 +161,11 @@ async def redeem(request:RedeemContractRequest):
             status_code= HTTP_500_INTERNAL_SERVER_ERROR,
             content = {"message":"failed to update player balance"}
         )
+    
+    response = ContractRedeemedResponse(success = True,
+        reward=correct_value,
+        returnableContract=toReclaim
+    )
 
     return JSONResponse(
         status_code= HTTP_200_OK,

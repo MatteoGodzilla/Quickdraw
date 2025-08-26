@@ -415,7 +415,7 @@ async def buyWeapon(request: BuyRequest):
             content={"message":"Insuffucient founds"}
         )
     
-    if weaponInfo.cost > getLevel(playerInfo.exp):
+    if weaponInfo.requiredLevel > getLevel(playerInfo.exp):
         return JSONResponse(
             status_code = HTTP_401_UNAUTHORIZED,
             content={"message":"Insuffucient level"}
@@ -468,7 +468,9 @@ async def buyWeapon(request: BuyRequest):
         name = weaponInfo.name,
         damage= weaponInfo.damage,
         cost = weaponInfo.cost,
-        level = weaponInfo.requiredLevel
+        level = weaponInfo.requiredLevel,
+        bulletType=weaponInfo.bulletType,
+        bulletsShot=0
     )
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(response))
 

@@ -23,6 +23,7 @@ from Models.commons import BasicAuthTokenRequest
 from routes.middlewares.getPlayer import *
 from Models.bandit import BanditData, BanditFreezeRequest, BanditRepsonse, FightRequest, FightRewards
 from routes.middlewares.exp import getLevel
+from routes.middlewares.boosts import *
 
 router = APIRouter(
     prefix="/bandit",
@@ -277,12 +278,16 @@ async def tokenLogin(request: FightRequest):
          rand = Random()
          moneyPrize = rand.randint(bandit[1].minMoney,bandit[1].maxMoney)
          expPrize = rand.randint(bandit[1].minExp,bandit[1].maxExp)
-         playerInfo.exp+= expPrize
-         playerInfo.money+=moneyPrize
+         corrected_money = boostedMoney(moneyPrize,playerInfo)
+         corrected_exp = boostedExp(expPrize,playerInfo)
+         print(corrected_money,corrected_exp)
+         playerInfo.money+= corrected_money
+         playerInfo.exp+= corrected_exp
+         playerInfo.money+= corrected_money
          playerInfo.health-=damageToPlayer
          bandit[0].defeated = True
          session.commit()
-         return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(FightRewards(money=moneyPrize,exp=expPrize)))
+         return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(FightRewards(money=corrected_money,exp=corrected_exp)))
     
     #in this scenario fight was probably interrupted, player loses bullets 
     #TODO: if player has 0 bullets,then they actually have lost,save changes only in that case
