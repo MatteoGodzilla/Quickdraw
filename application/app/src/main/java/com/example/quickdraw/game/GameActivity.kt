@@ -114,11 +114,16 @@ class GameActivity : ComponentActivity(){
                     val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity, pbr!!) }
                     MainScreen(vm, controller,object: DuelCallbacks{
                         override fun onScan() {
-                            Log.i(TAG,"Calling scan")
-                            lifecycleScope.launch{
-                                repository.bandits.getBandits()
-                            }
+
                             vm.onScan()
+                        }
+
+                        override fun onScanBandits() {
+                            lifecycleScope.launch{
+                                globalsVM.popup.showLoading("Locating bandits...",false)
+                                repository.bandits.getBandits()
+                                globalsVM.popup.showLoading("Found ${repository.bandits.bandits.value.size} bandits!",true)
+                            }
                         }
 
                         override fun onDuel() {
