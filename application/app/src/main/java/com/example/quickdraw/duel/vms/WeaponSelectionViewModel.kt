@@ -16,7 +16,9 @@ class WeaponSelectionViewModel(
     }
 
     fun selectMostDamage() {
-        selectedWeapon.value = weapons.maxBy { x -> x.damage }
+        selectedWeapon.value = weapons.filter{x->val bullet = bullets.firstOrNull{y->y.type==x.bulletType}
+            bullet!=null && bullet.amount > x.bulletsShot
+        }.maxBy { x -> x.damage }
     }
 
     fun selectMostBullets(){

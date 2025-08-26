@@ -43,8 +43,8 @@ class DuelBanditLogic(
     var roundEnds  = MutableStateFlow(false)
     var canShoot = MutableStateFlow(false)
     var playerWon  = MutableStateFlow(false)
-
     var duelHistory: MutableStateFlow<List<FightAttempt>> = MutableStateFlow(listOf())
+    var isGameEnded = MutableStateFlow(false)
 
     fun isDuelOver(): Boolean{
         // either someone is defeated or player is out of ammo
@@ -85,7 +85,7 @@ class DuelBanditLogic(
         }
         else{
             val rand = kotlin.random.Random
-            val damage = rand.nextInt(banditInfo.minDamage,banditInfo.maxDamage)
+            val damage = rand.nextInt(banditInfo.minDamage,banditInfo.maxDamage+1)
             repo.player.player.update { x->x.copy(health = x.health-damage) }
             duelHistory.update { x->x+ FightAttempt(false,selectedWeapon.value!!.id,damage) }
         }
@@ -114,6 +114,7 @@ class DuelBanditLogic(
         localScope.launch {
             val intent = Intent(context, GameActivity::class.java)
             context.startActivity(intent)
+            isGameEnded.update { true }
         }
     }
 }

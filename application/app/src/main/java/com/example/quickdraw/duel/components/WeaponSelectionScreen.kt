@@ -146,7 +146,7 @@ fun WeaponOption(weapon: InventoryWeapon, vm: WeaponSelectionViewModel, bullet: 
                 Text("Bullets shot: ${weapon.bulletsShot}")
             }
         }
-        RadioButton(enabled=true, onClick = { vm.select(weapon) }, selected = vm.selectedWeapon.collectAsState().value == weapon)
+        RadioButton(enabled=usable, onClick = { vm.select(weapon) }, selected = vm.selectedWeapon.collectAsState().value == weapon)
     }
     RowDivider()
 }

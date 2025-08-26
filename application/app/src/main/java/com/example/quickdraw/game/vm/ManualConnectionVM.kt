@@ -11,6 +11,7 @@ import com.example.quickdraw.game.repo.GameRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -25,6 +26,7 @@ class ManualConnectionVM(
     private val onConnection: (isServer:Boolean, serverAddress:String)->Unit
 ) : ViewModel() {
     val scanning = MutableStateFlow(false)
+    val messageError = MutableStateFlow("")
     private var server: ServerSocket? = null
     private var alreadyStarted = false
 
@@ -54,7 +56,14 @@ class ManualConnectionVM(
             otherSocket.close()
         } catch (e: Exception){
             Log.e(TAG, "INVALID DATA INPUT FROM SCANNED QR: $e")
+            if(e is java.net.NoRouteToHostException){
+                messageError.update{"Host phone is not reachable,are you sure to be on the same wifi?"}
+            }
+            else{
+                messageError.update{"Some error occured,please try again"}
+            }
         }
+        scanning.update { false }
     }
 
     private fun listenAsServer() : Job = viewModelScope.launch(Dispatchers.IO) {

@@ -26,6 +26,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -84,6 +85,10 @@ fun ManualConnectionScreen(viewModel: ManualConnectionVM, onBack: () -> Unit ){
                     explaination.appendLine("If your device isn't finding your friends' device, you can make them scan your qr code and start a game manually!")
                     explaination.appendLine("Note: both devices must be connected to the same wifi in order to see each other")
                     Text(explaination.toString(), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(15.dp))
+                    val errorMessage = viewModel.messageError.collectAsState().value
+                    if(errorMessage.isNotEmpty()){
+                        Text(errorMessage, textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().padding(15.dp),color = Color.Red)
+                    }
                 }
             }
         }
