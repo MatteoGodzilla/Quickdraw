@@ -27,7 +27,7 @@ fun BasicTabLayout(
     callback: (Int) -> Unit
 ) {
     val screenWidth = LocalConfiguration.current.screenWidthDp.dp
-    val minTabWidth = screenWidth / tabs.size
+    val minTabWidth = screenWidth.value / tabs.size
     ScrollableTabRow (
         selectedTabIndex = selectedIndex,
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
@@ -35,7 +35,7 @@ fun BasicTabLayout(
     ) {
         for(i in 0 ..< tabs.count()) {
             if(tabs[i].isNotEmpty()){
-                Tab(selected = false,modifier = Modifier.widthIn(min=minTabWidth), onClick = { callback(i) }, text = { Text(text = tabs[i],color= Color.Black, maxLines = 1) })
+                Tab(selected = false,modifier = Modifier.widthIn(min=minTabWidth.dp), onClick = { callback(i) }, text = { Text(text = tabs[i],color= Color.Black, maxLines = 1) })
             }
 
         }

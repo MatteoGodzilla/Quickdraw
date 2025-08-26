@@ -32,9 +32,12 @@ import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonColors
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Tab
+import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -54,12 +57,15 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.BasicTabLayout
 import com.example.quickdraw.game.components.BottomNavBar
+import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.game.vm.MainScreenVM
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.primaryButtonColors
+import com.example.quickdraw.ui.theme.secondaryButtonColors
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.selects.select
 import kotlin.collections.iterator
 
 interface DuelCallbacks{
@@ -74,18 +80,27 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,callbacks:
     QuickdrawTheme {
         Scaffold(
             topBar = { TopBar(viewModel.player.collectAsState().value, viewModel.stats.collectAsState().value, viewModel.levelProgress()) },
-            bottomBar = { BottomNavBar(controller) }
+            bottomBar = { BottomNavBar(controller) },
+            modifier = Modifier.padding(
+                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+            )
         ) { padding ->
-            val pagerState = rememberPagerState (initialPage = 0){ 2 }
             val content :List<@Composable ()->Unit> = listOf(
                 {PvpSection(viewModel,controller,callbacks,padding)},
                 {PveSection(viewModel,controller,callbacks,padding)}
             )
+            val pagerState = rememberPagerState (initialPage = 0){ content.size }
+            val scrollScope = rememberCoroutineScope()
 
-            Column(
-                modifier = Modifier.fillMaxSize()
-            ){
-
+            Column (modifier = Modifier.padding(padding)){
+                HorizontalDivider(
+                    modifier = Modifier.fillMaxWidth().padding(all=0.dp),
+                    thickness = 2.dp,
+                    color= MaterialTheme.colorScheme.background
+                )
+                BasicTabLayout(selectedIndex = pagerState.currentPage, listOf("Players", "Bandits")) {
+                    scrollScope.launch { pagerState.animateScrollToPage(it) }
+                }
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier.fillMaxSize()
@@ -111,35 +126,30 @@ fun PvpSection(viewModel: MainScreenVM, controller: NavHostController,callbacks:
     val ok = viewModel.checkValidScan()
     val showPermissionDialog = remember { mutableStateOf(false) }
     Column (
-        modifier = Modifier.fillMaxSize().padding(padding)
+        modifier = Modifier.fillMaxSize()
     ){
-        //manual match
-        Button(
-            onClick = viewModel::goToManualMatch,
-            colors = ButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondary,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                disabledContainerColor = MaterialTheme.colorScheme.primary,
-                disabledContentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.surfaceContainer)
-        ) {
-            Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
-            Text("Manual match")
-        }
-        Column (modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())){
-            //Test match
-            for (p in viewModel.peers.collectAsState().value) {
-                Row (
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Text("${p.username} (Level: ${p.level})")
-                    Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = true) {
-                        Text("Duel")
+        if(viewModel.peers.collectAsState().value.size > 0){
+            Column (modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())){
+                //Test match
+                for (p in viewModel.peers.collectAsState().value) {
+                    Row (
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        Text("${p.username} (Level: ${p.level})")
+                        Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = true) {
+                            Text("Duel")
+                        }
                     }
                 }
+            }
+        } else {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)){
+                Text(
+                    "Press Start scouting in order to find other players nearby!",
+                    textAlign = TextAlign.Center
+                )
             }
         }
         Column (
@@ -253,6 +263,15 @@ fun PvpSection(viewModel: MainScreenVM, controller: NavHostController,callbacks:
                     Text("Start scouting", fontSize = Typography.titleLarge.fontSize)
                 }
             }
+            //manual match
+            Button(
+                onClick = viewModel::goToManualMatch,
+                colors = secondaryButtonColors,
+                modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.surfaceContainer)
+            ) {
+                Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
+                Text("Manual match")
+            }
         }
     }
     if(showPermissionDialog.value){
@@ -264,43 +283,42 @@ fun PvpSection(viewModel: MainScreenVM, controller: NavHostController,callbacks:
 fun PveSection(viewModel: MainScreenVM, controller: NavHostController,callbacks: DuelCallbacks,padding: PaddingValues){
     val bandits = viewModel.bandits.collectAsState()
     Column (
-        modifier = Modifier.fillMaxSize().padding(padding)
+        modifier = Modifier.fillMaxSize()
     ){
-        Box(modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.surfaceContainer)){
-            Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout", modifier = Modifier.align(
-                Alignment.CenterStart))
-            Text("Bandits Hunt", textAlign = TextAlign.Center, fontSize = Typography.titleLarge.fontSize, modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp))
-        }
+        if(bandits.value.size > 0){
 
-        Column (modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())){
-            for(entry in bandits.value){
-                Row (
-                    modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ){
-                    Text("${entry.value.name} (Hp: ${entry.value.hp})")
-                    Button( onClick = {callbacks.onDuelBandit(entry.key)}, enabled = true,
-                        colors = ButtonColors(
-                            containerColor = MaterialTheme.colorScheme.secondary,
-                            contentColor = MaterialTheme.colorScheme.onSurface,
-                            disabledContainerColor = MaterialTheme.colorScheme.primary,
-                            disabledContentColor = MaterialTheme.colorScheme.onSurface
-                        ))
-                    {
-                        Text("Duel")
+            Column (modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())){
+                for(entry in bandits.value){
+                    Row (
+                        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ){
+                        Text("${entry.value.name} (Hp: ${entry.value.hp})")
+                        Button( onClick = {callbacks.onDuelBandit(entry.key)}, enabled = true,
+                            colors = ButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondary,
+                                contentColor = MaterialTheme.colorScheme.onSurface,
+                                disabledContainerColor = MaterialTheme.colorScheme.primary,
+                                disabledContentColor = MaterialTheme.colorScheme.onSurface
+                            ))
+                        {
+                            Text("Duel")
+                        }
                     }
                 }
+            }
+        } else {
+            Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)){
+                Text(
+                    "Press Locate bandits in order to look for bandits to fight!",
+                    textAlign = TextAlign.Center
+                )
             }
         }
         Button(
             onClick = {callbacks.onScanBandits()},
-            colors = ButtonColors(
-                containerColor = MaterialTheme.colorScheme.secondary,
-                contentColor = MaterialTheme.colorScheme.onSurface,
-                disabledContainerColor = MaterialTheme.colorScheme.primary,
-                disabledContentColor = MaterialTheme.colorScheme.onSurface
-            ),
+            colors = primaryButtonColors,
             modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer)
         ) {
             Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
