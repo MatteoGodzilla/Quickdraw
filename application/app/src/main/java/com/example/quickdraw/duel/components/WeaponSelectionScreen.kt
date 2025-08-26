@@ -49,14 +49,13 @@ fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer
                     textAlign = TextAlign.Center
                 )
                 Column(
-                    modifier = Modifier.verticalScroll(rememberScrollState())
+                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
                 ){
                     RowDivider()
                     for(w in repo.inventory.weapons.collectAsState().value){
                         WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType})
                     }
                 }
-                Spacer(modifier= Modifier.weight(0.1f))
                 Row(modifier=Modifier.fillMaxWidth()){
                     Button(onClick = {vm.selectMostDamage()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
                         Text("Most Damage")
@@ -77,7 +76,6 @@ fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer
                     fontSize = Typography.titleLarge.fontSize,
                     textAlign = TextAlign.Center
                 )
-                Spacer(modifier= Modifier.weight(0.1f))
                 Button(onClick = {
                     gameLogic.goodbye()
                 }, modifier = Modifier.fillMaxWidth(),
@@ -100,14 +98,13 @@ fun WeaponSelectionScreen(controller: NavHostController, duelLogic: DuelBanditLo
                 textAlign = TextAlign.Center
             )
             Column(
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
             ){
                 RowDivider()
                 for(w in repo.inventory.weapons.collectAsState().value){
                     WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType})
                 }
             }
-            Spacer(modifier= Modifier.weight(0.1f))
             Row(modifier=Modifier.fillMaxWidth()){
                 Button(onClick = {vm.selectMostDamage()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
                     Text("Most Damage")
