@@ -40,6 +40,7 @@ class YourPlaceVM(
 
     val player = repository.player
     val stats = repository.player.stats
+    val otherStatistics = repository.statistics
     var playerImage: MutableStateFlow<ImageBitmap> = imageLoader.getPlayerFlow(repository.player.player.value.id)
 
     val musicVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)

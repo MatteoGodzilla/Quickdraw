@@ -23,11 +23,9 @@ class ActiveContractResponseElement(BaseModel):
     startTime:int
     mercenaries:List[InUseMercenary]
 
-class StartedContract(BaseModel):
+class StartedContractResponse(BaseModel):
     startTime:int
     idActiveContract:int
-
-
 
 #requests
 class RedeemContractRequest(BasicAuthTokenRequest):
@@ -45,7 +43,7 @@ class ContractRedeemedResponse(BaseModel):
 
 class ContractStartResponse(BaseModel):
     success:bool
-    contractInfo:StartedContract
+    contractInfo:StartedContractResponse
 
 
 

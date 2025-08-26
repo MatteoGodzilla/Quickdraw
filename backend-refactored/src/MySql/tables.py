@@ -63,11 +63,15 @@ class BulletShop(SQLModel, table=True):
     quantity: int
     cost: int
 
-class ActiveContract(SQLModel, table=True):
-    __tablename__  = "ActiveContract"
+class StartedContract(SQLModel, table=True):
+    __tablename__  = "StartedContract"
     id: int = Field(primary_key=True)
     idContract: int = Field(foreign_key="Contract.id")
+    idPlayer: int = Field(foreign_key="Player.id")
     startTime: int
+    redeemed: bool = Field(default=False)
+    successful: bool = Field(default=False)
+    reward: int = Field(default=0)
 
 class EmployedMercenary(SQLModel, table=True):
     __tablename__  = "EmployedMercenary"
@@ -77,7 +81,7 @@ class EmployedMercenary(SQLModel, table=True):
 
 class AssignedMercenary(SQLModel,table=True):
     __tablename__  = "AssignedMercenary"
-    idActiveContract:int = Field(primary_key=True,foreign_key="ActiveContract.id")
+    idActiveContract:int = Field(primary_key=True,foreign_key="StartedContract.id")
     idEmployedMercenary:int = Field(primary_key=True,foreign_key="EmployedMercenary.idMercenary")
 
 class Friendship(SQLModel,table=True):

@@ -103,6 +103,17 @@ QUESTE API SONO DESIGNATE PER CREARE MODIFICHE INCREMENTALI NELL'APPLICATIVO MOB
     reward:number
 }
 
+### /contracts/stats/
+- Richiesta POST
+- Request: {
+    authToken: String
+}
+- Response: {
+    started: number,
+    completed: number,
+    failed: number
+}
+
 ## Mercenaries
 ### /mercenaries/player/all
 - Richiesta POST

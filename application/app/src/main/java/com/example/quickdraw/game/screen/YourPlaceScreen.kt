@@ -49,6 +49,7 @@ import com.example.quickdraw.game.components.ProgressBar
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.ui.theme.ProgressBarColors
 import com.example.quickdraw.ui.theme.Typography
+import com.example.quickdraw.ui.theme.secondaryButtonColors
 import kotlin.math.floor
 import kotlin.math.round
 
@@ -197,19 +198,24 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             StatsDisplayer("Money boost", "${stats.value.moneyBoost-100}%")
             StatsDisplayer("Bounty boost", "${stats.value.bountyBoost-100}%")
 
+            val roundStats = viewModel.otherStatistics.rounds.collectAsState().value
+
             SmallHeader("Rounds")
-            StatsDisplayer("Played", "#")
-            StatsDisplayer("Won", "#")
-            StatsDisplayer("Lost", "#")
-            StatsDisplayer("Win Ratio", "## %")
-            StatsDisplayer("Longest streak", "#")
+            StatsDisplayer("Played", roundStats.played.toString())
+            StatsDisplayer("Won", roundStats.won.toString())
+            StatsDisplayer("Lost", roundStats.lost.toString())
+            StatsDisplayer("Win Ratio", "${if (roundStats.played > 0) floor(roundStats.won.toFloat() * 100 / roundStats.played) else 0} %")
+            StatsDisplayer("Bullets shot", roundStats.bulletsShot.toString())
+            StatsDisplayer("Damage dealt", roundStats.damageDealt.toString())
+            StatsDisplayer("Damage received", roundStats.damageReceived.toString())
+
+            val contractStats = viewModel.otherStatistics.contracts.collectAsState().value
 
             SmallHeader("Contracts")
-            StatsDisplayer("Started", "##")
-            StatsDisplayer("Completed", "##")
-            StatsDisplayer("Failed", "##")
-            StatsDisplayer("Completion ratio", "## %")
-
+            StatsDisplayer("Started", contractStats.started.toString())
+            StatsDisplayer("Completed", contractStats.completed.toString())
+            StatsDisplayer("Failed", contractStats.successful.toString())
+            StatsDisplayer("Completion ratio", "${if (contractStats.started > 0) floor(contractStats.successful.toFloat() * 100 / contractStats.completed) else 0} %")
         },
         ContentTab("Settings") {
             SmallHeader("Audio")
@@ -228,12 +234,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             SmallHeader("")
             Button(
                 onClick = viewModel::logout,
-                colors = ButtonColors(
-                    containerColor = MaterialTheme.colorScheme.secondary,
-                    contentColor = MaterialTheme.colorScheme.onSurface,
-                    disabledContainerColor = MaterialTheme.colorScheme.primary,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurface
-                ),
+                colors = secondaryButtonColors,
                 modifier = Modifier
                     .fillMaxWidth()
             ) {

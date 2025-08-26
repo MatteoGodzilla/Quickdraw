@@ -14,7 +14,7 @@ from uuid_utils import *
 from MySql import SessionManager
 from MySql.tables import *
 from Models.mercenaries import *
-from Models.commons import*
+from Models.commons import *
 from routes.middlewares.getPlayer import *
 from routes.middlewares.exp import *
 from routes.middlewares.key_names import *
@@ -185,17 +185,19 @@ async def get_available(request:BasicAuthTokenRequest):
 
     player:Login = obtain_player[PLAYER]
 
-    active_mercenaries_id = select(AssignedMercenary.idEmployedMercenary).distinct().where(
-         and_(ActiveContract.idContract == Contract.id,
-              ActiveContract.id==AssignedMercenary.idActiveContract,
-              AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
-              EmployedMercenary.idMercenary == Mercenary.id,
-              EmployedMercenary.idPlayer==player.idPlayer))
+    active_mercenaries_id = select(AssignedMercenary.idEmployedMercenary).distinct().where(and_(
+        StartedContract.idContract == Contract.id,
+        StartedContract.id == AssignedMercenary.idActiveContract,
+        StartedContract.redeemed == 0,
+        AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
+        EmployedMercenary.idMercenary == Mercenary.id,
+        EmployedMercenary.idPlayer==player.idPlayer
+    ))
     
-    unassigned_mercenaries = select(Mercenary,EmployedMercenary).distinct().where(
-                 and_(~EmployedMercenary.id.in_(active_mercenaries_id.scalar_subquery()),
-                 EmployedMercenary.idPlayer == player.idPlayer,
-                 EmployedMercenary.idMercenary == Mercenary.id
+    unassigned_mercenaries = select(Mercenary,EmployedMercenary).distinct().where(and_(
+        ~EmployedMercenary.id.in_(active_mercenaries_id.scalar_subquery()),
+             EmployedMercenary.idPlayer == player.idPlayer,
+             EmployedMercenary.idMercenary == Mercenary.id
         )
     )
 

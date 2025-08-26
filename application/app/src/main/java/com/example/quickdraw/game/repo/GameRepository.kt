@@ -25,6 +25,7 @@ class GameRepository(
     val leaderboard = LeaderboardRepository(dataStore)
     val shop = ShopRepository(dataStore, player, inventory)
     val bandits = BanditRepository(dataStore,player)
+    val statistics = StatisticsRepository(dataStore)
 
     suspend fun firstLoad() {
         player.firstLoad()
@@ -33,6 +34,7 @@ class GameRepository(
         shop.firstLoad()
         leaderboard.firstLoad()
         mercenaries.firstLoad()
+        statistics.firstLoad()
         updatePlayerStats()
     }
 

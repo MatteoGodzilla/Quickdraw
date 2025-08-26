@@ -62,3 +62,10 @@ data class ContractStartResponse(
     val success: Boolean,
     val contractInfo: StartedContract,
 )
+
+@Serializable
+data class ContractStats(
+    val started: Int,
+    val completed: Int,
+    val successful: Int
+)

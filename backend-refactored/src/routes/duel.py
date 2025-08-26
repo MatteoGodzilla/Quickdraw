@@ -10,6 +10,7 @@ from sqlalchemy import and_, desc
 from MySql.SessionManager import safe_exec, safe_commit, global_session
 from starlette.status import *
 import time
+from Models.commons import BasicAuthTokenRequest
 
 router = APIRouter(
     prefix="/duel",
@@ -28,7 +29,7 @@ async def duel(request: DuelSubmitData):
 
     obtain_player = getPlayer(request.authToken)
     if obtain_player[SUCCESS] == False:
-            return JSONResponse(
+        return JSONResponse(
             status_code = obtain_player[HTTP_CODE],
             content={"message":obtain_player[ERROR]}
         )
@@ -182,3 +183,53 @@ async def duel(request: DuelSubmitData):
     global_session.commit()
 
     return JSONResponse(status_code = HTTP_200_OK, content="")
+
+
+@router.post("/stats")
+async def duel_stats(request:BasicAuthTokenRequest):
+    # Copy pasted from above
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken)
+    if obtain_player[SUCCESS] == False:
+        return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+    playerInfo = getPlayerData(player)
+    if playerInfo[SUCCESS] == False:
+        return JSONResponse(
+            status_code = HTTP_500_INTERNAL_SERVER_ERROR,
+            content={"message":"Could not find player data"}
+        )
+    player:Player = playerInfo[PLAYER]
+
+    all_rounds_query = select(Round).where(Round.idPlayer == player.id)
+    result = safe_exec(all_rounds_query)
+    all_rounds = result.fetchall()
+
+    played = len(all_rounds)
+    won = len([r for r in all_rounds if r.won])
+    lost = played - won 
+    bullets_shot = sum([r.bulletsUsed for r in all_rounds])
+    damage_dealt = sum([r.damage for r in all_rounds if r.won])
+    damage_received = sum([r.damage for r in all_rounds if not r.won])
+
+    return JSONResponse(
+        status_code = HTTP_200_OK,
+        content={
+            "played":played,
+            "won": won,
+            "lost":lost,
+            "bulletsShot":bullets_shot,
+            "damageDealt":damage_dealt,
+            "damageReceived":damage_received
+        }
+    )

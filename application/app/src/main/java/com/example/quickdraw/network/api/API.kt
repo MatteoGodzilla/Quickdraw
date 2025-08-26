@@ -5,7 +5,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-const val VERSION = 1
+const val VERSION = 2
 const val VERSION_ENDPOINT = "/version"
 
 const val LOGIN_ENDPOINT = "/auth/login"
@@ -21,6 +21,7 @@ const val CONTRACTS_ACTIVE_ENDPOINT = "/contracts/active"
 const val CONTRACTS_AVAILABLE_ENDPOINT = "/contracts/available"
 const val CONTRACTS_START = "/contracts/start"
 const val CONTRACTS_REDEEM = "/contracts/redeem"
+const val CONTRACTS_STATISTICS = "/contracts/stats"
 
 const val SHOP_WEAPONS = "/shop/weapons"
 const val SHOP_BULLETS = "/shop/bullets"
@@ -55,6 +56,7 @@ const val BANDITS_GET = "/bandit/pool"
 const val BANDITS_FIGHT = "/bandit/fight"
 
 const val DUEL_ENDPOINT = "/duel"
+const val ROUND_STATISTICS = "/duel/stats"
 
 inline fun <reified T> T.toRequestBody(): RequestBody {
     val jsonString = Json.encodeToString(this)

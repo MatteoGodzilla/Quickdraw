@@ -11,6 +11,7 @@ import com.example.quickdraw.network.data.ContractRedeemRequest
 import com.example.quickdraw.network.data.ContractRedeemResponse
 import com.example.quickdraw.network.data.ContractStartRequest
 import com.example.quickdraw.network.data.ContractStartResponse
+import com.example.quickdraw.network.data.ContractStats
 import com.example.quickdraw.network.data.StartedContract
 import com.example.quickdraw.network.data.TokenRequest
 import kotlinx.serialization.json.Json
@@ -72,4 +73,15 @@ fun getAvailableContractsAPI(authToken: String): List<AvailableContract> {
         }
     }
     return listOf()
+}
+
+fun getContractStatsAPI(authToken: String): ContractStats? {
+    val requestBody = TokenRequest(authToken).toRequestBody()
+    val response = ConnectionManager.attempt(requestBody, CONTRACTS_STATISTICS)
+    if(response?.code == 200){
+        val result = response.body.string()
+        Log.i(TAG, result)
+        return Json.decodeFromString<ContractStats>(result)
+    }
+    return null
 }

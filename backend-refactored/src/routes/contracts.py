@@ -44,12 +44,14 @@ async def get_actives(request:BasicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    active_contracts = select(ActiveContract,Contract).distinct().where(
-         and_(ActiveContract.idContract == Contract.id,
-              ActiveContract.id==AssignedMercenary.idActiveContract,
-              AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
-              EmployedMercenary.idMercenary == Mercenary.id,
-              EmployedMercenary.idPlayer==player.idPlayer))
+    active_contracts = select(StartedContract,Contract).distinct().where(and_(
+        StartedContract.idContract == Contract.id,
+        StartedContract.id == AssignedMercenary.idActiveContract,
+        StartedContract.redeemed == 0,
+        AssignedMercenary.idEmployedMercenary == EmployedMercenary.id,
+        EmployedMercenary.idMercenary == Mercenary.id,
+        EmployedMercenary.idPlayer == player.idPlayer
+    ))
     
     result = session.exec(active_contracts)
     contracts = result.fetchall()
@@ -98,13 +100,15 @@ async def redeem(request:RedeemContractRequest):
     )
 
     player:Login = obtain_player[PLAYER]
-    active_contract = select(ActiveContract,Contract).where(
-         and_(ActiveContract.idContract == Contract.id,
-              ActiveContract.id==AssignedMercenary.idActiveContract,
-              AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
-              EmployedMercenary.idMercenary == Mercenary.id,
-              EmployedMercenary.idPlayer==player.idPlayer,
-              ActiveContract.id == request.idContract))
+    active_contract = select(StartedContract,Contract).where(and_(
+        StartedContract.idContract == Contract.id,
+        StartedContract.id == AssignedMercenary.idActiveContract,
+        StartedContract.redeemed == 0,
+        AssignedMercenary.idEmployedMercenary == EmployedMercenary.id,
+        EmployedMercenary.idMercenary == Mercenary.id,
+        EmployedMercenary.idPlayer == player.idPlayer,
+        StartedContract.id == request.idContract
+    ))
 
     result = session.exec(active_contract)
     contract = result.first()
@@ -121,15 +125,13 @@ async def redeem(request:RedeemContractRequest):
               content={"message":"Contract required time has not passed yet"}
         )
 
-    mercenaryPower = select(func.sum(Mercenary.power)).where(
-         and_(
-              ActiveContract.id==AssignedMercenary.idActiveContract,
-              AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
-              EmployedMercenary.idMercenary == Mercenary.id,
-              EmployedMercenary.idPlayer==player.idPlayer,
-              ActiveContract.id == request.idContract
-         )
-    )
+    mercenaryPower = select(func.sum(Mercenary.power)).where(and_(
+          StartedContract.id == AssignedMercenary.idActiveContract,
+          AssignedMercenary.idEmployedMercenary == EmployedMercenary.id,
+          EmployedMercenary.idMercenary == Mercenary.id,
+          EmployedMercenary.idPlayer==player.idPlayer,
+          StartedContract.id == request.idContract
+    ))
 
     result = session.exec(mercenaryPower)
     power = result.first()
@@ -145,15 +147,18 @@ async def redeem(request:RedeemContractRequest):
         maxMercenaries=contract[1].maxMercenaries,
         startCost=contract[1].startCost)
     
-    
-
-
     #update player balance and remove column
     try:
         playerData : Player = getPlayerData(player)[PLAYER]
         correct_value = boostedMoney(reward,playerData)
         playerData.money += correct_value*int(success)
-        session.exec(delete(ActiveContract).where(ActiveContract.id == contract[0].id))
+        update_contract = update(StartedContract).where(StartedContract.id == contract[0].id).values(
+            redeemed = True,
+            successful = bool(int(success)),
+            reward = correct_value
+        )
+        session.exec(update_contract)
+        session.exec(delete(AssignedMercenary).where(AssignedMercenary.idActiveContract == contract[0].id))
         session.commit()
     except:
         session.rollback()
@@ -196,17 +201,18 @@ async def start_contract(request:StartContractRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    active_contract_id = select(ActiveContract.idContract).where(
-         and_(
-              ActiveContract.id==AssignedMercenary.idActiveContract,
-              AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
-              EmployedMercenary.idMercenary == Mercenary.id,
-              EmployedMercenary.idPlayer==player.idPlayer)
-    )
+    active_contract_id = select(StartedContract.idContract).where(and_(
+          StartedContract.id == AssignedMercenary.idActiveContract,
+          StartedContract.redeemed == 0,
+          AssignedMercenary.idEmployedMercenary == EmployedMercenary.id,
+          EmployedMercenary.idMercenary == Mercenary.id,
+          EmployedMercenary.idPlayer == player.idPlayer
+    ))
     
-    available_contact = select(Contract).where(
-        and_(~Contract.id.in_(active_contract_id.scalar_subquery()),Contract.id==request.contract)
-    )
+    available_contact = select(Contract).where(and_(
+        ~Contract.id.in_(active_contract_id.scalar_subquery()),
+        Contract.id == request.contract
+    ))
     result = session.exec(available_contact)
 
     contract_to_start = result.first()
@@ -224,26 +230,36 @@ async def start_contract(request:StartContractRequest):
         )
 
     #check mercenaries
-    select_mercenaries = select(EmployedMercenary).where(and_(EmployedMercenary.id.in_(request.mercenaries),EmployedMercenary.idPlayer==player.idPlayer))
+    select_mercenaries = select(EmployedMercenary).where(and_(
+        EmployedMercenary.id.in_(request.mercenaries),
+        EmployedMercenary.idPlayer == player.idPlayer
+    ))
     result = session.exec(select_mercenaries)
     mercenariesData = result.fetchall()
     mercenaries = []
+
 
     if len(mercenariesData) != len(request.mercenaries):
         return JSONResponse(
             status_code = HTTP_403_FORBIDDEN,
             content={"message":"Mismatch between mercenaries that player possesses and the ones that were given"}
     )
-    
+
     if len(mercenariesData) > contract_to_start.maxMercenaries:
         return JSONResponse(
             status_code = HTTP_403_FORBIDDEN,
             content={"message":"Too many mercenaries for given contract"}
         )
 
-    assigned = select(AssignedMercenary.idEmployedMercenary).where(and_(EmployedMercenary.idPlayer == player.idPlayer,AssignedMercenary.idEmployedMercenary == EmployedMercenary.id))
+    assigned = select(AssignedMercenary.idEmployedMercenary).where(and_(
+        EmployedMercenary.idPlayer == player.idPlayer,
+        AssignedMercenary.idEmployedMercenary == EmployedMercenary.id
+    ))
 
-    already_in_use = select(EmployedMercenary).where(and_(EmployedMercenary.id.in_(assigned.scalar_subquery()),EmployedMercenary.id.in_(request.mercenaries)))
+    already_in_use = select(EmployedMercenary).where(and_(
+        EmployedMercenary.id.in_(assigned.scalar_subquery()),
+        EmployedMercenary.id.in_(request.mercenaries)
+    ))
 
     result = session.exec(already_in_use)
     if len(result.fetchall()) > 0:
@@ -255,23 +271,32 @@ async def start_contract(request:StartContractRequest):
     try:
         start = floor(time())
         #create contract
-        newContract = ActiveContract(
-                                     idContract = contract_to_start.id,
-                                     startTime = start)
+        newContract = StartedContract(
+             idContract = contract_to_start.id,
+             idPlayer = player.idPlayer,
+             startTime = start,
+             redeemed = False,
+             successful = False,
+             reward = 0
+        )
         session.add(newContract)
         session.flush()
         mercenaries = [AssignedMercenary(idActiveContract=newContract.id,idEmployedMercenary=m.id) for m in mercenariesData]
         session.add_all(mercenaries)
-        playerData.money-=contract_to_start.startCost
+        playerData.money -= contract_to_start.startCost
         session.commit()
     except Exception as e:
+        print(e)
         session.rollback()
         return JSONResponse(
             status_code = HTTP_500_INTERNAL_SERVER_ERROR,
             content={"message":"Something went wrong in creating contract and assigning mercenaries:"+str(e)}
         )
     
-    info = StartedContract(startTime=newContract.startTime,idActiveContract=newContract.id)
+    info = StartedContractResponse(
+        startTime=newContract.startTime,
+        idActiveContract=newContract.id
+    )
 
     return JSONResponse(
         status_code = HTTP_200_OK,
@@ -296,12 +321,14 @@ async def get_availables(request:BasicAuthTokenRequest):
         )
 
     player:Login = obtain_player[PLAYER]
-    active_contracts_id = select(ActiveContract.idContract).where(
-         and_(ActiveContract.idContract == Contract.id,
-              ActiveContract.id==AssignedMercenary.idActiveContract,
-              AssignedMercenary.idEmployedMercenary==EmployedMercenary.id,
-              EmployedMercenary.idMercenary == Mercenary.id,
-              EmployedMercenary.idPlayer==player.idPlayer))
+    active_contracts_id = select(StartedContract.idContract).where(and_(
+        StartedContract.idContract == Contract.id,
+        StartedContract.id == AssignedMercenary.idActiveContract,
+        StartedContract.redeemed == 0,
+        AssignedMercenary.idEmployedMercenary == EmployedMercenary.id,
+        EmployedMercenary.idMercenary == Mercenary.id,
+        EmployedMercenary.idPlayer == player.idPlayer
+    ))
     
     available_contacts = select(Contract).where(
         ~Contract.id.in_(active_contracts_id.scalar_subquery())
@@ -310,9 +337,46 @@ async def get_availables(request:BasicAuthTokenRequest):
     contracts = result.fetchall()
     response = []
     for contract in contracts:
-        response.append(AvailableContractResponseElement(id=contract.id,name=contract.name,
-                                                      requiredTime=contract.requiredTime,requiredPower=contract.requiredPower,maxMercenaries=contract.maxMercenaries,startCost=contract.startCost))
+        response.append(AvailableContractResponseElement(
+            id=contract.id,
+            name=contract.name,
+            requiredTime=contract.requiredTime,
+            requiredPower=contract.requiredPower,
+            maxMercenaries=contract.maxMercenaries,
+            startCost=contract.startCost
+        ))
     return JSONResponse(
         status_code = HTTP_200_OK,
         content={"contracts":jsonable_encoder(response)}
+    )
+
+@router.post("/stats")
+async def get_contracts_stats(request:BasicAuthTokenRequest):
+    check_token = checkAuthTokenValidity(request.authToken)
+    if check_token[SUCCESS] == False:
+        return JSONResponse(
+            status_code = check_token[HTTP_CODE],
+            content={"message":check_token[ERROR]}
+        )
+
+    obtain_player = getPlayer(request.authToken)
+    if obtain_player[SUCCESS] == False:
+        return JSONResponse(
+            status_code = obtain_player[HTTP_CODE],
+            content={"message":obtain_player[ERROR]}
+        )
+
+    player:Login = obtain_player[PLAYER]
+
+    all_contracts_query = select(StartedContract).where(StartedContract.idPlayer == player.idPlayer)
+    result = session.exec(all_contracts_query) 
+    all_contracts = result.fetchall()
+
+    started = len(all_contracts)
+    completed = len([c for c in all_contracts if c.redeemed])
+    successful = len([c for c in all_contracts if c.redeemed and c.successful])
+
+    return JSONResponse(
+        status_code = HTTP_200_OK,
+        content={"started":started, "completed": completed, "successful": successful}
     )
