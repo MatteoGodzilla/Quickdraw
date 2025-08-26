@@ -11,6 +11,7 @@ import com.example.quickdraw.duel.MessageType
 import com.example.quickdraw.duel.PeerState
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.music.AudioManager
 import com.example.quickdraw.network.data.Bandit
 import com.example.quickdraw.network.data.FightAttempt
 import com.example.quickdraw.network.data.InventoryWeapon
@@ -73,6 +74,7 @@ class DuelBanditLogic(
             damageCalc(playerWinner)
             playerWon.update { playerWinner}
             roundEnds.update { true }
+            AudioManager.startSFX()
         }
     }
 

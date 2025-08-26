@@ -16,8 +16,6 @@ private val LightColorScheme = lightColorScheme(
     tertiary = Color(0XFFBC5813),
     onErrorContainer = Color(0xFF9A9A9A), //used for disabled stuff,
 
-
-
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
     surface = Color(0xFFFFFBFE),
@@ -43,14 +41,14 @@ class ProgressBarColors() {
 val primaryButtonColors = ButtonColors(
     containerColor = LightColorScheme.primary,
     contentColor = LightColorScheme.onSurface,
-    disabledContainerColor = LightColorScheme.surfaceVariant,
+    disabledContainerColor = LightColorScheme.onErrorContainer,
     disabledContentColor = LightColorScheme.onSurface
 )
 
 val secondaryButtonColors = ButtonColors(
     containerColor = LightColorScheme.secondary,
     contentColor = LightColorScheme.onSurface,
-    disabledContainerColor = LightColorScheme.secondary,
+    disabledContainerColor = LightColorScheme.onErrorContainer,
     disabledContentColor = LightColorScheme.onSurface
 )
 
@@ -58,7 +56,7 @@ val bottomBarButtonColors = { enabled:Boolean ->
     ButtonColors(
         containerColor = LightColorScheme.surfaceContainer,
         contentColor = if(enabled) LightColorScheme.secondary else LightColorScheme.onSurface,
-        disabledContainerColor = LightColorScheme.surfaceContainer,
+        disabledContainerColor = LightColorScheme.onErrorContainer,
         disabledContentColor = LightColorScheme.onSurface
     )
 }

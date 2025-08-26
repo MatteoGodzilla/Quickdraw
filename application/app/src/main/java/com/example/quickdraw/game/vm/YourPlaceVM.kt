@@ -38,7 +38,7 @@ class YourPlaceVM(
     val upgrades = repository.inventory.upgrades
     val bullets = repository.inventory.bullets
 
-    val player = repository.player.player
+    val player = repository.player
     val stats = repository.player.stats
     var playerImage: MutableStateFlow<ImageBitmap> = imageLoader.getPlayerFlow(repository.player.player.value.id)
 
@@ -99,6 +99,7 @@ class YourPlaceVM(
     fun setSFXVolume(value: Float) = viewModelScope.launch {
         context.dataStore.edit { pref->pref[PrefKeys.sfxVolume] = value }
         sfxVolumeSlider.floatValue = value
+        AudioManager.setSFXVolume(value)
     }
 
     fun loadWeaponImage(id:Int) = imageLoader.getWeaponFlow(id)

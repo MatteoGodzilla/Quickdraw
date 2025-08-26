@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -37,6 +38,7 @@ import com.example.quickdraw.duel.PeerState
 import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.game.components.infiniteRotation
 import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
 import com.google.android.material.progressindicator.LinearProgressIndicatorSpec
 import kotlinx.coroutines.delay
@@ -57,19 +59,21 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelGameLogic){
             controller.navigate(DuelNavigation.Results)
         }
     }
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize().clickable(onClick = gameLogic::bang).background(
-            if(shouldShoot) Color.Green else Color.Yellow
-        )
-    ){
-        if(roundEnded && lostRound){
-            Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
-        }
-        if(shouldShoot){
-            Text("SHOOT!", fontSize = Typography.titleLarge.fontSize)
-        } else {
-            Text("Steady")
+    QuickdrawTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize().clickable(onClick = gameLogic::bang).background(
+                if(shouldShoot) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+            )
+        ){
+            if(roundEnded && lostRound){
+                Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
+            }
+            if(shouldShoot){
+                Text("SHOOT!", fontSize = Typography.titleLarge.fontSize)
+            } else {
+                Text("Steady")
+            }
         }
     }
 }
@@ -99,26 +103,27 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelBanditLogic){
         }
     }
 
-
     LaunchedEffect(roundEnded.value) {
         if(roundEnded.value){
             delay(duration.toLong())
             controller.navigate(DuelNavigation.Results)
         }
     }
-    Box(
-        contentAlignment = Alignment.Center,
-        modifier = Modifier.fillMaxSize().clickable(onClick = {gameLogic.bang(true)}).background(
-            if(shouldShoot.value) Color.Green else Color.Yellow
-        )
-    ){
-        if(roundEnded.value && lostRound){
-            Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
-        }
-        if(shouldShoot.value){
-            Text("SHOOT!", fontSize = Typography.titleLarge.fontSize)
-        } else {
-            Text("Steady")
+    QuickdrawTheme {
+        Box(
+            contentAlignment = Alignment.Center,
+            modifier = Modifier.fillMaxSize().clickable(onClick = {gameLogic.bang(true)}).background(
+                if(shouldShoot.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+            )
+        ){
+            if(roundEnded.value && lostRound){
+                Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
+            }
+            if(shouldShoot.value){
+                Text("SHOOT!", fontSize = Typography.titleLarge.fontSize)
+            } else {
+                Text("Steady")
+            }
         }
     }
 }

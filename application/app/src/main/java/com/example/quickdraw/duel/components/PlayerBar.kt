@@ -29,12 +29,12 @@ import com.example.quickdraw.ui.theme.Typography
 
 @Composable
 fun DuelBar(opponent:String, ratio: Float, color: Color=Color.Blue) {
-    val rowHeight = 96.dp
+    val rowHeight = 64.dp
     Surface(color = MaterialTheme.colorScheme.surfaceContainer,
         modifier= Modifier.fillMaxWidth().height(rowHeight)
     ){
         Column (modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.Center){
-            Row(modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
+            Box(modifier = Modifier.fillMaxWidth()){
                 Icon(
                     imageVector = ImageVector.vectorResource(R.drawable.stars_2_24px),
                     "",

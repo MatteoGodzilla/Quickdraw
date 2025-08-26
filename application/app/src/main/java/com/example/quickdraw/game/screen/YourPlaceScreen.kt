@@ -59,7 +59,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
     val medikits = viewModel.medikits.collectAsState()
     val upgrades = viewModel.upgrades.collectAsState()
     val bullets = viewModel.bullets.collectAsState()
-    val player = viewModel.player.collectAsState()
+    val player = viewModel.player.player.collectAsState()
     val stats = viewModel.stats.collectAsState()
 
     val playerImage = viewModel.playerImage.collectAsState()
@@ -169,23 +169,23 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             }
             //Player
             Text(
-                viewModel.player.collectAsState().value.username,
+                player.value.username,
                 fontSize = Typography.titleLarge.fontSize,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
             Text(
-                "Level ${viewModel.player.collectAsState().value.level}",
+                "Level ${player.value.level} (${player.value.exp}/${viewModel.player.getExpForNextLevel()})",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
             Text(
-                "Money: ${viewModel.player.collectAsState().value.money}",
+                "Money: ${player.value.money}",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
             Text(
-                "Bounty: ${viewModel.player.collectAsState().value.bounty}",
+                "Bounty: ${player.value.bounty}",
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )
@@ -210,12 +210,6 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             StatsDisplayer("Failed", "##")
             StatsDisplayer("Completion ratio", "## %")
 
-        },
-        ContentTab("Memories") {
-            Text("You haven't added a memory yet!\nDuel someone, then add one in the result screen",
-                modifier = Modifier.fillMaxWidth(),
-                textAlign = TextAlign.Center
-            )
         },
         ContentTab("Settings") {
             SmallHeader("Audio")

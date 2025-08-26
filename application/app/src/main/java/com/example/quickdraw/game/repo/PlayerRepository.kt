@@ -56,8 +56,17 @@ class PlayerRepository(
         getBase()
     }
 
+    fun getExpForNextLevel(): Int{
+        if(levels.isNotEmpty()){
+            val playerLevel = player.value.level
+            if(playerLevel < levels.size){
+                return levels[playerLevel]
+            }
+        }
+        return -1
+    }
+
     fun getProgressToNextLevel(): Float {
-        //TODO: use levels for this
         var progress = 0f
         if(levels.isNotEmpty()){
             val playerLevel = player.value.level

@@ -1,28 +1,39 @@
 package com.example.quickdraw.duel.components
 
+import android.view.Window
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeContentPadding
+import androidx.compose.foundation.layout.safeDrawingPadding
+import androidx.compose.foundation.layout.statusBars
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import com.example.quickdraw.QuickdrawApplication
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.game.repo.PlayerRepository
+import com.example.quickdraw.ui.theme.QuickdrawTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DuelContainer(self: Peer, opponent: Peer, content:@Composable ()->Unit){
-    Scaffold(
-        topBar = { DuelBar(opponent.username, opponent.health.toFloat() / opponent.maxHealth, Color.Red) },
-        bottomBar = { DuelBar(self.username,self.health.toFloat() / self.maxHealth, Color.Blue) },
-        modifier = Modifier.fillMaxSize()
-    ){ padding->
-        Box(modifier = Modifier.padding(padding)){
-            content()
+    QuickdrawTheme {
+        Scaffold(
+            topBar = { DuelBar(opponent.username, opponent.health.toFloat() / opponent.maxHealth, Color.Red) },
+            bottomBar = { DuelBar(self.username,self.health.toFloat() / self.maxHealth, Color.Blue) },
+            modifier = Modifier.fillMaxSize()
+        ){ padding->
+            Box(modifier = Modifier.padding(padding)){
+                content()
+            }
         }
     }
 }
@@ -36,13 +47,18 @@ fun DuelContainer(vm: DuelBanditLogic, playerRepo: PlayerRepository, content:@Co
     val player = playerRepo.player.collectAsState()
     val stats = playerRepo.stats.collectAsState()
 
-    Scaffold(
-        topBar = { DuelBar(vm.banditInfo.name, banditHp.value.toFloat() / vm.banditInfo.hp, Color.Red) },
-        bottomBar = { DuelBar(player.value.username,player.value.health.toFloat() / stats.value.maxHealth, Color.Blue) },
-        modifier = Modifier.fillMaxSize()
-    ){ padding->
-        Box(modifier = Modifier.padding(padding)){
-            content()
+    QuickdrawTheme {
+        Scaffold(
+            topBar = { DuelBar(vm.banditInfo.name, banditHp.value.toFloat() / vm.banditInfo.hp, Color.Red) },
+            bottomBar = { DuelBar(player.value.username,player.value.health.toFloat() / stats.value.maxHealth, Color.Blue) },
+            modifier = Modifier.padding(
+                top = WindowInsets.statusBars.asPaddingValues().calculateTopPadding(),
+                bottom = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+            )
+        ){ padding->
+            Box(modifier = Modifier.padding(padding)){
+                content()
+            }
         }
     }
 }

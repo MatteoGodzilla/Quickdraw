@@ -27,24 +27,22 @@ class DuelBanditActivity: ComponentActivity() {
         val gameRepo = qdapp.repository
         val duelState = DuelBanditLogic(id,gameRepo.bandits.bandits.value[id]!!, gameRepo,this)
         setContent {
-            QuickdrawTheme {
-                val controller = rememberNavController()
-                NavHost(navController = controller, startDestination = DuelNavigation.Presentation){
-                    composable<DuelNavigation.Presentation>{
-                        PresentationScreen(controller,duelState, gameRepo.player)
+            val controller = rememberNavController()
+            NavHost(navController = controller, startDestination = DuelNavigation.Presentation){
+                composable<DuelNavigation.Presentation>{
+                    PresentationScreen(controller,duelState, gameRepo.player)
+                }
+                composable<DuelNavigation.WeaponSelect>{
+                    val vm = viewModel {
+                        WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value)
                     }
-                    composable<DuelNavigation.WeaponSelect>{
-                        val vm = viewModel {
-                            WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value)
-                        }
-                        WeaponSelectionScreen(controller,duelState, gameRepo, vm)
-                    }
-                    composable<DuelNavigation.Play>{
-                        PlayScreen(controller, duelState)
-                    }
-                    composable<DuelNavigation.Results>{
-                        ResultsScreen(controller, duelState, gameRepo)
-                    }
+                    WeaponSelectionScreen(controller,duelState, gameRepo, vm)
+                }
+                composable<DuelNavigation.Play>{
+                    PlayScreen(controller, duelState)
+                }
+                composable<DuelNavigation.Results>{
+                    ResultsScreen(controller, duelState, gameRepo)
                 }
             }
         }

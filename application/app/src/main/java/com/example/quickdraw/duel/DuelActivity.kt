@@ -66,30 +66,27 @@ class DuelActivity : ComponentActivity() {
                     duelServer.startAsClient(InetAddress.getByName(serverAddress))
                 }
             }
-            QuickdrawTheme {
-                val controller = rememberNavController()
-                val selfState = duelGameLogic.selfState.collectAsState().value
-                val peerState = duelGameLogic.otherState.collectAsState().value
-                val selfAsPeer = duelGameLogic.selfPeer.collectAsState().value
-                val otherAsPeer = duelGameLogic.otherPeer.collectAsState().value
-                switchNavigation(selfState, peerState, controller)
-
-                NavHost(navController = controller, startDestination = DuelNavigation.Presentation){
-                    composable<DuelNavigation.Presentation>{
-                        PresentationScreen(controller,selfAsPeer, otherAsPeer)
+            val controller = rememberNavController()
+            val selfState = duelGameLogic.selfState.collectAsState().value
+            val peerState = duelGameLogic.otherState.collectAsState().value
+            val selfAsPeer = duelGameLogic.selfPeer.collectAsState().value
+            val otherAsPeer = duelGameLogic.otherPeer.collectAsState().value
+            switchNavigation(selfState, peerState, controller)
+            NavHost(navController = controller, startDestination = DuelNavigation.Presentation){
+                composable<DuelNavigation.Presentation>{
+                    PresentationScreen(controller,selfAsPeer, otherAsPeer)
+                }
+                composable<DuelNavigation.WeaponSelect>{
+                    val vm = viewModel {
+                        WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value)
                     }
-                    composable<DuelNavigation.WeaponSelect>{
-                        val vm = viewModel {
-                            WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value)
-                        }
-                        WeaponSelectionScreen(controller,selfAsPeer, otherAsPeer, duelGameLogic, repository,vm)
-                    }
-                    composable<DuelNavigation.Play>{
-                        PlayScreen(controller, duelGameLogic)
-                    }
-                    composable<DuelNavigation.Results>{
-                        ResultsScreen(controller, selfAsPeer, otherAsPeer, duelGameLogic, repository)
-                    }
+                    WeaponSelectionScreen(controller,selfAsPeer, otherAsPeer, duelGameLogic, repository,vm)
+                }
+                composable<DuelNavigation.Play>{
+                    PlayScreen(controller, duelGameLogic)
+                }
+                composable<DuelNavigation.Results>{
+                    ResultsScreen(controller, selfAsPeer, otherAsPeer, duelGameLogic, repository)
                 }
             }
         }

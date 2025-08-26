@@ -49,10 +49,8 @@ fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer
                     textAlign = TextAlign.Center
                 )
                 Column(
-                    modifier = Modifier.padding(vertical = 10.dp).verticalScroll(rememberScrollState())
+                    modifier = Modifier.verticalScroll(rememberScrollState())
                 ){
-                    //display weapons
-                    Spacer(modifier= Modifier.height(24.dp))
                     RowDivider()
                     for(w in repo.inventory.weapons.collectAsState().value){
                         WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType})
@@ -102,10 +100,8 @@ fun WeaponSelectionScreen(controller: NavHostController, duelLogic: DuelBanditLo
                 textAlign = TextAlign.Center
             )
             Column(
-                modifier = Modifier.padding(vertical = 10.dp).verticalScroll(rememberScrollState())
+                modifier = Modifier.verticalScroll(rememberScrollState())
             ){
-                //display weapons
-                Spacer(modifier= Modifier.height(24.dp))
                 RowDivider()
                 for(w in repo.inventory.weapons.collectAsState().value){
                     WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType})
@@ -139,11 +135,16 @@ fun WeaponOption(weapon: InventoryWeapon, vm: WeaponSelectionViewModel, bullet: 
         modifier = Modifier.fillMaxWidth().background(if(usable) Color.Transparent else Color.Red).padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
-
     ){
-        Column {
-            Text("${weapon.name} (${bullet.amount} bullets)", fontSize = Typography.titleLarge.fontSize)
-            StatsDisplayer("Damage: ${weapon.damage}", "Bullets shot: ${weapon.bulletsShot}")
+        Column (modifier = Modifier.weight(1f)){
+            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+                Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
+                Text("${bullet.amount} bullets")
+            }
+            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween){
+                Text("Damage: ${weapon.damage}")
+                Text("Bullets shot: ${weapon.bulletsShot}")
+            }
         }
         RadioButton(enabled=true, onClick = { vm.select(weapon) }, selected = vm.selectedWeapon.collectAsState().value == weapon)
     }

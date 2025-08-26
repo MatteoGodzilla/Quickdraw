@@ -9,6 +9,7 @@ import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.music.AudioManager
 import com.example.quickdraw.network.api.addFriendAPI
 import com.example.quickdraw.network.api.removeFriendAPI
 import com.example.quickdraw.network.api.submitDuelAPI
@@ -151,6 +152,7 @@ class DuelGameLogic(
                 if(b.type == chosenWeapon.bulletType) b.copy(amount = b.amount - chosenWeapon.bulletsShot)
                 else b
             }
+            AudioManager.startSFX()
             checkBang()
         }
     }
