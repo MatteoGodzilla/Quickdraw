@@ -39,6 +39,7 @@ class YourPlaceVM(
     val bullets = repository.inventory.bullets
 
     val favouriteWeapon = MutableStateFlow(-1)
+    val favouriteSong = MutableStateFlow(0)
 
     val player = repository.player
     val stats = repository.player.stats
@@ -53,6 +54,7 @@ class YourPlaceVM(
             musicVolumeSlider.floatValue = context.dataStore.data.map { pref -> pref[PrefKeys.musicVolume] }.first() ?: DEFAULT_VOLUME
             sfxVolumeSlider.floatValue = context.dataStore.data.map { pref -> pref[PrefKeys.sfxVolume] }.first() ?: DEFAULT_VOLUME
             favouriteWeapon.value = context.dataStore.data.map { pref -> pref[PrefKeys.favouriteWeapon] }.first() ?: -1
+            favouriteSong.value = context.dataStore.data.map { pref -> pref[PrefKeys.favouriteTheme] }.first() ?: 0
         }
     }
 
@@ -125,6 +127,14 @@ class YourPlaceVM(
             viewModelScope.launch {
                 context.dataStore.edit { pref->pref.remove(PrefKeys.favouriteWeapon)}
             }
+        }
+    }
+
+    fun changeAudioManagerSong(choice:Int){
+        viewModelScope.launch {
+            favouriteSong.update { choice }
+            context.dataStore.edit { pref->pref[PrefKeys.favouriteTheme] = choice }
+            AudioManager.changeBgmTheme(context,choice,musicVolumeSlider.value)
         }
     }
 

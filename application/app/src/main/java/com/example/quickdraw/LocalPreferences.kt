@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
+import com.example.quickdraw.music.AudioManager
 import com.example.quickdraw.network.ConnectionManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.firstOrNull
@@ -28,6 +29,7 @@ class PrefKeys{
         val server = stringPreferencesKey("server")
         val musicVolume = floatPreferencesKey("music")
         val sfxVolume = floatPreferencesKey("sfx")
+        val favouriteTheme = intPreferencesKey("theme")
         val favouriteWeapon = intPreferencesKey("favWeapon")
     }
 }
@@ -42,11 +44,19 @@ suspend fun runIfAuthenticated(dataStore: DataStore<Preferences>, block: (authTo
         }
     }
 
-suspend fun loadFavoriteServer(dataStore: DataStore<Preferences>){
+suspend fun loadFavourites(dataStore: DataStore<Preferences>){
+    //server connection
     withContext(Dispatchers.IO) {
         val favourite = dataStore.data.map { pref -> pref[PrefKeys.server] }.firstOrNull()
         if(favourite!=null){
             ConnectionManager.setFavourite(favourite)
+        }
+    }
+    //audio theme for main game
+    withContext(Dispatchers.IO) {
+        val favourite = dataStore.data.map { pref -> pref[PrefKeys.favouriteTheme] }.firstOrNull()
+        if(favourite!=null){
+            AudioManager.setTheme(favourite)
         }
     }
 }
@@ -63,10 +73,4 @@ object Game2Duel{
 
 object Game2Bandit{
     const val BANDIT_ID = "bandit_id"
-    const val BANDIT_HP = "bandit_hp"
-    const val BANDIT_MIN_DAM= "bandit_min_dam"
-    const val BANDIT_MAX_DAM = "bandit_max_dam"
-    const val BANDIT_MIN_SPEED = "bandit_min_spd"
-    const val BANDIT_MAX_SPEED = "bandit_max_spd"
-    const val NAME = "name"
 }

@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit
 
 object  ConnectionManager {
     private var mainIP = "http://192.168.1.63:8000"
-    const val DEBUG = true
+    const val DEBUG = false
     private var availableIPs:List<String> = listOf(
         "http://quickdraw.matteogodzilla.net",
         "http://10.10.1.130:8000",

@@ -1,10 +1,13 @@
 package com.example.quickdraw.game.screen
 
+import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,13 +15,21 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.pager.HorizontalPager
+import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
@@ -26,7 +37,12 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,10 +54,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
+import com.example.quickdraw.TAG
 import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.ContentTab
+import com.example.quickdraw.game.components.DropDownMenuForSettings
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.vm.YourPlaceVM
+import com.example.quickdraw.music.AudioManager
 import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.secondaryButtonColors
 import kotlin.math.floor
@@ -231,7 +250,24 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 onValueChange = { viewModel.setSFXVolume(it) },
                 modifier = Modifier.padding(start = 16.dp, end = 16.dp)
             )
-            SmallHeader("")
+
+            Row(modifier = Modifier.fillMaxWidth()){
+                val options = AudioManager.getSettingsSongs()
+                Row(modifier = Modifier.fillMaxWidth(0.9f)){
+                    StatsDisplayer("Current song:",options[viewModel.favouriteSong.collectAsState().value].name)
+                }
+                DropDownMenuForSettings(modifier = Modifier.align(Alignment.CenterVertically).fillMaxWidth( )){
+                    for(i in 0 .. options.size-1){
+                        val song = options[i]
+                        DropdownMenuItem(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = {Text(song.name)},
+                            onClick = {viewModel.changeAudioManagerSong(i)}
+                        )
+                    }
+                }
+            }
+            SmallHeader("Account")
             Button(
                 onClick = viewModel::logout,
                 colors = secondaryButtonColors,

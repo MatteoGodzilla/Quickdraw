@@ -44,7 +44,7 @@ class MainActivity : ComponentActivity() {
         }
 
         lifecycleScope.launch(Dispatchers.IO) {
-            loadFavoriteServer(this@MainActivity.dataStore)
+            loadFavourites(this@MainActivity.dataStore)
             val tokenId = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.authToken] }
                 .firstOrNull()
             Log.i(TAG, "Stored Token = $tokenId")

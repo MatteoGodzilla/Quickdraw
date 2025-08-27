@@ -20,21 +20,26 @@ enum class SONGS{
     LOBBY_THEME
 }
 
+data class Song(val name:String, val resource:Int)
+
 object AudioManager: DefaultLifecycleObserver {
 
-    private var mappedSongs = mapOf<Int,Int>(
-        Pair(SONGS.BACKGROUND_1.ordinal,R.raw.background_theme),
-        Pair(SONGS.BACKGROUND_2.ordinal,R.raw.background_theme2),
-        Pair(SONGS.BACKGROUND_3.ordinal,R.raw.background_theme3),
+    private var mappedSongs = mapOf<Int,Song>(
+        Pair(SONGS.BACKGROUND_1.ordinal,Song("Theme 1",R.raw.background_theme)),
+        Pair(SONGS.BACKGROUND_2.ordinal,Song("Theme 2",R.raw.background_theme2)),
+        Pair(SONGS.BACKGROUND_3.ordinal,Song("Theme 3",R.raw.background_theme3)),
     )
 
     private var bgm: MediaPlayer? = null
     private var sfx: MediaPlayer? = null
 
+    private var currTheme = SONGS.BACKGROUND_1.ordinal
+
+
     fun init(context: Context,cycle: Lifecycle, initialVolume: Float) {
         cycle.addObserver(this)
         if (bgm == null) {
-            bgm = MediaPlayer.create(context, R.raw.background_theme)
+            bgm = MediaPlayer.create(context, mappedSongs[currTheme]!!.resource)
             bgm!!.isLooping = true
             bgm!!.setVolume(initialVolume, initialVolume)
         }
@@ -44,15 +49,37 @@ object AudioManager: DefaultLifecycleObserver {
         }
     }
 
-    fun changeBgmTheme(context: Context, choice:Int){
+    fun getSettingsSongs() : List<Song>{
+        return mappedSongs.map{x->x.value}
+    }
+
+    fun setTheme(choice:Int){
+        if (mappedSongs.containsKey(choice) && mappedSongs[choice]!=null)
+            currTheme = choice
+    }
+
+    fun changeBgmTheme(context: Context, choice:Int,volume:Float){
+        Log.i(TAG,"Changing song")
         if (mappedSongs.containsKey(choice) && mappedSongs[choice]!=null){
-            bgm = MediaPlayer.create(context,mappedSongs[choice]!!)
-            bgm!!.isLooping = true
+            currTheme = choice
+            replaySong(context,volume)
+            Log.i(TAG,"Song changed")
         }
     }
 
-    fun changeBgmTheme(context: Context, choice:SONGS){
-        changeBgmTheme(context,choice.ordinal)
+    private fun replaySong(context:Context,volume:Float){
+        Log.i(TAG,"Volume:${volume.toString()}")
+        bgm?.stop()
+        bgm?.release()
+        bgm=null
+        bgm= MediaPlayer.create(context,mappedSongs[currTheme]!!.resource)
+        bgm?.isLooping = true
+        bgm?.setVolume(volume,volume)
+        bgm?.start()
+    }
+
+    fun changeBgmTheme(context: Context, choice:SONGS, volume:Float){
+        changeBgmTheme(context,choice.ordinal,volume)
     }
 
     fun startSFX(){
