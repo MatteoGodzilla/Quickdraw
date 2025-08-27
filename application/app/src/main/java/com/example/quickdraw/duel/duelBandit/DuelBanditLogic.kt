@@ -2,6 +2,8 @@ package com.example.quickdraw.duel.duelBandit
 
 import android.content.Context
 import android.content.Intent
+import android.os.VibrationEffect
+import android.os.Vibrator
 import android.util.Log
 import androidx.core.text.util.LocalePreferences
 import androidx.datastore.core.DataStore
@@ -44,6 +46,7 @@ class DuelBanditLogic(
     val context: Context
 ){
     private val localScope = CoroutineScope(Dispatchers.IO)
+    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
     val botHP: MutableStateFlow<Int> = MutableStateFlow(banditInfo.hp)
     val selectedWeapon: MutableStateFlow<InventoryWeapon?> = MutableStateFlow(null)
     val gameState:MutableStateFlow<DuelBanditState> = MutableStateFlow(DuelBanditState.SELECT)
@@ -117,6 +120,7 @@ class DuelBanditLogic(
     }
 
     fun allowShooting(){
+        vibrator.vibrate(VibrationEffect.createOneShot(1000, VibrationEffect.DEFAULT_AMPLITUDE))
         canShoot.update { true }
     }
 
