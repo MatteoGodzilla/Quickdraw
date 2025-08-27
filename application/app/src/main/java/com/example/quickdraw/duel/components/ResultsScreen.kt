@@ -11,10 +11,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
 import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.MatchResult
+import com.example.quickdraw.duel.Message
 import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.repo.GameRepository
@@ -38,9 +40,18 @@ fun ResultsScreen(controller: NavHostController, self: Peer, other: Peer, gameLo
             Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
                 Text( wonByOther.toString(), fontSize = Typography.titleLarge.fontSize * 3)
             }
-            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
-                Text( "Round $roundNumber")
+            if(gameLogic.canGoToNextRound()){
+                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
+                    Text( "Round $roundNumber")
+                }
             }
+            else{
+                val message = if(wonByOther<wonBySelf) "VICTORY" else "DEFEAT"
+                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
+                    Text(message)
+                }
+            }
+
             Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
                 Text( wonBySelf.toString(), fontSize = Typography.titleLarge.fontSize * 3)
             }
@@ -107,8 +118,37 @@ fun ResultsScreen(controller: NavHostController,  gameLogic: DuelBanditLogic, re
             Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
                 Text( wonByOther.toString(), fontSize = Typography.titleLarge.fontSize * 3)
             }
-            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
-                Text( "Round $roundNumber")
+            if(!gameLogic.isDuelOver()){
+                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
+                    Text( "Round $roundNumber")
+                }
+            }
+            else{
+                LaunchedEffect(true) {
+                    gameLogic.sendToServer()
+                }
+                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
+                    Row(modifier = Modifier.fillMaxWidth()) {
+                        Column(modifier = Modifier.fillMaxWidth().align(Alignment.CenterVertically)){
+                            val rewards = repo.bandits.latestReward.collectAsState()
+                            val message = gameLogic.getEndGameMessage()
+                            if(message == "You defeated the bandit!"){
+                                Text("VICTORY", textAlign = TextAlign.Center, fontSize = Typography.titleLarge.fontSize, modifier = Modifier.fillMaxWidth())
+                                Text(message,modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                                if(rewards.value.money>0 || rewards.value.exp > 0){
+                                    Text("You got ${rewards.value.money} coins and ${rewards.value.exp} exp ",modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                                }
+                                else{
+                                    Text("Obtaining rewards...",modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                                }
+                            }
+                            else{
+                                Text("DEFEAT", textAlign = TextAlign.Center, fontSize = Typography.titleLarge.fontSize,modifier = Modifier.fillMaxWidth())
+                                Text(message,modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+                            }
+                        }
+                    }
+                }
             }
             Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
                 Text( wonBySelf.toString(), fontSize = Typography.titleLarge.fontSize * 3)
@@ -135,18 +175,6 @@ fun ResultsScreen(controller: NavHostController,  gameLogic: DuelBanditLogic, re
                     Text("Next round", fontSize = Typography.titleLarge.fontSize)
                 }
             } else {
-                LaunchedEffect(true) {
-                    gameLogic.sendToServer()
-                }
-                Row {
-                    val rewards = repo.bandits.latestReward.collectAsState()
-                    if(rewards.value.money>0 || rewards.value.exp > 0){
-                        Text("You won! You got ${rewards.value.money} coins and ${rewards.value.exp} exp ")
-                    }
-                    else{
-                        Text("No rewards, you lost :(")
-                    }
-                }
                 Button(onClick = {gameLogic.sendBackToMainGame()},
                     colors = primaryButtonColors,
                     modifier = Modifier.fillMaxWidth()

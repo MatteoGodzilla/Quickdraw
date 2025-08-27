@@ -11,6 +11,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.IntrinsicSize
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -28,6 +30,7 @@ import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
@@ -69,10 +72,12 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelGameLogic){
             if(roundEnded && lostRound){
                 Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
             }
-            if(shouldShoot){
-                Text("SHOOT!", fontSize = Typography.titleLarge.fontSize)
-            } else {
-                Text("Steady")
+            Row(){
+                if(shouldShoot){
+                    Text("SHOOT!", fontSize = Typography.titleLarge.fontSize)
+                } else {
+                    Text("Steady",fontSize = Typography.titleLarge.fontSize)
+                }
             }
         }
     }
@@ -119,11 +124,12 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelBanditLogic){
             if(roundEnded.value && lostRound){
                 Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
             }
-            if(shouldShoot.value){
-                Text("SHOOT!", fontSize = Typography.titleLarge.fontSize)
-            } else {
-                Text("Steady")
+            Row(modifier=Modifier.fillMaxWidth().fillMaxHeight(0.03f).background(Color.Black)){
+                val message = if(shouldShoot.value) "SHOOT!" else "Steady..."
+                Text(message, fontSize = Typography.titleLarge.fontSize,
+                    modifier = Modifier.fillMaxWidth(expandFromCenter()).align(Alignment.CenterVertically),color = Color.White, textAlign = TextAlign.Center)
             }
         }
     }
 }
+

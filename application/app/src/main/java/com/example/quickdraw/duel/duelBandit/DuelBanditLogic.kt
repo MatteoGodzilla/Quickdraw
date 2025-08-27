@@ -60,6 +60,13 @@ class DuelBanditLogic(
         return botHP.value<= 0 || repo.player.player.value.health <= 0 || repo.inventory.bullets.value.sumOf { x->x.amount } == 0
     }
 
+    fun getEndGameMessage():String{
+        if(botHP.value<= 0)return "You defeated the bandit!"
+        if(repo.player.player.value.health <= 0) return "You were defeated"
+        if(repo.inventory.bullets.value.sumOf { x->x.amount } == 0) return "You ran out of bullets"
+        return "Unknown error"
+    }
+
     private fun prepareSteady(){
         val rand = kotlin.random.Random
         banditTimer.update { rand.nextLong(banditInfo.minSpeed.toLong(),banditInfo.maxSpeed.toLong()) }

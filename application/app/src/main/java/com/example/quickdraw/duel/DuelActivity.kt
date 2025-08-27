@@ -90,8 +90,10 @@ class DuelActivity : ComponentActivity() {
                     val vm = viewModel {
                         WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value)
                     }
-                    lifecycleScope.launch {
-                        duelGameLogic.setFavourite(this@DuelActivity.dataStore,vm)
+                    LaunchedEffect(true) {
+                        lifecycleScope.launch {
+                            duelGameLogic.setFavourite(this@DuelActivity.dataStore,vm)
+                        }
                     }
                     WeaponSelectionScreen(controller,selfAsPeer, otherAsPeer, duelGameLogic, repository,vm)
                 }

@@ -7,6 +7,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
@@ -45,8 +46,10 @@ class DuelBanditActivity: ComponentActivity() {
                     val vm = viewModel {
                         WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value)
                     }
-                    lifecycleScope.launch {
-                        duelState.setFavourite(this@DuelBanditActivity.dataStore,vm)
+                    LaunchedEffect(true) {
+                        lifecycleScope.launch {
+                            duelState.setFavourite(this@DuelBanditActivity.dataStore,vm)
+                        }
                     }
                     WeaponSelectionScreen(controller,duelState, gameRepo, vm)
                 }
