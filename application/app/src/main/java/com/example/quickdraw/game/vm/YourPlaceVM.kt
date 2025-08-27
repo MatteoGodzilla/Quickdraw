@@ -1,11 +1,13 @@
 package com.example.quickdraw.game.vm
 
 import android.content.Intent
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asImageBitmap
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -71,6 +73,10 @@ class YourPlaceVM(
                 val result = updateProfilePicAPI( authToken, Base64.encode(bytes) )
                 if(result){
                     imageLoader.invalidatePlayerImage(repository.player.player.value.id)
+                    //update for composition
+                    playerImage.update {
+                        BitmapFactory.decodeByteArray(bytes,0,bytes.size).asImageBitmap()
+                    }
                 }
                 input.close()
             }

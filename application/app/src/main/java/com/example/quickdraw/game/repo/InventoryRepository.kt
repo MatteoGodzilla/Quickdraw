@@ -11,6 +11,7 @@ import com.example.quickdraw.network.data.InventoryUpgrade
 import com.example.quickdraw.network.data.InventoryWeapon
 import com.example.quickdraw.runIfAuthenticated
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.any
 import kotlinx.coroutines.flow.update
 
 class InventoryRepository (
@@ -24,6 +25,8 @@ class InventoryRepository (
         private set
     var upgrades: MutableStateFlow<List<InventoryUpgrade>> = MutableStateFlow(listOf())
         private set
+    var enoughToShoot = MutableStateFlow(false)
+        private set
 
     suspend fun getInventory() = runIfAuthenticated(dataStore) { auth ->
         val response = getInventoryAPI(auth)
@@ -34,6 +37,13 @@ class InventoryRepository (
             weapons.update { response.weapons }
             medikits.update { response.medikits }
             upgrades.update { response.upgrades }
+        }
+    }
+
+    fun checkInventoryForShoot(){
+        //there is not an istance in the app where bullets are updated to be reduced,so if a player was already able to shoot,no need to recompute
+        if(!enoughToShoot.value){
+            enoughToShoot.update { weapons.value.any { x-> bullets.value.any { it.type == x.bulletType && x.bulletsShot <= it.amount } } }
         }
     }
 }

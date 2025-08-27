@@ -87,6 +87,7 @@ class ShopRepository(
                     )
                 }
             }
+            inventoryRepository.checkInventoryForShoot()
         }
     }
 

@@ -23,6 +23,7 @@ import com.example.quickdraw.game.ManualConnectionActivity
 import com.example.quickdraw.game.PermissionBroadcastReceiver
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.network.NoConnectionActivity
+import kotlinx.coroutines.flow.any
 
 class MainScreenVM(
     private val repository: GameRepository,
@@ -34,7 +35,6 @@ class MainScreenVM(
     val player = repository.player.player
     val stats = repository.player.stats
     val bandits = repository.bandits.bandits
-
     val peers = peerFinder.peers
     val scanning = peerFinder.scanning
 
