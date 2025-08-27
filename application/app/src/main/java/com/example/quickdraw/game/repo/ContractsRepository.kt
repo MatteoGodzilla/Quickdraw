@@ -28,6 +28,8 @@ class ContractsRepository (
     suspend fun getContracts() = runIfAuthenticated( dataStore ) { auth ->
         active.update { getActiveContractsAPI(auth) }
         available.update { getAvailableContractsAPI(auth) }
+        sortActives()
+        sortAvailable()
     }
 
     suspend fun start(contract: AvailableContract, mercenaries: List<Int>) =
@@ -60,6 +62,7 @@ class ContractsRepository (
                 available.update { it.filter { ac -> contract.id != ac.id } }
                 mercenaryRepo.unAssigned.update { it.filter { y -> !mercenaries.any { z -> z == y.idEmployment } } } // yeah i have to make this more readable i know
             }
+            sortActives()
         }
 
     suspend fun redeem(contract: ActiveContract) = runIfAuthenticated( dataStore ) { auth ->
@@ -73,5 +76,15 @@ class ContractsRepository (
             available.update { it + response.returnableContract }
             mercenaryRepo.unAssigned.update { it + contract.mercenaries }
         }
+        sortActives()
+        sortAvailable()
+    }
+
+    private fun sortActives(){
+        available.update { it.sortedBy { x->x.requiredPower } }
+    }
+
+    private fun sortAvailable(){
+        active.update { it.sortedBy { x->x.requiredTime -x.startTime } }
     }
 }

@@ -11,13 +11,10 @@ import java.net.SocketTimeoutException
 import java.util.concurrent.TimeUnit
 
 object  ConnectionManager {
-<<<<<<< Updated upstream
+
     private var mainIP = "http://192.168.1.63:8000"
-    const val DEBUG = false
-=======
-    private var mainIP = "http://192.168.1.59:8000"
     const val DEBUG = true
->>>>>>> Stashed changes
+
     private var availableIPs:List<String> = listOf(
         "http://quickdraw.matteogodzilla.net",
         "http://10.10.1.130:8000",

@@ -45,6 +45,7 @@ class MercenaryRepository (
     suspend fun getPlayerEmployedMercenaries() = runIfAuthenticated(dataStore) { auth ->
         val response = getAllPlayerMercenariesAPI(auth)
         playerEmployed.update { response.mercenaries }
+        sortEmployes()
     }
 
     suspend fun getNextToUnlockMercenaries() = runIfAuthenticated(dataStore) { auth ->
@@ -68,7 +69,11 @@ class MercenaryRepository (
             unAssigned.update { it + newEmploy }
             //player balance update data
             playerRepository.player.update { p -> p.copy(money = p.money - mercenary.cost) }
+            sortEmployes()
         }
     }
 
+    private fun sortEmployes(){
+        playerEmployed.update { x->x.sortedBy { x->x.power } }
+    }
 }

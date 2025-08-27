@@ -1,52 +1,57 @@
 package com.example.quickdraw.game.components
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.quickdraw.R
-import com.example.quickdraw.game.components.LockedContainer
-import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.network.data.EmployedMercenary
 import com.example.quickdraw.network.data.LockedMercenary
 import com.example.quickdraw.ui.theme.Typography
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
-import kotlin.collections.plus
+
+fun secondsToString(seconds:Long):String{
+    //below a minute
+    if(seconds<60){
+        return "${seconds}s"
+    }
+    val minutes = seconds/60
+    val leftSeconds = seconds%60
+    //below a hour
+    if(minutes<3600){
+        return "${minutes}m${if(leftSeconds>0) " ${leftSeconds}s" else ""}"
+    }
+    val hours = minutes/60
+    val leftMinutes = minutes%60
+    return "${hours}h${if(leftMinutes>0) " ${leftMinutes}m" else ""}${if(leftSeconds>0) " ${leftSeconds}m" else ""}"
+}
 
 @Composable
 fun ActiveContractUI(contract: ActiveContract, timeSeconds: Long, onRedeemClick: ()->Unit){
@@ -60,7 +65,7 @@ fun ActiveContractUI(contract: ActiveContract, timeSeconds: Long, onRedeemClick:
         Column(modifier = Modifier.fillMaxWidth(0.7f)) {
             Text(contract.name, fontSize = Typography.titleLarge.fontSize)
             if(timeRemaining > 0){
-                Text("Time remaining: ${timeRemaining}s")
+                Text("Time remaining: ${secondsToString(timeRemaining)}")
             } else {
                 Text("Contract finished")
             }
@@ -85,22 +90,27 @@ fun AvailableContractUI(contract: AvailableContract, onStartButton: ()->Unit,sta
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Column(modifier = Modifier.fillMaxWidth(0.7f)) {
+        Column(modifier = Modifier.fillMaxWidth(0.7f).padding(5.dp)) {
             Text(contract.name, fontSize = Typography.titleLarge.fontSize)
-            Text("Required time: ${contract.requiredTime}s")
-            Text("Max mercenaries allowed: ${contract.maxMercenaries}")
-            Text("Start cost: ${contract.startCost}")
+            Text("Suggested power:${contract.requiredPower}")
+            Text("Required time: ${secondsToString(contract.requiredTime)}")
+            Text("Up to ${contract.maxMercenaries} mercenaries")
         }
         Button(
             onClick = onStartButton,
-            modifier = Modifier.width(72.dp).height(72.dp),
+            contentPadding = PaddingValues(start=5.dp,end=15.dp),
+            modifier = Modifier.weight(0.25f).height(48.dp),
             enabled = startable
         ) {
-            Icon(
-                imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),
-                "",
-                tint = Color.Black,
-            )
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center){
+                Text("${contract.startCost}$", fontSize = Typography.bodyMedium.fontSize, textAlign = TextAlign.Center)
+                Icon(
+                    imageVector = ImageVector.vectorResource(R.drawable.play_arrow_24px),
+                    "",
+                    tint = Color.Black,
+                        modifier = Modifier.size(24.dp).align(Alignment.CenterEnd)
+                )
+            }
         }
     }
     RowDivider()
@@ -145,7 +155,7 @@ fun EmployedMercenaryPost(mercenary: EmployedMercenary,available: Boolean = true
 @Composable
 fun AssignableMercenary(mercenary: EmployedMercenary,vm: ContractStartVM,isCheckable: Boolean=true){
     val mercs by vm.selectedMercenariesState.collectAsState()
-    var checked = mercs.any{x->x.first==mercenary.idEmployment}
+    var checked = mercs.any{x->x.id==mercenary.idEmployment}
     Row (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,

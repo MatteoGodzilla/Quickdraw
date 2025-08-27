@@ -98,7 +98,7 @@ class GameActivity : ComponentActivity(){
             goToDuel(groupOwner, groupOwnerAddress.hostAddress!!)
         }
 
-
+        val contractsVM = ContractStartVM()
         setContent {
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
@@ -114,7 +114,6 @@ class GameActivity : ComponentActivity(){
                     val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity, pbr!!) }
                     MainScreen(vm, controller,object: DuelCallbacks{
                         override fun onScan() {
-
                             vm.onScan()
                         }
 
@@ -164,7 +163,6 @@ class GameActivity : ComponentActivity(){
                 }
                 composable<GameNavigation.StartContract>{ backstackEntry ->
                     val selected = backstackEntry.toRoute<GameNavigation.StartContract>()
-                    val contractsVM = ContractStartVM()
                     contractsVM.selectContract(selected.idContract)
                     StartContractScreen(controller,repository,contractsVM,object : ContractsCallbacks {
                         override fun onRedeemContract(activeContract: ActiveContract) {

@@ -1,5 +1,8 @@
 package com.example.quickdraw.game.screen
 
+import android.nfc.Tag
+import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -31,6 +34,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.quickdraw.TAG
 import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.game.components.AssignableMercenary
 import com.example.quickdraw.game.components.RowDivider
@@ -40,10 +44,11 @@ import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StartContractScreen(controller: NavHostController, repository: GameRepository,vm: ContractStartVM,callbacks: ContractsCallbacks){
-
     val selected = vm.selectedContractState.collectAsState()
     val selectedMercs = vm.selectedMercenariesState.collectAsState()
     val availableContracts = repository.contracts.available.collectAsState()
@@ -58,6 +63,15 @@ fun StartContractScreen(controller: NavHostController, repository: GameRepositor
     val atLeastOne = if(doesNotExist) false else selectedMercs.value.isNotEmpty()
     val successRate = if(doesNotExist) 0 else vm.successChance(currentContract.requiredPower)
 
+    //go back both for arrow on top left and phone button
+    val goBack:()->Unit = {
+        vm.unselectContract();
+        controller.navigate(GameNavigation.Contracts)
+    }
+    BackHandler {
+        goBack()
+    }
+
     QuickdrawTheme {
         Scaffold (
             topBar = {
@@ -65,7 +79,7 @@ fun StartContractScreen(controller: NavHostController, repository: GameRepositor
                     title = { Text("Start Contract") },
                     modifier = Modifier.padding(0.dp),
                     navigationIcon = {
-                        IconButton(onClick = { controller.navigate(GameNavigation.Contracts) }) {
+                        IconButton(onClick = { goBack()  }) {
                             Icon(Icons.AutoMirrored.Default.ArrowBack,"go back")
                         }
                     }
@@ -83,9 +97,9 @@ fun StartContractScreen(controller: NavHostController, repository: GameRepositor
                             onClick = {
                                 vm.unselectContract()
                                 controller.navigate(GameNavigation.Contracts)
-                                callbacks.onStartContract(currentContract,selectedMercs.value.map{x->x.first})
+                                callbacks.onStartContract(currentContract,selectedMercs.value.map{x->x.id})
                             }) {
-                            Text("Start contract (${currentContract.startCost})", textAlign = TextAlign.Center,
+                            Text("Start contract (costs ${currentContract.startCost})", textAlign = TextAlign.Center,
                                 modifier= Modifier.fillMaxWidth())
                         }
                     }
@@ -111,7 +125,7 @@ fun StartContractScreen(controller: NavHostController, repository: GameRepositor
                     Spacer(modifier= Modifier.height(24.dp))
                     RowDivider()
                     for(merc in unassigned.value){
-                        val checkBoxSelectable = selectedMercs.value.any{x->x.first==merc.idEmployment} || selectedMercs.value.size<currentContract.maxMercenaries
+                        val checkBoxSelectable = selectedMercs.value.any{x->x.id==merc.idEmployment} || selectedMercs.value.size<currentContract.maxMercenaries
                         AssignableMercenary(merc,vm,checkBoxSelectable)
                     }
                 }
