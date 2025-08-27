@@ -66,8 +66,7 @@ class DuelActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent{
             //force portait
-            val context = LocalContext.current
-            (context as? Activity)?.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+            this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
             LaunchedEffect(true) {
                 if(isServer){

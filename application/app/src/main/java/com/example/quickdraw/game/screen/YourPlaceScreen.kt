@@ -234,7 +234,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
             StatsDisplayer("Started", contractStats.started.toString())
             StatsDisplayer("Completed", contractStats.completed.toString())
             StatsDisplayer("Failed", contractStats.successful.toString())
-            StatsDisplayer("Completion ratio", "${if (contractStats.started > 0) floor(contractStats.successful.toFloat() * 100 / contractStats.completed) else 0} %")
+            StatsDisplayer("Completion ratio", "${if (contractStats.completed > 0) floor(contractStats.successful.toFloat() * 100 / contractStats.completed) else 0} %")
         },
         ContentTab("Settings") {
             SmallHeader("Audio")

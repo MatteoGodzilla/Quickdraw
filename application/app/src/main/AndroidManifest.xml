@@ -17,6 +17,7 @@
     <uses-permission android:name="android.permission.CAMERA" />
 
     <application
+        android:name=".QuickdrawApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -26,9 +27,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Quickdraw"
         android:usesCleartextTraffic="true"
-        android:name=".QuickdrawApplication"
-        tools:targetApi="31"
-        tools:replace="android:name">
+        tools:replace="android:name"
+        tools:targetApi="31">
+        <activity
+            android:name=".SensorTest"
+            android:exported="false"
+            android:label="@string/title_activity_sensor_test"
+            android:theme="@style/Theme.Quickdraw" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -40,20 +45,24 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".duel.DuelActivity" android:exported="true" />
-        <activity android:name=".game.ManualConnectionActivity" android:exported="true" />
-        <activity android:name=".duel.duelBandit.DuelBanditActivity" android:exported="true" />
-
+        <activity
+            android:name=".duel.DuelActivity"
+            android:exported="true" />
+        <activity
+            android:name=".game.ManualConnectionActivity"
+            android:exported="true" />
+        <activity
+            android:name=".duel.duelBandit.DuelBanditActivity"
+            android:exported="true" />
         <activity
             android:name=".game.GameActivity"
             android:exported="true"
             android:label="@string/title_activity_main"
-            android:theme="@style/Theme.Quickdraw">
-        </activity>
-        <activity android:name=".network.NoConnectionActivity"
+            android:theme="@style/Theme.Quickdraw" />
+        <activity
+            android:name=".network.NoConnectionActivity"
             android:exported="false"
-            android:theme="@style/Theme.Quickdraw">
-        </activity>
+            android:theme="@style/Theme.Quickdraw" />
         <activity
             android:name=".login.LoginActivity"
             android:exported="false"

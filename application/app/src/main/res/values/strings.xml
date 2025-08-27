@@ -2,4 +2,5 @@
     <string name="app_name">Quickdraw</string>
     <string name="title_activity_main">Quickdraw</string>
     <string name="title_activity_duel">DuelActivity</string>
+    <string name="title_activity_sensor_test">SensorTest</string>
 </resources>

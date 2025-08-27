@@ -1,7 +1,12 @@
 package com.example.quickdraw.duel
 
 import android.content.Context
+import android.content.Context.SENSOR_SERVICE
 import android.content.Intent
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import android.os.VibrationEffect
 import android.os.Vibrator
 import android.util.Log
@@ -27,10 +32,10 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.net.Socket
+import kotlin.math.abs
 import kotlin.random.Random
 
 //Higher level logic for actually handling the game part
@@ -38,7 +43,8 @@ class DuelGameLogic(
     peer: Peer,
     private val repository: GameRepository,
     private val context: Context,
-) : MessageHandler{
+) : MessageHandler, SensorEventListener{
+    //UI Variables
     val selfState = MutableStateFlow(PeerState.UNKNOWN)
     val otherState = MutableStateFlow(PeerState.UNKNOWN)
     val selfPeer = MutableStateFlow(peer)
@@ -62,13 +68,20 @@ class DuelGameLogic(
         private set
     //Weapon
     private lateinit var chosenWeapon: InventoryWeapon
+    private var beforeVec3: List<Float> = listOf(0f, 0f, 0f)
+    private var afterVec3: List<Float> = listOf(0f, 0f, 0f)
 
+
+    //Other stuff
     private lateinit var duelServer: DuelServer
     private val localScope = CoroutineScope(Dispatchers.IO)
+    private val sensorManager = context.getSystemService(SENSOR_SERVICE) as SensorManager
 
     override suspend fun onConnection(duelServer: DuelServer) {
         this.duelServer = duelServer
         duelServer.enqueueOutgoing(Message(MessageType.SETUP, Json.encodeToString(selfPeer.value)))
+        sensorManager.registerListener(this,sensorManager.getDefaultSensor(Sensor.TYPE_GRAVITY),
+            SensorManager.SENSOR_DELAY_GAME)
     }
 
     override suspend fun handleIncoming(message: Message, other: Socket) {
@@ -159,6 +172,9 @@ class DuelGameLogic(
                 if(b.type == chosenWeapon.bulletType) b.copy(amount = b.amount - chosenWeapon.bulletsShot)
                 else b
             }
+            Log.i(TAG, "VECTORS: ${beforeVec3.joinToString(",")} : ${afterVec3.joinToString(",")}")
+            val dot = beforeVec3[0] * afterVec3[0] + beforeVec3[1] * afterVec3[1] + beforeVec3[2] * afterVec3[2]
+            Log.i(TAG, "DOT: $dot")
             AudioManager.startSFX()
             checkBang()
         }
@@ -196,6 +212,7 @@ class DuelGameLogic(
                 Log.i(TAG, Json.encodeToString(submit))
             }
         }
+        sensorManager.unregisterListener(this@DuelGameLogic)
         //send to main menu
         val intent = Intent(context, GameActivity::class.java)
         context.startActivity(intent)
@@ -255,6 +272,27 @@ class DuelGameLogic(
         }
     }
 
+    //Movement callbacks
+    override fun onSensorChanged(event: SensorEvent?) {
+        if(event != null){
+            if(!shouldShoot.value){
+                beforeVec3 = listOf(event.values[0] / 9.81f, event.values[1]/ 9.81f, event.values[2]/ 9.81f)
+            } else {
+                afterVec3 = listOf(event.values[0]/ 9.81f, event.values[1]/ 9.81f, event.values[2]/ 9.81f)
+            }
+        }
+    }
+
+    fun selfGetsMovementBonus(): Boolean {
+        val dot = beforeVec3[0] * afterVec3[0] + beforeVec3[1] * afterVec3[1] + beforeVec3[2] * afterVec3[2]
+        return abs(dot) < 0.33f
+    }
+
+    override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
+        //I should probably get the accuracy, ehhhhhhhh
+    }
+
+    //Other stuff
     private fun resetTempVariables() {
         selfChosenDelay = 0.0
         peerChosenDelay = 0.0
@@ -317,4 +355,5 @@ class DuelGameLogic(
             }
         }
     }
+
 }
