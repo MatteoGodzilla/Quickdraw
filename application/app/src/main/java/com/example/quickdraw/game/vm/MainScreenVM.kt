@@ -99,6 +99,7 @@ class MainScreenVM(
     }
 
     fun goToManualMatch(){
+        peerFinder.stopScanning()
         val intent = Intent(context, ManualConnectionActivity::class.java)
         context.startActivity(intent)
     }

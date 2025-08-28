@@ -63,6 +63,7 @@ class DuelGameLogic(
     //Time delta when players actually shot
     private var selfBangDelta = 0.0
     private var peerBangDelta = 0.0
+    private var checkedResults = false
     //Reference
     var referenceTimeMS = 0L
         private set
@@ -154,6 +155,7 @@ class DuelGameLogic(
     //UI Functions
 
     fun setReady(weapon: InventoryWeapon) = localScope.launch{
+        resetTempVariables()
         selfState.value = PeerState.READY
         printStatus()
         shouldShoot.value = false
@@ -185,7 +187,6 @@ class DuelGameLogic(
             selfState.value = PeerState.CAN_PLAY
             printStatus()
             duelServer.enqueueOutgoing(Message(MessageType.NEW_ROUND))
-            resetTempVariables()
         } else {
             selfState.value = PeerState.DONE
             printStatus()
@@ -259,7 +260,8 @@ class DuelGameLogic(
     }
 
     private suspend fun checkBang() {
-        if(selfState.value == PeerState.BANG && otherState.value == PeerState.BANG) {
+        if(!checkedResults && selfState.value == PeerState.BANG && otherState.value == PeerState.BANG) {
+            checkedResults = true
             //check who won
             Log.i(TAG, "CHECKING $selfBangDelta $peerBangDelta")
             duelState.value = duelState.value.copy(roundResults = duelState.value.roundResults +
@@ -298,6 +300,7 @@ class DuelGameLogic(
         selfChosenDelay = 0.0
         peerChosenDelay = 0.0
         agreedBangDelay = 0.0
+        checkedResults = false
         selfBangDelta = 0.0
         peerBangDelta = 0.0
         referenceTimeMS = 0

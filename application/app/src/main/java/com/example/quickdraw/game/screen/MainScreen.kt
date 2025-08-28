@@ -7,7 +7,6 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,7 +14,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -36,8 +34,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -57,7 +53,6 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.BasicTabLayout
 import com.example.quickdraw.game.components.BottomNavBar
-import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.game.vm.MainScreenVM
 import com.example.quickdraw.ui.theme.QuickdrawTheme
@@ -65,8 +60,6 @@ import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.primaryButtonColors
 import com.example.quickdraw.ui.theme.secondaryButtonColors
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.select
-import kotlin.collections.iterator
 
 interface DuelCallbacks{
     fun onScan()
@@ -86,8 +79,8 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,callbacks:
             )
         ) { padding ->
             val content :List<@Composable ()->Unit> = listOf(
-                {PvpSection(viewModel,controller,callbacks,padding)},
-                {PveSection(viewModel,controller,callbacks,padding)}
+                {PvpSection(viewModel,callbacks)},
+                {PveSection(viewModel,callbacks)}
             )
             val pagerState = rememberPagerState (initialPage = 0){ content.size }
             val scrollScope = rememberCoroutineScope()
@@ -113,7 +106,7 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,callbacks:
 }
 
 @Composable
-fun PvpSection(viewModel: MainScreenVM, controller: NavHostController,callbacks: DuelCallbacks,padding: PaddingValues){
+fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
     //rotation if scouting
     val infiniteTransition = rememberInfiniteTransition()
     val rotation by infiniteTransition.animateFloat(
@@ -128,7 +121,7 @@ fun PvpSection(viewModel: MainScreenVM, controller: NavHostController,callbacks:
     Column (
         modifier = Modifier.fillMaxSize()
     ){
-        if(viewModel.peers.collectAsState().value.size > 0){
+        if(viewModel.peers.collectAsState().value.isNotEmpty()){
             Column (modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())){
                 //Test match
                 for (p in viewModel.peers.collectAsState().value) {
@@ -280,13 +273,12 @@ fun PvpSection(viewModel: MainScreenVM, controller: NavHostController,callbacks:
 }
 
 @Composable
-fun PveSection(viewModel: MainScreenVM, controller: NavHostController,callbacks: DuelCallbacks,padding: PaddingValues){
+fun PveSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
     val bandits = viewModel.bandits.collectAsState()
     Column (
         modifier = Modifier.fillMaxSize()
     ){
-        if(bandits.value.size > 0){
-
+        if(bandits.value.isNotEmpty()){
             Column (modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())){
                 for(entry in bandits.value){
                     Row (
@@ -312,7 +304,8 @@ fun PveSection(viewModel: MainScreenVM, controller: NavHostController,callbacks:
             Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)){
                 Text(
                     "Press Locate bandits in order to look for bandits to fight!",
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }
