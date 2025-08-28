@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
+import com.example.quickdraw.network.data.ImageRequest
 import com.example.quickdraw.network.data.LeaderboardEntry
 import com.example.quickdraw.ui.theme.MedalColors
 import com.example.quickdraw.ui.theme.Typography
@@ -46,6 +48,21 @@ fun BountyEntry(entry: LeaderboardEntry, placement: Int, icon: ImageBitmap){
         PlacementText(placement)
         Image(
             icon,
+            "Placement $placement",
+            contentScale = ContentScale.FillBounds,
+            modifier = Modifier.size(32.dp).clip(CircleShape)
+        )
+        Text(entry.username, fontSize=Typography.titleLarge.fontSize,modifier = textModifier)
+        Text(entry.bounty.toString(), fontSize=Typography.bodyLarge.fontSize, textAlign = TextAlign.Right,modifier = textModifier.fillMaxWidth())
+    }
+}
+@Composable
+fun BountyEntry(entry: LeaderboardEntry, placement: Int,request: ImageRequest){
+    val textModifier = Modifier.padding(5.dp)
+    Row(modifier = Modifier.fillMaxWidth()){
+        PlacementText(placement)
+        AsyncImage(
+            model= ImageRequest,
             "Placement $placement",
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.size(32.dp).clip(CircleShape)

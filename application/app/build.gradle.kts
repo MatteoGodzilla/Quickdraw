@@ -71,4 +71,5 @@ dependencies {
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.core)
     implementation(libs.qr.kit)
+    implementation(libs.coil.compose)
 }
