@@ -99,7 +99,7 @@ async def pool(request: BasicAuthTokenRequest):
     response = []
 
     #select all pools allowed
-    pools = select(BanditPool).where(BanditPool.levelRequired <= level)
+    pools = select(BanditPool).where(BanditPool.levelRequired == level)
     poolResult = session.exec(pools).fetchall()
     #generate the spawn chance and the random numbers
     for pool in poolResult:
@@ -238,18 +238,21 @@ async def tokenLogin(request: FightRequest):
     result = session.exec(playerBullets).fetchall()
 
     map_bullets = {}
+    map_weapons = {}
     badResponse = JSONResponse(status_code=HTTP_401_UNAUTHORIZED,content={"message":"bullet possession inconsistent with given fight"})
 
     weapon_to_bullet = {wp.idWeapon:w.bulletType for wp,w in resultWeapon}
 
     for pb,b in result:
          map_bullets[b.type] = pb
+    for w,pw in resultWeapon:
+         map_weapons[w.idWeapon] = pw
 
 
     for x in request.fights:
         if not weapon_to_bullet[x.idWeapon] in map_bullets.keys():
              return badResponse
-        map_bullets[weapon_to_bullet[x.idWeapon]].amount-=1
+        map_bullets[weapon_to_bullet[x.idWeapon]].amount-=map_weapons[x.idWeapon].bulletsShot
         
         if map_bullets[weapon_to_bullet[x.idWeapon]].amount<0:
             return badResponse

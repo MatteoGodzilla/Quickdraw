@@ -87,7 +87,7 @@ class DuelBanditLogic(
         if(gameState.value == DuelBanditState.STEADY){
             gameState.update { DuelBanditState.BANG }
             repo.inventory.bullets.value = repo.inventory.bullets.value.map { b ->
-                if(b.type == selectedWeapon.value!!.bulletType) b.copy(amount = b.amount - 1)
+                if(b.type == selectedWeapon.value!!.bulletType) b.copy(amount = b.amount - selectedWeapon.value!!.bulletsShot)
                 else b
             }
             damageCalc(playerWinner)
