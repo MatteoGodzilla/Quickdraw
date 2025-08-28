@@ -96,6 +96,7 @@ class GameActivity : ComponentActivity(){
         //For when another peer is connecting through wifi-p2p
         qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
             goToDuel(groupOwner, groupOwnerAddress.hostAddress!!)
+            qdapp.peerFinderSingleton.stopScanning()
         }
 
         val contractsVM = ContractStartVM()

@@ -196,6 +196,7 @@ class DuelGameLogic(
     fun goodbye() = localScope.launch {
         selfState.value = PeerState.DONE
         duelServer.enqueueOutgoing(Message(MessageType.GOODBYE))
+        duelServer.doneReceiving()
         if(duelState.value.roundResults.isNotEmpty()){
             runIfAuthenticated(context.dataStore){ authToken ->
                 val submitRounds = duelState.value.roundResults.map { round ->

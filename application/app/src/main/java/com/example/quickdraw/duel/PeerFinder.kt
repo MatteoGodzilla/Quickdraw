@@ -9,6 +9,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.LocationManager
+import android.net.NetworkInfo
 import android.net.wifi.WifiManager
 import android.net.wifi.WpsInfo
 import android.net.wifi.p2p.WifiP2pConfig
@@ -30,6 +31,11 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.quickdraw.TAG
+import com.example.quickdraw.duel.PeerFinder.Companion.HEALTH_KEY
+import com.example.quickdraw.duel.PeerFinder.Companion.ID_KEY
+import com.example.quickdraw.duel.PeerFinder.Companion.LEVEL_KEY
+import com.example.quickdraw.duel.PeerFinder.Companion.MAX_HEALTH_KEY
+import com.example.quickdraw.duel.PeerFinder.Companion.USERNAME_KEY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -47,7 +53,17 @@ data class Peer(
     val level: Int,
     val health: Int,
     val maxHealth: Int
-)
+) {
+    fun getValuesAsMap(): Map<String, String> {
+       return mapOf(
+            ID_KEY to id.toString(),
+            USERNAME_KEY to username,
+            LEVEL_KEY to level.toString(),
+            HEALTH_KEY to health.toString(),
+            MAX_HEALTH_KEY to maxHealth.toString()
+        )
+    }
+}
 
 //Class responsible for finding other players nearby
 @SuppressLint("MissingPermission")
@@ -133,16 +149,10 @@ class PeerFinder (
             isRegistered.update { true }
         }
 
-
         playerServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(
             QUICKDRAW_INSTANCE_NAME,
             QUICKDRAW_SERVICE_TYPE,
-            mapOf(
-                USERNAME_KEY to self.username,
-                LEVEL_KEY to self.level.toString(),
-                HEALTH_KEY to self.health.toString(),
-                MAX_HEALTH_KEY to self.maxHealth.toString()
-            )
+            self.getValuesAsMap()
         )
         p2pManager.addLocalService(channel, playerServiceInfo, object: ActionListener {
             override fun onSuccess() {
@@ -235,7 +245,7 @@ class PeerFinder (
             }
         }
 
-        if(permsToAsk.size > 0){
+        if(permsToAsk.isNotEmpty()){
             ActivityCompat.requestPermissions(helper, permsToAsk.toTypedArray(), 0)
         }
 

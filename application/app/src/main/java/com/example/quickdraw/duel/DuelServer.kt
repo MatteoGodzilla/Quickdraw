@@ -16,6 +16,7 @@ class DuelServer(private val receiver: MessageHandler) {
     private val outQueue: MutableList<Message> = mutableListOf()
     private var serverSocket : ServerSocket? = null
     private var clientSocket : Socket? = null
+    private var doneReceiving = false
 
     suspend fun startAsServer() = withContext(Dispatchers.IO){
         if(serverSocket != null)
@@ -25,6 +26,9 @@ class DuelServer(private val receiver: MessageHandler) {
         val client = serverSocket!!.accept()
         Log.i(TAG, "[DuelServer] Accepted socket: $client")
         peerLoop(client)
+        Log.i(TAG, "[DuelServer] Closing socket: $client")
+        client.close()
+        serverSocket!!.close()
     }
 
     suspend fun startAsClient(address: InetAddress) = withContext(Dispatchers.IO){
@@ -34,13 +38,15 @@ class DuelServer(private val receiver: MessageHandler) {
         clientSocket = Socket(address,PORT)
         Log.i(TAG, "[DuelServer] Connected to server")
         peerLoop(clientSocket!!)
+        Log.i(TAG, "[DuelServer] Closing socket: $clientSocket")
+        clientSocket!!.close()
     }
 
     suspend fun peerLoop(other: Socket) = withContext(Dispatchers.IO){
         receiver.onConnection(this@DuelServer)
         val incoming = BufferedReader(InputStreamReader(other.getInputStream()))
         val outgoing = PrintWriter(other.getOutputStream())
-        while(!other.isClosed){
+        while(!other.isClosed && !doneReceiving){
             if(other.getInputStream().available() > 0){
                 //read data from other
                 val line = incoming.readLine()
@@ -61,6 +67,10 @@ class DuelServer(private val receiver: MessageHandler) {
 
     suspend fun enqueueOutgoing(message:Message) = withContext(Dispatchers.IO){
         outQueue.add(message)
+    }
+
+    suspend fun doneReceiving() = withContext(Dispatchers.IO){
+        doneReceiving = true
     }
 
     companion object{
