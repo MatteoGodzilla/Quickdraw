@@ -15,5 +15,6 @@ class QuickdrawApplication : Application() {
         super.onCreate()
         peerFinderSingleton = PeerFinder(applicationContext)
         imageLoader = ImageLoader(applicationContext)
+        repository = GameRepository(this.dataStore)
     }
 }

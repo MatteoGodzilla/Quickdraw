@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
@@ -215,7 +216,7 @@ fun DropDownMenuForSettings(modifier:Modifier = Modifier,content:@Composable ()-
     var expanded by remember { mutableStateOf(false) }
 
     IconButton(onClick = { expanded = !expanded }) {
-        Icon(Icons.Default.MoreVert, contentDescription = "More options",modifier=Modifier.rotate(90.0f))
+        Icon(Icons.Default.KeyboardArrowDown, contentDescription = "More options")
     }
     DropdownMenu(
         expanded = expanded,

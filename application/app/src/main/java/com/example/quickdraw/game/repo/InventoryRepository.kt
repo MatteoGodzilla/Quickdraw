@@ -17,9 +17,13 @@ import kotlinx.coroutines.flow.update
 class InventoryRepository (
     private val dataStore: DataStore<Preferences>
 ){
-    var bullets: MutableStateFlow<List<InventoryBullet>> = MutableStateFlow(listOf())
+    var bullets: MutableStateFlow<List<InventoryBullet>> = MutableStateFlow(listOf(
+        InventoryBullet( 1, "Offline bullet", 50, 50 )
+    ))
         private set
-    var weapons: MutableStateFlow<List<InventoryWeapon>> = MutableStateFlow(listOf())
+    var weapons: MutableStateFlow<List<InventoryWeapon>> = MutableStateFlow(listOf(
+        InventoryWeapon(1, "Offline gun", 5, 0, 1, 5)
+    ))
         private set
     var medikits: MutableStateFlow<List<InventoryMedikit>> = MutableStateFlow(listOf())
         private set

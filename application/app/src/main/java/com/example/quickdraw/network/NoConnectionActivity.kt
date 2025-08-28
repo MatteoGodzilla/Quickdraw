@@ -24,6 +24,7 @@ import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.game.GameActivity
+import com.example.quickdraw.game.ManualConnectionActivity
 import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.network.api.TOKEN_LOGIN_ENDPOINT
 import com.example.quickdraw.network.api.toRequestBody
@@ -65,7 +66,7 @@ class NoConnectionActivity: ComponentActivity()  {
                         Text("Try again")
                     }
                     Button(onClick = {
-                        val intent = Intent(this@NoConnectionActivity, DuelActivity::class.java)
+                        val intent = Intent(this@NoConnectionActivity, ManualConnectionActivity::class.java)
                         startActivity(intent)
                         return@Button
                     }) {

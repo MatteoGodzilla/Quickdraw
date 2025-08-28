@@ -141,7 +141,8 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
             Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)){
                 Text(
                     "Press Start scouting in order to find other players nearby!",
-                    textAlign = TextAlign.Center
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
         }

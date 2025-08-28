@@ -42,9 +42,9 @@ data class Stats(
 class PlayerRepository(
     private val dataStore: DataStore<Preferences>
 ) {
-    var player: MutableStateFlow<Player> = MutableStateFlow( Player(0, 0, 0, 0, 0, 0,"" ) )
+    var player: MutableStateFlow<Player> = MutableStateFlow( Player(0, 100, 0, 1, 0, 0,"Guest" ) )
         private set
-    var stats: MutableStateFlow<Stats> = MutableStateFlow(Stats(50,100,100,100,1))
+    var stats: MutableStateFlow<Stats> = MutableStateFlow(Stats(100,100,100,100,1))
     private var status: PlayerInfo? = null
     private var baseStats: List<BaseStats> = listOf()
     private var statusStats: List<BaseStats> = listOf()
