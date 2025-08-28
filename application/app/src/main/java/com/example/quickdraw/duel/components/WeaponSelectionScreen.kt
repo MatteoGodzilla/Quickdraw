@@ -2,9 +2,11 @@ package com.example.quickdraw.duel.components
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,6 +28,7 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.Peer
+import com.example.quickdraw.duel.PeerState
 import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.game.components.RowDivider
@@ -41,50 +44,60 @@ import com.example.quickdraw.ui.theme.secondaryButtonColors
 fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer, gameLogic: DuelGameLogic, repo: GameRepository, vm: WeaponSelectionViewModel){
     val canDoRound = canSelfDoRound(repo)
     DuelContainer(self, other){
-        val bullets = repo.inventory.bullets.collectAsState()
-        Column(modifier = Modifier.fillMaxWidth()){
-            if(canDoRound){
-                Text("Select Weapon",modifier = Modifier.fillMaxWidth().padding(top=5.dp),
-                    fontSize = Typography.titleLarge.fontSize,
-                    textAlign = TextAlign.Center
-                )
-                Column(
-                    modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
-                ){
-                    RowDivider()
-                    for(w in repo.inventory.weapons.collectAsState().value){
-                        WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType})
-                    }
-                }
-                Row(modifier=Modifier.fillMaxWidth()){
-                    Button(onClick = {vm.selectMostDamage()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
-                        Text("Most Damage")
-                    }
-                    Button(onClick = {vm.selectMostBullets()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
-                        Text("Most Bullets")
-                    }
-                }
-                Button(onClick = {
-                    gameLogic.setReady( vm.selectedWeapon.value)
-                }, modifier = Modifier.fillMaxWidth(),
-                    colors = primaryButtonColors
-                ) {
-                    Text("Start!")
-                }
-            } else {
-                Text("No usable weapon found because of missing bullets",modifier = Modifier.fillMaxWidth().padding(top=5.dp),
-                    fontSize = Typography.titleLarge.fontSize,
-                    textAlign = TextAlign.Center
-                )
-                Button(onClick = {
-                    gameLogic.goodbye()
-                }, modifier = Modifier.fillMaxWidth(),
-                    colors = primaryButtonColors
-                ) {
-                    Text("Forfeit")
+        if(gameLogic.selfState.collectAsState().value == PeerState.READY && gameLogic.otherState.collectAsState().value == PeerState.CAN_PLAY){
+            Box(modifier=Modifier.padding(5.dp).fillMaxSize()){
+                Column(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.Center)) {
+                    LoadMessage("Waiting for opponent...",Modifier.align(alignment = Alignment.CenterHorizontally))
                 }
             }
         }
+        else{
+            val bullets = repo.inventory.bullets.collectAsState()
+            Column(modifier = Modifier.fillMaxWidth()){
+                if(canDoRound){
+                    Text("Select Weapon",modifier = Modifier.fillMaxWidth().padding(top=5.dp),
+                        fontSize = Typography.titleLarge.fontSize,
+                        textAlign = TextAlign.Center
+                    )
+                    Column(
+                        modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
+                    ){
+                        RowDivider()
+                        for(w in repo.inventory.weapons.collectAsState().value){
+                            WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType})
+                        }
+                    }
+                    Row(modifier=Modifier.fillMaxWidth()){
+                        Button(onClick = {vm.selectMostDamage()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
+                            Text("Most Damage")
+                        }
+                        Button(onClick = {vm.selectMostBullets()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
+                            Text("Most Bullets")
+                        }
+                    }
+                    Button(onClick = {
+                        gameLogic.setReady( vm.selectedWeapon.value)
+                    }, modifier = Modifier.fillMaxWidth(),
+                        colors = primaryButtonColors
+                    ) {
+                        Text("Start!")
+                    }
+                } else {
+                    Text("No usable weapon found because of missing bullets",modifier = Modifier.fillMaxWidth().padding(top=5.dp),
+                        fontSize = Typography.titleLarge.fontSize,
+                        textAlign = TextAlign.Center
+                    )
+                    Button(onClick = {
+                        gameLogic.goodbye()
+                    }, modifier = Modifier.fillMaxWidth(),
+                        colors = primaryButtonColors
+                    ) {
+                        Text("Forfeit")
+                    }
+                }
+            }
+        }
+
     }
 }
 

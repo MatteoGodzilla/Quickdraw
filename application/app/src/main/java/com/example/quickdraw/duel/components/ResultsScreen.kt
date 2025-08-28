@@ -3,7 +3,9 @@ package com.example.quickdraw.duel.components
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -12,6 +14,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
@@ -19,6 +22,7 @@ import com.example.quickdraw.duel.MatchResult
 import com.example.quickdraw.duel.Message
 import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.duel.Peer
+import com.example.quickdraw.duel.PeerState
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.StatsDisplayer
 import com.example.quickdraw.ui.theme.Typography
@@ -36,68 +40,68 @@ fun ResultsScreen(controller: NavHostController, self: Peer, other: Peer, gameLo
     val bulletsRemaining = repo.inventory.bullets.collectAsState().value.firstOrNull { b -> b.type == weapon?.bulletType }
     val isOpponentFriendAlready = repo.leaderboard.friends.collectAsState().value.any { p -> p.id == self.id }
     DuelContainer(self, other) {
-        Column {
-            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
-                Text( wonByOther.toString(), fontSize = Typography.titleLarge.fontSize * 3)
-            }
-            if(gameLogic.canGoToNextRound()){
-                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
-                    Text( "Round $roundNumber")
+        if(gameLogic.selfState.collectAsState().value == PeerState.READY){
+            Box(modifier=Modifier.padding(5.dp).fillMaxSize()){
+                Column(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.Center)) {
+                    LoadMessage("Waiting for opponent...",Modifier.align(alignment = Alignment.CenterHorizontally))
                 }
             }
-            else{
-                val message = if(wonByOther<wonBySelf) "VICTORY" else "DEFEAT"
+        }
+        else{
+            Column {
                 Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
-                    Text(message)
+                    Text( wonByOther.toString(), fontSize = Typography.titleLarge.fontSize * 3)
                 }
-            }
+                if(gameLogic.canGoToNextRound()){
+                    Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
+                        Text( "Round $roundNumber")
+                    }
+                }
+                else{
+                    val message = if(wonByOther<wonBySelf) "VICTORY" else "DEFEAT"
+                    Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
+                        Text(message)
+                    }
+                }
 
-            Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
-                Text( wonBySelf.toString(), fontSize = Typography.titleLarge.fontSize * 3)
-            }
-            if(gameLogic.canGoToNextRound()) {
-                StatsDisplayer("Remaining bullets", bulletsRemaining?.amount.toString())
-                Button(onClick = {
+                Box(modifier = Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center){
+                    Text( wonBySelf.toString(), fontSize = Typography.titleLarge.fontSize * 3)
+                }
+                if(gameLogic.canGoToNextRound()) {
+                    StatsDisplayer("Remaining bullets", bulletsRemaining?.amount.toString())
+                    Button(onClick = {
                         controller.navigate(DuelNavigation.WeaponSelect)
                         gameLogic.nextRound()
                     },
-                    colors = secondaryButtonColors,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("Change weapon")
-                }
-                Button(onClick = {
+                        colors = secondaryButtonColors,
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Change weapon")
+                    }
+                    Button(onClick = {
                         gameLogic.setReady(weapon!!)
                     },
-                    colors = primaryButtonColors,
-                    modifier = Modifier.fillMaxWidth(),
-                ) {
-                    Text("Next round", fontSize = Typography.titleLarge.fontSize)
-                }
-            } else {
-                Row {
-                    /*
-                    Button(onClick = {},
-                        colors = secondaryButtonColors,
-                        modifier = Modifier.weight(1f)
+                        colors = primaryButtonColors,
+                        modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("Add memory")
+                        Text("Next round", fontSize = Typography.titleLarge.fontSize)
                     }
-
-                     */
-                    Button(onClick = gameLogic::addFriend,
-                        colors = secondaryButtonColors,
-                        modifier = Modifier.weight(1f),
-                        enabled = !isOpponentFriendAlready
+                } else {
+                    Row {
+                        Button(onClick = gameLogic::addFriend,
+                            colors = secondaryButtonColors,
+                            modifier = Modifier.weight(1f),
+                            enabled = !isOpponentFriendAlready
+                        ) {
+                            Text("Send friend request")
+                        }
+                    }
+                    Button(onClick = gameLogic::goodbye,
+                        colors = primaryButtonColors,
+                        modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text("Send friend request")
+                        Text("End duel", fontSize = Typography.titleLarge.fontSize)
                     }
-                }
-                Button(onClick = gameLogic::goodbye,
-                    colors = primaryButtonColors,
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    Text("End duel", fontSize = Typography.titleLarge.fontSize)
                 }
             }
         }

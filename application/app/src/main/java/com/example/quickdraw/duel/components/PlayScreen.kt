@@ -72,12 +72,10 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelGameLogic){
             if(roundEnded && lostRound){
                 Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
             }
-            Row(){
-                if(shouldShoot){
-                    Text("SHOOT!", fontSize = Typography.titleLarge.fontSize)
-                } else {
-                    Text("Steady",fontSize = Typography.titleLarge.fontSize)
-                }
+            Row(modifier=Modifier.fillMaxWidth().fillMaxHeight(0.03f).background(Color.Black)){
+                val message = if(shouldShoot) "SHOOT!" else "Steady..."
+                Text(message, fontSize = Typography.titleLarge.fontSize,
+                    modifier = Modifier.fillMaxWidth(expandFromCenter()).align(Alignment.CenterVertically),color = Color.White, textAlign = TextAlign.Center)
             }
         }
     }

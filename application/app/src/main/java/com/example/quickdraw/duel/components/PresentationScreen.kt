@@ -36,13 +36,7 @@ fun PresentationScreen(controller: NavHostController, self: Peer, other: Peer){
     DuelContainer(self, other) {
         Box(modifier=Modifier.padding(5.dp).fillMaxSize()){
             Column(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.Center)) {
-                Text("Starting match...", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
-                    "",
-                    tint = Color.Black,
-                    modifier = Modifier.rotate(infiniteRotation()).align(alignment = Alignment.CenterHorizontally).size(72.dp)
-                )
+                LoadMessage("Starting match...",Modifier.align(alignment = Alignment.CenterHorizontally))
             }
         }
     }
@@ -58,14 +52,19 @@ fun PresentationScreen(controller: NavHostController, vm: DuelBanditLogic, playe
     DuelContainer(vm, playerRepo) {
         Box(modifier=Modifier.padding(5.dp).fillMaxSize()){
             Column(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.Center)) {
-                Text("Starting match...", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-                Icon(
-                    imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
-                    "",
-                    tint = Color.Black,
-                    modifier = Modifier.rotate(infiniteRotation()).align(alignment = Alignment.CenterHorizontally).size(72.dp)
-                )
+                LoadMessage("Starting match...",Modifier.align(alignment = Alignment.CenterHorizontally))
             }
         }
     }
+}
+
+@Composable
+fun LoadMessage(message:String,align:Modifier){
+        Text(message, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+        Icon(
+            imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
+            "",
+            tint = Color.Black,
+            modifier = align.rotate(infiniteRotation()).size(72.dp)
+        )
 }
