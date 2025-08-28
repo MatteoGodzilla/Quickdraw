@@ -33,7 +33,7 @@ import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.selects.select
 
-data class ContentTab(val tabName: String, val content: @Composable ()->Unit)
+data class ContentTab(val tabName: String,val fixed:Boolean=true, val content: @Composable ()->Unit)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -76,7 +76,14 @@ fun BasicScreen(
                     verticalAlignment = Alignment.Top,
                     modifier = Modifier.fillMaxSize()
                 ) { page ->
-                    Column ( modifier = Modifier.verticalScroll(rememberScrollState()) ){
+                    if(tabs[page].fixed){
+                        //default scroll
+                        Column ( modifier = Modifier.verticalScroll(rememberScrollState()) ){
+                            tabs[page].content()
+                        }
+                    }
+                    else{
+                        //usually to be used with lazy column
                         tabs[page].content()
                     }
                 }

@@ -8,6 +8,7 @@ import android.util.Base64.DEFAULT
 import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import com.example.quickdraw.game.repo.GameRepository
@@ -22,9 +23,18 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
 
-class ImageLoader(context: Context) {
-    var imageNotFound : Bitmap = AppCompatResources.getDrawable(context, R.drawable.question_mark_24px)!!.toBitmap(512, 512)
+class ImageLoader(private val context: Context) {
+
+    private fun buildNotFound(): ByteArray{
+        var imageNotFound : Bitmap = AppCompatResources.getDrawable(context, R.drawable.question_mark_24px)!!.toBitmap(512, 512)
+        val bitmap = imageNotFound.asImageBitmap().asAndroidBitmap() // Convert ImageBitmap to Android Bitmap
+        val stream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream) // Compress to PNG/JPEG
+        return stream.toByteArray()
+    }
+    var notFound: ByteArray = buildNotFound()
 
     private val localScope = CoroutineScope(Dispatchers.IO)
 
@@ -36,11 +46,11 @@ class ImageLoader(context: Context) {
     private val playerCache: MutableMap<Int,Bitmap> = mutableMapOf()
 
      */
-    private val weaponCache: MutableMap<Int,MutableStateFlow<ImageBitmap>> = mutableMapOf()
-    private val bulletCache: MutableMap<Int,MutableStateFlow<ImageBitmap>> = mutableMapOf()
-    private val medikitCache: MutableMap<Int,MutableStateFlow<ImageBitmap>> = mutableMapOf()
-    private val upgradeCache: MutableMap<Int,MutableStateFlow<ImageBitmap>> = mutableMapOf()
-    private val playerCache: MutableMap<Int,MutableStateFlow<ImageBitmap>> = mutableMapOf()
+    private val weaponCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
+    private val bulletCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
+    private val medikitCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
+    private val upgradeCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
+    private val playerCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
 
     private val weaponLoading: MutableMap<Int,Boolean> = mutableMapOf()
     private val bulletLoading: MutableMap<Int,Boolean> = mutableMapOf()
@@ -48,17 +58,16 @@ class ImageLoader(context: Context) {
     private val upgradeLoading: MutableMap<Int,Boolean> = mutableMapOf()
     private val playerLoading: MutableMap<Int,Boolean> = mutableMapOf()
 
-    fun getWeaponFlow(id: Int): MutableStateFlow<ImageBitmap> {
+    fun getWeaponFlow(id: Int): MutableStateFlow<ByteArray> {
         if(!weaponCache.containsKey(id)) {
-            weaponCache[id] = MutableStateFlow(imageNotFound.asImageBitmap())
+            weaponCache[id] = MutableStateFlow(notFound)
             localScope.launch{
                 weaponLoading[id] = true
                 Log.i(TAG, "[ImageLoader] Weapon $id")
                 val response = getWeaponImageAPI(id)
                 if(response != null){
                     val bytes = Base64.decode(response.image, DEFAULT)
-                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
-                    weaponCache[id]!!.value = result.asImageBitmap()
+                    weaponCache[id]!!.value = bytes
                 }
                 weaponLoading[id] = false
             }
@@ -66,17 +75,16 @@ class ImageLoader(context: Context) {
         return weaponCache[id]!!
     }
 
-    fun getBulletFlow(id: Int): MutableStateFlow<ImageBitmap> {
+    fun getBulletFlow(id: Int): MutableStateFlow<ByteArray> {
         if(!bulletCache.containsKey(id)) {
-            bulletCache[id] = MutableStateFlow(imageNotFound.asImageBitmap())
+            bulletCache[id] = MutableStateFlow(notFound)
             localScope.launch{
                 bulletLoading[id] = true
                 Log.i(TAG, "[ImageLoader] Bullet $id")
                 val response = getBulletImageAPI(id)
                 if(response != null){
                     val bytes = Base64.decode(response.image, DEFAULT)
-                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
-                    bulletCache[id]!!.value = result.asImageBitmap()
+                    bulletCache[id]!!.value = bytes
                 }
                 bulletLoading[id] = false
             }
@@ -84,17 +92,16 @@ class ImageLoader(context: Context) {
         return bulletCache[id]!!
     }
 
-    fun getMedikitFlow(id: Int): MutableStateFlow<ImageBitmap> {
+    fun getMedikitFlow(id: Int): MutableStateFlow<ByteArray> {
         if(!medikitCache.containsKey(id)) {
-            medikitCache[id] = MutableStateFlow(imageNotFound.asImageBitmap())
+            medikitCache[id] = MutableStateFlow(notFound)
             localScope.launch{
                 medikitLoading[id] = true
                 Log.i(TAG, "[ImageLoader] Medikit $id")
                 val response = getMedikitImageAPI(id)
                 if(response != null){
                     val bytes = Base64.decode(response.image, DEFAULT)
-                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
-                    medikitCache[id]!!.value = result.asImageBitmap()
+                    medikitCache[id]!!.value = bytes
                 }
                 medikitLoading[id] = false
             }
@@ -102,27 +109,23 @@ class ImageLoader(context: Context) {
         return medikitCache[id]!!
     }
 
-    fun getUpgradeFlow(id: Int): MutableStateFlow<ImageBitmap> {
+    fun getUpgradeFlow(id: Int): MutableStateFlow<ByteArray> {
         if(!upgradeCache.containsKey(id)) {
-            upgradeCache[id] = MutableStateFlow(imageNotFound.asImageBitmap())
+            upgradeCache[id] = MutableStateFlow(notFound)
             localScope.launch{
-                upgradeLoading[id] = true
-                Log.i(TAG, "[ImageLoader] Upgrade $id")
                 val response = getUpgradeImageAPI(id)
                 if(response != null){
                     val bytes = Base64.decode(response.image, DEFAULT)
-                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
-                    upgradeCache[id]!!.value = result.asImageBitmap()
+                    upgradeCache[id]!!.value = bytes
                 }
-                upgradeLoading[id] = false
             }
         }
         return upgradeCache[id]!!
     }
 
-    fun getPlayerFlow(id: Int): MutableStateFlow<ImageBitmap> {
+    fun getPlayerFlow(id: Int): MutableStateFlow<ByteArray> {
         if(!playerCache.containsKey(id)) {
-            playerCache[id] = MutableStateFlow(imageNotFound.asImageBitmap())
+            playerCache[id] = MutableStateFlow(notFound)
             localScope.launch{
                 playerLoading[id] = true
                 Log.i(TAG, "[ImageLoader] Player $id")
@@ -130,7 +133,7 @@ class ImageLoader(context: Context) {
                 if(response != null){
                     val bytes = Base64.decode(response.image, DEFAULT)
                     val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
-                    playerCache[id]!!.value = result.asImageBitmap()
+                    playerCache[id]!!.value = bytes
                 }
                 playerLoading[id] = false
             }

@@ -1,5 +1,6 @@
 package com.example.quickdraw.game.components
 
+import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
@@ -14,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -22,6 +24,7 @@ import com.example.quickdraw.network.data.ImageRequest
 import com.example.quickdraw.network.data.LeaderboardEntry
 import com.example.quickdraw.ui.theme.MedalColors
 import com.example.quickdraw.ui.theme.Typography
+import java.io.ByteArrayOutputStream
 
 @Composable
 fun PlacementText(placement: Int){
@@ -42,27 +45,13 @@ fun PlacementText(placement: Int){
 }
 
 @Composable
-fun BountyEntry(entry: LeaderboardEntry, placement: Int, icon: ImageBitmap){
-    val textModifier = Modifier.padding(5.dp)
-    Row(modifier = Modifier.fillMaxWidth()){
-        PlacementText(placement)
-        Image(
-            icon,
-            "Placement $placement",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.size(32.dp).clip(CircleShape)
-        )
-        Text(entry.username, fontSize=Typography.titleLarge.fontSize,modifier = textModifier)
-        Text(entry.bounty.toString(), fontSize=Typography.bodyLarge.fontSize, textAlign = TextAlign.Right,modifier = textModifier.fillMaxWidth())
-    }
-}
-@Composable
-fun BountyEntry(entry: LeaderboardEntry, placement: Int,request: ImageRequest){
+fun BountyEntry(entry: LeaderboardEntry, placement: Int, icon: ByteArray){
+
     val textModifier = Modifier.padding(5.dp)
     Row(modifier = Modifier.fillMaxWidth()){
         PlacementText(placement)
         AsyncImage(
-            model= ImageRequest,
+            icon,
             "Placement $placement",
             contentScale = ContentScale.FillBounds,
             modifier = Modifier.size(32.dp).clip(CircleShape)

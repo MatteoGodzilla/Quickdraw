@@ -46,7 +46,7 @@ class YourPlaceVM(
     val player = repository.player
     val stats = repository.player.stats
     val otherStatistics = repository.statistics
-    var playerImage: MutableStateFlow<ImageBitmap> = imageLoader.getPlayerFlow(repository.player.player.value.id)
+    var playerImage: MutableStateFlow<ByteArray> = imageLoader.getPlayerFlow(repository.player.player.value.id)
 
     val musicVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)
     val sfxVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)
@@ -75,7 +75,7 @@ class YourPlaceVM(
                     imageLoader.invalidatePlayerImage(repository.player.player.value.id)
                     //update for composition
                     playerImage.update {
-                        BitmapFactory.decodeByteArray(bytes,0,bytes.size).asImageBitmap()
+                       bytes
                     }
                 }
                 input.close()

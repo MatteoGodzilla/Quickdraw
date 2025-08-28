@@ -85,10 +85,10 @@ fun ContractsScreen (controller: NavHostController, repository: GameRepository, 
         },
         ContentTab("Employ"){
             for(mercenary in hireable){
-                MercenaryShopEntry(mercenary,{callbacks.onHireMercenary(mercenary)}, imageLoader.imageNotFound.asImageBitmap(), player.value.money >= mercenary.cost)
+                MercenaryShopEntry(mercenary,{callbacks.onHireMercenary(mercenary)}, imageLoader.notFound, player.value.money >= mercenary.cost)
             }
             for(mercenary in unlockable){
-                LockedMercenaryPost(mercenary,imageLoader.imageNotFound.asImageBitmap())
+                LockedMercenaryPost(mercenary,imageLoader.notFound)
             }
         }
     ), money = player.value.money, showMoney = true)

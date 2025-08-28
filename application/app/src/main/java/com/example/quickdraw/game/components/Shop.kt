@@ -27,6 +27,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
+import coil3.compose.AsyncImage
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.LockedContainer
 import com.example.quickdraw.game.components.ShoppingContainer
@@ -41,9 +42,9 @@ import com.example.quickdraw.ui.theme.fulledEntry
 
 
 @Composable
-fun BasicShopEntry(price:String, purchasable: Boolean, action:()->Unit, icon: ImageBitmap, populateShopEntry: @Composable ()->Unit){
+fun BasicShopEntry(price:String, purchasable: Boolean, action:()->Unit, icon: ByteArray, populateShopEntry: @Composable ()->Unit){
     val content = @Composable {
-        Image(icon, "", modifier = Modifier.size(48.dp))
+        AsyncImage(icon, "", modifier = Modifier.size(48.dp))
         Column {
             populateShopEntry()
         }
@@ -73,7 +74,7 @@ fun BasicShopEntry(price:String, purchasable: Boolean, action:()->Unit, icon: Im
 }
 
 @Composable
-fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit, icon:ImageBitmap, purchasable:Boolean=true, possessedAmount:Int = 0){
+fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit, icon: ByteArray, purchasable:Boolean=true, possessedAmount:Int = 0){
     val isFull = possessedAmount==bullet.capacity
     BasicShopEntry(if(isFull) "Full" else bullet.cost.toString(),purchasable,onBuy, icon) {
         Text(bullet.name, fontSize = Typography.titleLarge.fontSize)
@@ -85,7 +86,7 @@ fun BulletShopEntry(bullet: ShopBullet, onBuy: ()->Unit, icon:ImageBitmap, purch
 }
 
 @Composable
-fun MedikitEntryShop(medikit: ShopMedikit, onBuy: ()->Unit, icon:ImageBitmap, purchasable:Boolean=true, possessedAmount:Int = 0){
+fun MedikitEntryShop(medikit: ShopMedikit, onBuy: ()->Unit, icon:ByteArray, purchasable:Boolean=true, possessedAmount:Int = 0){
     val isFull = possessedAmount==medikit.capacity
     BasicShopEntry(if(isFull) "Full" else medikit.cost.toString(),purchasable,onBuy, icon) {
         Text(medikit.description, fontSize = Typography.titleLarge.fontSize)
@@ -98,7 +99,7 @@ fun MedikitEntryShop(medikit: ShopMedikit, onBuy: ()->Unit, icon:ImageBitmap, pu
 }
 
 @Composable
-fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit, icon: ImageBitmap, purchasable:Boolean=true){
+fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit, icon: ByteArray, purchasable:Boolean=true){
     BasicShopEntry(weapon.cost.toString(),purchasable,onBuy, icon) {
         Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
         Text("${weapon.damage} damage per hit")
@@ -106,9 +107,9 @@ fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit, icon: ImageBitmap, purc
 }
 
 @Composable
-fun LockedWeapon(weapon:ShopWeapon, icon:ImageBitmap){
+fun LockedWeapon(weapon:ShopWeapon, icon: ByteArray){
     LockedContainer(){
-        Image(icon, "Icon", modifier = Modifier.size(48.dp))
+        AsyncImage(icon, "Icon", modifier = Modifier.size(48.dp))
         Column {
             Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
             Text("Unlock at level ${weapon.level}")
@@ -117,7 +118,7 @@ fun LockedWeapon(weapon:ShopWeapon, icon:ImageBitmap){
 }
 
 @Composable
-fun UpgradeEntryShop(upgrade: ShopUpgrade, onBuy: ()->Unit, icon:ImageBitmap, purchasable:Boolean=true){
+fun UpgradeEntryShop(upgrade: ShopUpgrade, onBuy: ()->Unit, icon:ByteArray, purchasable:Boolean=true){
     BasicShopEntry(upgrade.cost.toString(),purchasable,onBuy, icon) {
         Text(upgrade.description,fontSize = Typography.titleLarge.fontSize)
         Text("Level ${upgrade.level}")
@@ -125,26 +126,30 @@ fun UpgradeEntryShop(upgrade: ShopUpgrade, onBuy: ()->Unit, icon:ImageBitmap, pu
 }
 
 @Composable
-fun MercenaryShopEntry(mercenary: HireableMercenary, onBuy: ()->Unit,icon:ImageBitmap, canAfford:Boolean=true){
+fun MercenaryShopEntry(mercenary: HireableMercenary, onBuy: ()->Unit, icon: ByteArray, canAfford:Boolean=true){
     BasicShopEntry(mercenary.cost.toString(),canAfford,onBuy, icon) {
         Text(mercenary.name,fontSize = Typography.titleLarge.fontSize)
         Text("Power:${mercenary.power}")
     }
 }
 
+/**
 @Preview
 @Composable
 fun previewBasic(){
-    BasicShopEntry("69000", true, action = {}, createBitmap(10,10).asImageBitmap()) {
-        Text("Winchester", fontSize = Typography.titleLarge.fontSize)
-        Text("200 damage per hit")
-        Text("200 damage per hit")
-        Text("200 damage per hit")
-        Text("200 damage per hit")
-        Text("200 damage per hit")
-        Text("200 damage per hit   g  sg  gl js lh sghl gshlgshlgshlgshlsglhsglh")
-    }
+BasicShopEntry("69000", true, action = {}, createBitmap(10,10).asImageBitmap()) {
+Text("Winchester", fontSize = Typography.titleLarge.fontSize)
+Text("200 damage per hit")
+Text("200 damage per hit")
+Text("200 damage per hit")
+Text("200 damage per hit")
+Text("200 damage per hit")
+Text("200 damage per hit   g  sg  gl js lh sghl gshlgshlgshlgshlsglhsglh")
 }
+}
+ *
+ */
+
 
 
 

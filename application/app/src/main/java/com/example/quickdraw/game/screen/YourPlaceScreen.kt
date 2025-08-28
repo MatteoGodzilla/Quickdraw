@@ -53,6 +53,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil3.compose.AsyncImage
 import com.example.quickdraw.R
 import com.example.quickdraw.TAG
 import com.example.quickdraw.game.components.BasicScreen
@@ -90,7 +91,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 SmallHeader("Weapons")
                 for(weapon in weapons.value){
                     Row (verticalAlignment = Alignment.CenterVertically){
-                        Image(
+                        AsyncImage(
                             viewModel.loadWeaponImage(weapon.id).collectAsState().value,
                             weapon.name,
                             modifier = Modifier.size(48.dp)
@@ -115,7 +116,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 SmallHeader("Bullets")
                 for(bullet in bullets.value){
                     Row(verticalAlignment = Alignment.CenterVertically){
-                        Image(viewModel.loadBulletImage(bullet.type).collectAsState().value, bullet.description, modifier = Modifier.size(48.dp))
+                        AsyncImage(viewModel.loadBulletImage(bullet.type).collectAsState().value, bullet.description, modifier = Modifier.size(48.dp))
                         StatsDisplayer(bullet.description, "Owned: ${bullet.amount}/${bullet.capacity}")
                     }
                 }
@@ -128,7 +129,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 LinearProgressIndicator({ ratio }, modifier = Modifier.fillMaxWidth())
                 for(medikit in medikits.value){
                     Row(verticalAlignment = Alignment.CenterVertically){
-                        Image(viewModel.loadMedikitImage(medikit.id).collectAsState().value, medikit.description, modifier = Modifier.size(48.dp))
+                        AsyncImage(viewModel.loadMedikitImage(medikit.id).collectAsState().value, medikit.description, modifier = Modifier.size(48.dp))
                         Column {
                             Text(
                                 medikit.description,
@@ -157,7 +158,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 for (pair in upgrades.value.groupBy { it.type }){
                     val highest = pair.value.maxBy { x->x.level }
                     Row(verticalAlignment = Alignment.CenterVertically){
-                        Image(viewModel.loadUpgradeImage(pair.value.maxBy{x->x.level}.idUpgrade).collectAsState().value, highest.description, modifier = Modifier.size(48.dp))
+                        AsyncImage(viewModel.loadUpgradeImage(pair.value.maxBy{x->x.level}.idUpgrade).collectAsState().value, highest.description, modifier = Modifier.size(48.dp))
                         Row (
                             modifier = Modifier.fillMaxWidth().padding(8.dp),
                             horizontalArrangement = Arrangement.SpaceBetween
@@ -178,11 +179,12 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                     modifier = Modifier.size(200.dp)
                         .clickable { choosePhoto.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)) }
                 ){
-                    Image(
+                    AsyncImage(
                         playerImage.value,
                         "Player icon",
                         contentScale = ContentScale.FillBounds,
-                        modifier = Modifier.fillMaxHeight().clip(CircleShape).align(Alignment.Center) ,
+                        modifier = Modifier.fillMaxHeight().clip(CircleShape).align(Alignment.Center),
+
                     )
                     CircularProgressIndicator(viewModel::getProgressToNextLevel, modifier = Modifier.fillMaxSize() )
                 }

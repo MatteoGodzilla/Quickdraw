@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import coil3.compose.AsyncImage
 import com.example.quickdraw.R
 import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.network.data.ActiveContract
@@ -118,9 +119,9 @@ fun AvailableContractUI(contract: AvailableContract, onStartButton: ()->Unit,sta
 
 
 @Composable
-fun LockedMercenaryPost(mercenary: LockedMercenary,icon: ImageBitmap){
+fun LockedMercenaryPost(mercenary: LockedMercenary,icon: ByteArray){
     LockedContainer(){
-        Image(icon, "", modifier = Modifier.size(48.dp))
+        AsyncImage(icon, "", modifier = Modifier.size(48.dp))
         Column(modifier = Modifier.fillMaxWidth()) {
             Text(mercenary.name, fontSize = Typography.titleLarge.fontSize)
             Text("Unlock at level ${mercenary.levelRequired}")
