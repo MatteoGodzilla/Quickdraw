@@ -1,13 +1,15 @@
 package com.example.quickdraw.duel.vms
 
 import androidx.lifecycle.ViewModel
+import com.example.quickdraw.ImageLoader
 import com.example.quickdraw.network.data.InventoryBullet
 import com.example.quickdraw.network.data.InventoryWeapon
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class WeaponSelectionViewModel(
     private val weapons: List<InventoryWeapon>,
-    private val bullets: List<InventoryBullet>
+    private val bullets: List<InventoryBullet>,
+    private val imageLoader: ImageLoader
 ): ViewModel() {
     val selectedWeapon = MutableStateFlow(weapons[0])
 
@@ -36,4 +38,6 @@ class WeaponSelectionViewModel(
         }
         select(choice)
     }
+
+    fun getWeaponImage(id: Int) = imageLoader.getWeaponFlow(id)
 }

@@ -1,6 +1,8 @@
 package com.example.quickdraw.duel.components
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
@@ -18,6 +21,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -27,6 +32,7 @@ import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.PeerState
 import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
+import com.example.quickdraw.game.components.FadableAsyncImage
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.network.data.InventoryBullet
@@ -59,7 +65,7 @@ fun WeaponSelectionScreen(self: Peer, other: Peer, gameLogic: DuelGameLogic, rep
                     ){
                         RowDivider()
                         for(w in repo.inventory.weapons.collectAsState().value){
-                            WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType})
+                            WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType}, vm.getWeaponImage(w.id).collectAsState().value)
                         }
                     }
                     Row(modifier=Modifier.fillMaxWidth()){
@@ -110,7 +116,7 @@ fun WeaponSelectionScreen(controller: NavHostController, duelLogic: DuelBanditLo
             ){
                 RowDivider()
                 for(w in repo.inventory.weapons.collectAsState().value){
-                    WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType})
+                    WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType}, vm.getWeaponImage(w.id).collectAsState().value)
                 }
             }
             Row(modifier=Modifier.fillMaxWidth()){
@@ -134,8 +140,30 @@ fun WeaponSelectionScreen(controller: NavHostController, duelLogic: DuelBanditLo
 }
 
 @Composable
-fun WeaponOption(weapon: InventoryWeapon, vm: WeaponSelectionViewModel, bullet: InventoryBullet){
+fun WeaponOption(weapon: InventoryWeapon, vm: WeaponSelectionViewModel, bullet: InventoryBullet, icon: ByteArray){
     val usable = bullet.amount >= weapon.bulletsShot
+    Column (modifier = Modifier.fillMaxWidth().clickable { vm.select(weapon) }){
+        Row (modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
+            FadableAsyncImage(icon, weapon.name, modifier = Modifier.size(48.dp))
+            Text(weapon.name, fontSize = Typography.titleLarge.fontSize, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
+            RadioButton(enabled=usable, onClick = { vm.select(weapon) }, selected = vm.selectedWeapon.collectAsState().value == weapon)
+        }
+        Box (modifier = Modifier.fillMaxWidth()){
+            Text("Damage: ${weapon.damage}", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Left)
+            Text("${bullet.amount} bullets", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+            Text("Bullets shot: ${weapon.bulletsShot}", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Right)
+        }
+    }
+
+
+
+
+
+
+
+
+    /*
+
     Row (
         modifier = Modifier.fillMaxWidth().background(if(usable) Color.Transparent else Color.Red).padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -143,16 +171,13 @@ fun WeaponOption(weapon: InventoryWeapon, vm: WeaponSelectionViewModel, bullet: 
     ){
         Column (modifier = Modifier.weight(1f)){
             Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
-                Text("${bullet.amount} bullets")
             }
             Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween){
-                Text("Damage: ${weapon.damage}")
-                Text("Bullets shot: ${weapon.bulletsShot}")
             }
         }
-        RadioButton(enabled=usable, onClick = { vm.select(weapon) }, selected = vm.selectedWeapon.collectAsState().value == weapon)
     }
+
+     */
     RowDivider()
 }
 

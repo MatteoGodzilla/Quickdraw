@@ -231,8 +231,7 @@ fun DropDownMenuForSettings(text:String, modifier:Modifier = Modifier,content:@C
 }
 
 @Composable
-fun FadableAsyncImage(icon: ByteArray,desc:String,modifier:Modifier = Modifier){
-    val painter = rememberAsyncImagePainter(icon)
+fun FadableAsyncImage(icon: ByteArray, desc:String, modifier:Modifier, contentScale: ContentScale = ContentScale.Fit){
     AsyncImage(
         ImageRequest.Builder(LocalContext.current)
             .data(icon)
@@ -241,7 +240,7 @@ fun FadableAsyncImage(icon: ByteArray,desc:String,modifier:Modifier = Modifier){
             .memoryCachePolicy(CachePolicy.ENABLED)
             .build(),
         desc,
-        contentScale = ContentScale.FillBounds,
-        modifier = modifier.size(32.dp).clip(CircleShape)
+        contentScale = contentScale,
+        modifier = modifier
     )
 }

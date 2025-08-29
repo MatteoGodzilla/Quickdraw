@@ -1,5 +1,6 @@
 package com.example.quickdraw.game.components
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -28,7 +29,7 @@ import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.launch
 
-data class ContentTab(val tabName: String,val fixed:Boolean=true, val content: @Composable ()->Unit)
+data class ContentTab(val tabName: String,val fixed:Boolean=false, val content: @Composable ()->Unit)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,8 +73,14 @@ fun BasicScreen(
                     verticalAlignment = Alignment.Top,
                     modifier = Modifier.fillMaxSize()
                 ) { page ->
-                    Column ( modifier = Modifier.verticalScroll(rememberScrollState()) ){
-                        tabs[page].content()
+                    if(tabs[page].fixed){
+                        Box(modifier = Modifier.fillMaxSize()){
+                            tabs[page].content()
+                        }
+                    } else {
+                        Column ( modifier = Modifier.verticalScroll(rememberScrollState()) ){
+                            tabs[page].content()
+                        }
                     }
                 }
             }

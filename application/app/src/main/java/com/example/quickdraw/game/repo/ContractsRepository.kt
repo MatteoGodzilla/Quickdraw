@@ -38,17 +38,6 @@ class ContractsRepository (
                 val info = response.contractInfo
                 playerRepository.player.update { x ->
                     x.copy(money = x.money - contract.startCost)
-                    /*
-                    PlayerStatus(
-                        x.id,
-                        x.health,
-                        x.maxHealth,
-                        x.exp,
-                        x.money - contract.startCost,
-                        x.bounty,
-                        x.username
-                    )
-                     */
                 }
                 active.update { list ->
                     list + ActiveContract(
@@ -79,10 +68,10 @@ class ContractsRepository (
     }
 
     private fun sortActives(){
-        available.update { it.sortedBy { x->x.requiredPower } }
+        active.update { it.sortedBy { x->x.requiredTime -x.startTime } }
     }
 
     private fun sortAvailable(){
-        active.update { it.sortedBy { x->x.requiredTime -x.startTime } }
+        available.update { it.sortedBy { x->x.requiredPower } }
     }
 }

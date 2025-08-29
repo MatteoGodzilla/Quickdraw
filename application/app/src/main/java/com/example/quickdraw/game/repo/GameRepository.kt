@@ -46,17 +46,6 @@ class GameRepository(
         }
     }
 
-    /**suspend fun firstLoad() {
-        player.firstLoad()
-        inventory.getInventory()
-        contracts.getContracts()
-        shop.firstLoad()
-        leaderboard.firstLoad()
-        mercenaries.firstLoad()
-        statistics.firstLoad()
-        updatePlayerStats()
-    }**/
-
      fun updatePlayerStats(){
         for(upgrade in inventory.upgrades.value){
             when (upgrade.type) {

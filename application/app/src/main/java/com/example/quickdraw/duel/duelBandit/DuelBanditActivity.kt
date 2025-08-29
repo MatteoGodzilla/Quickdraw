@@ -38,7 +38,7 @@ class DuelBanditActivity: ComponentActivity() {
                 }
                 composable<DuelNavigation.WeaponSelect>{
                     val vm = viewModel {
-                        WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value)
+                        WeaponSelectionViewModel(qdapp.repository.inventory.weapons.value, qdapp.repository.inventory.bullets.value, qdapp.imageLoader)
                     }
                     LaunchedEffect(true) {
                         lifecycleScope.launch {

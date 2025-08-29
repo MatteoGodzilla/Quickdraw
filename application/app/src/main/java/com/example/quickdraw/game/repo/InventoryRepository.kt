@@ -34,10 +34,10 @@ class InventoryRepository (
         Log.i(TAG,response.toString())
         if (response != null) {
             //Separate values
-            bullets.update { response.bullets }
-            weapons.update { response.weapons }
-            medikits.update { response.medikits }
-            upgrades.update { response.upgrades }
+            bullets.update { response.bullets.sortedBy { bullet -> bullet.type } }
+            weapons.update { response.weapons.sortedBy { weapon -> weapon.id } }
+            medikits.update { response.medikits.sortedBy { medikit -> medikit.healthRecover } }
+            upgrades.update { response.upgrades.sortedBy { upgrade -> upgrade.type } }
         }
     }
 

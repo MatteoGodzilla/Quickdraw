@@ -52,7 +52,7 @@ fun BountyEntry(entry: LeaderboardEntry, placement: Int, icon: ByteArray){
     val textModifier = Modifier.padding(5.dp)
     Row(modifier = Modifier.fillMaxWidth()){
         PlacementText(placement)
-        FadableAsyncImage(icon,"Placement:$placement")
+        FadableAsyncImage(icon,"Placement:$placement", modifier = Modifier.size(32.dp).clip(CircleShape), contentScale = ContentScale.FillBounds)
         Text(entry.username, fontSize=Typography.titleLarge.fontSize,modifier = textModifier)
         Text(entry.bounty.toString(), fontSize=Typography.bodyLarge.fontSize, textAlign = TextAlign.Right,modifier = textModifier.fillMaxWidth())
     }
