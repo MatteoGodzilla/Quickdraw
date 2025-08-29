@@ -1,6 +1,7 @@
 package com.example.quickdraw.game.screen
 
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -11,11 +12,11 @@ import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.BountyEntry
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.vm.LeaderboardVM
+import com.example.quickdraw.network.data.LeaderboardEntry
 import kotlinx.coroutines.runBlocking
 
 @Composable
 fun LeaderBoardScreen ( viewModel: LeaderboardVM, controller: NavHostController ) {
-
     //collected states
     val friends = viewModel.friends.collectAsState()
     val globals = viewModel.globals.collectAsState()
@@ -46,3 +47,6 @@ fun LeaderBoardScreen ( viewModel: LeaderboardVM, controller: NavHostController 
         }
     ))
 }
+
+
+

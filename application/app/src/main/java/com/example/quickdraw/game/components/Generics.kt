@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -41,17 +42,26 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import coil3.compose.AsyncImage
+import coil3.compose.rememberAsyncImagePainter
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import com.example.quickdraw.R
 import com.example.quickdraw.game.vm.LoadingScreenVM
 import com.example.quickdraw.game.vm.PopupVM
+import com.example.quickdraw.network.data.LeaderboardEntry
 import com.example.quickdraw.ui.theme.Typography
 import kotlinx.coroutines.delay
 
@@ -227,3 +237,18 @@ fun DropDownMenuForSettings(modifier:Modifier = Modifier,content:@Composable ()-
     }
 }
 
+@Composable
+fun FadableAsyncImage(icon: ByteArray,desc:String,modifier:Modifier = Modifier){
+    val painter = rememberAsyncImagePainter(icon)
+    AsyncImage(
+        ImageRequest.Builder(LocalContext.current)
+            .data(icon)
+            .crossfade(true)
+            .diskCachePolicy(CachePolicy.ENABLED)
+            .memoryCachePolicy(CachePolicy.ENABLED)
+            .build(),
+        desc,
+        contentScale = ContentScale.FillBounds,
+        modifier = modifier.size(32.dp).clip(CircleShape)
+    )
+}

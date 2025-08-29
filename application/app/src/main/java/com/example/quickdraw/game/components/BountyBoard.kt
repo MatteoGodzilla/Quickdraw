@@ -17,9 +17,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
+import coil3.request.CachePolicy
+import coil3.request.crossfade
 import com.example.quickdraw.network.data.ImageRequest
 import com.example.quickdraw.network.data.LeaderboardEntry
 import com.example.quickdraw.ui.theme.MedalColors
@@ -50,12 +53,7 @@ fun BountyEntry(entry: LeaderboardEntry, placement: Int, icon: ByteArray){
     val textModifier = Modifier.padding(5.dp)
     Row(modifier = Modifier.fillMaxWidth()){
         PlacementText(placement)
-        AsyncImage(
-            icon,
-            "Placement $placement",
-            contentScale = ContentScale.FillBounds,
-            modifier = Modifier.size(32.dp).clip(CircleShape)
-        )
+        FadableAsyncImage(icon,"Placement:$placement")
         Text(entry.username, fontSize=Typography.titleLarge.fontSize,modifier = textModifier)
         Text(entry.bounty.toString(), fontSize=Typography.bodyLarge.fontSize, textAlign = TextAlign.Right,modifier = textModifier.fillMaxWidth())
     }

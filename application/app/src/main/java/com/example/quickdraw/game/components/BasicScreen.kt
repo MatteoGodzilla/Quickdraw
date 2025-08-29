@@ -72,18 +72,12 @@ fun BasicScreen(
                     scrollScope.launch { pagerState.animateScrollToPage(it) }
                 }
                 HorizontalPager(
+                    beyondViewportPageCount = 2,
                     state = pagerState,
                     verticalAlignment = Alignment.Top,
                     modifier = Modifier.fillMaxSize()
                 ) { page ->
-                    if(tabs[page].fixed){
-                        //default scroll
-                        Column ( modifier = Modifier.verticalScroll(rememberScrollState()) ){
-                            tabs[page].content()
-                        }
-                    }
-                    else{
-                        //usually to be used with lazy column
+                    Column ( modifier = Modifier.verticalScroll(rememberScrollState()) ){
                         tabs[page].content()
                     }
                 }

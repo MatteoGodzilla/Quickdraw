@@ -11,7 +11,7 @@ import kotlinx.coroutines.launch
 
 class LeaderboardVM(
     repository: GameRepository,
-    private val imageLoader: ImageLoader
+    val imageLoader: ImageLoader
 ) : ViewModel() {
     val friends = repository.leaderboard.friends
     val globals = repository.leaderboard.global
