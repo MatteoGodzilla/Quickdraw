@@ -30,6 +30,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.any
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -177,7 +179,10 @@ class DuelGameLogic(
             Log.i(TAG, "VECTORS: ${beforeVec3.joinToString(",")} : ${afterVec3.joinToString(",")}")
             val dot = beforeVec3[0] * afterVec3[0] + beforeVec3[1] * afterVec3[1] + beforeVec3[2] * afterVec3[2]
             Log.i(TAG, "DOT: $dot")
-            AudioManager.startSFX()
+            val mute = context.dataStore.data.map { preferences -> preferences[PrefKeys.musicMute] }.first() ?: false
+            if(!mute) {
+                AudioManager.startSFX()
+            }
             checkBang()
         }
     }
