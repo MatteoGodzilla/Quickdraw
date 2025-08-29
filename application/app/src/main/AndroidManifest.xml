@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -67,6 +68,14 @@
             android:name=".login.LoginActivity"
             android:exported="false"
             android:theme="@style/Theme.Quickdraw" />
+
+        <receiver
+            android:name="com.example.quickdraw.notifications.QDNotificationReceiver"
+            android:exported="true">
+           <intent-filter>
+               <action android:name="com.example.quickdraw.CONTRACT_FINISHED" />
+           </intent-filter>
+        </receiver>
     </application>
 
 </manifest>

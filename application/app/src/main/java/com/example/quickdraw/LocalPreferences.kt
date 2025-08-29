@@ -76,3 +76,7 @@ object Game2Duel{
 object Game2Bandit{
     const val BANDIT_ID = "bandit_id"
 }
+
+object GameIntent{
+    const val INITIAL_SCREEN = "initialScreen"
+}

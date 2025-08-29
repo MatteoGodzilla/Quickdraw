@@ -26,17 +26,15 @@ import com.example.quickdraw.duel.duelBandit.DuelBanditActivity
 import com.example.quickdraw.game.components.Popup
 import com.example.quickdraw.game.components.ScreenLoader
 import com.example.quickdraw.game.repo.GameRepository
-import com.example.quickdraw.game.screen.ContractsCallbacks
 import com.example.quickdraw.game.screen.ContractsScreen
 import com.example.quickdraw.game.screen.DuelCallbacks
 import com.example.quickdraw.game.screen.LeaderBoardScreen
-import com.example.quickdraw.network.data.ActiveContract
-import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.game.screen.MainScreen
 import com.example.quickdraw.game.screen.ShopScreen
 import com.example.quickdraw.game.screen.StartContractScreen
 import com.example.quickdraw.game.screen.YourPlaceScreen
 import com.example.quickdraw.game.vm.ContractStartVM
+import com.example.quickdraw.game.vm.ContractsVM
 import com.example.quickdraw.game.vm.GlobalPartsVM
 import com.example.quickdraw.game.vm.LeaderboardVM
 import com.example.quickdraw.game.vm.MainScreenVM
@@ -44,7 +42,7 @@ import com.example.quickdraw.game.vm.ShopScreenVM
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.music.AudioManager
 import com.example.quickdraw.music.AudioManagerLifecycleObserver
-import com.example.quickdraw.network.data.HireableMercenary
+import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -64,7 +62,7 @@ class GameNavigation {
     @Serializable
     object Contracts
     @Serializable
-    data class StartContract(val idContract:Int)
+    data class StartContract(val contractId: Int)
 }
 
 class GameActivity : ComponentActivity(){
@@ -108,7 +106,6 @@ class GameActivity : ComponentActivity(){
             goToDuel(groupOwner, groupOwnerAddress.hostAddress!!)
         }
 
-        val contractsVM = ContractStartVM()
         setContent {
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = GameNavigation.Map) {
@@ -149,49 +146,13 @@ class GameActivity : ComponentActivity(){
                     LeaderBoardScreen(vm, controller)
                 }
                 composable<GameNavigation.Contracts> {
-                    ContractsScreen(controller, repository, qdapp.imageLoader, object : ContractsCallbacks {
-                        override fun onRedeemContract(activeContract: ActiveContract) {
-                            lifecycleScope.launch {
-                                repository.contracts.redeem(activeContract)
-                                val redeemedCoins = repository.contracts.lastRedeemed.value
-                                if(redeemedCoins>0) globalsVM.popup.showLoading("Contract completed! You gained $redeemedCoins coins")
-                                else globalsVM.popup.showLoading("Yor mercenaries failed the contract :(",false)
-                            }
-                        }
-                        override fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>) {
-                            lifecycleScope.launch { repository.contracts.start(availableContract,mercenaries) }
-                            globalsVM.popup.showLoading("Contract started",true)
-                        }
-
-                        override fun onHireMercenary(hireable: HireableMercenary) {
-                            lifecycleScope.launch {
-                                repository.mercenaries.employ(hireable)
-                                globalsVM.popup.showLoading("Mercenary hired!",true)
-                            }
-                        }
-                    })
+                    val vm = viewModel { ContractsVM( repository, globalsVM, controller) }
+                    ContractsScreen(vm, controller, repository, qdapp.imageLoader)
                 }
                 composable<GameNavigation.StartContract>{ backstackEntry ->
                     val selected = backstackEntry.toRoute<GameNavigation.StartContract>()
-                    contractsVM.selectContract(selected.idContract)
-                    StartContractScreen(controller,repository,contractsVM,object : ContractsCallbacks {
-                        override fun onRedeemContract(activeContract: ActiveContract) {
-                            lifecycleScope.launch {
-                                repository.contracts.redeem(activeContract)
-                            }
-                        }
-                        override fun onStartContract(availableContract: AvailableContract,mercenaries:List<Int>) {
-                            globalsVM.loadScreen.showLoading("Starting...")
-                            lifecycleScope.launch { repository.contracts.start(availableContract,mercenaries) }
-                            globalsVM.loadScreen.hideLoading()
-                        }
-
-                        override fun onHireMercenary(hireable: HireableMercenary) {
-                            lifecycleScope.launch {
-                                repository.mercenaries.employ(hireable)
-                            }
-                        }
-                    })
+                    val vm = viewModel { ContractStartVM(selected.contractId, controller, globalsVM, repository, this@GameActivity) }
+                    StartContractScreen(vm, controller)
                 }
             }
             //popup for all pages

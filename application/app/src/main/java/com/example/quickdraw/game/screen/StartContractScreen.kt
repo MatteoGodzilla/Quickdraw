@@ -40,28 +40,22 @@ import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
+import kotlinx.coroutines.selects.select
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StartContractScreen(controller: NavHostController, repository: GameRepository,vm: ContractStartVM,callbacks: ContractsCallbacks){
-    val selected = vm.selectedContractState.collectAsState()
-    val selectedMercs = vm.selectedMercenariesState.collectAsState()
-    val availableContracts = repository.contracts.available.collectAsState()
-    val unassigned = repository.mercenaries.unAssigned.collectAsState()
-
-    //calculations
-    val selectedContract = availableContracts.value.filter { x->x.id == selected.value }
-    val doesNotExist = selectedContract.isEmpty()
-    val currentContract = if(doesNotExist) AvailableContract(0,"",0,0,0,0) else selectedContract.first()
-    //to avoid the app crashing in case something weird happens
-    val notTooMany = if(doesNotExist) false else selectedMercs.value.size<=currentContract.maxMercenaries
-    val atLeastOne = if(doesNotExist) false else selectedMercs.value.isNotEmpty()
-    val successRate = if(doesNotExist) 0 else vm.successChance(currentContract.requiredPower)
+fun StartContractScreen(
+    vm: ContractStartVM,
+    controller: NavHostController,
+){
+    val unassigned = vm.availableMercenaries.collectAsState().value
+    val selectedMercs = vm.selectedMercenaries.collectAsState().value
+    val tooLittle = selectedMercs.isEmpty()
+    val tooMany = selectedMercs.size > vm.contract.maxMercenaries
 
     //go back both for arrow on top left and phone button
     val goBack:()->Unit = {
-        vm.unselectContract()
         controller.navigate(GameNavigation.Contracts)
     }
     BackHandler {
@@ -88,14 +82,11 @@ fun StartContractScreen(controller: NavHostController, repository: GameRepositor
                 ){
                     Row(modifier = Modifier.fillMaxWidth().padding(vertical = 10.dp)){
                         Spacer(modifier = Modifier.weight(0.5f).fillMaxWidth())
-                        Button(enabled = notTooMany && atLeastOne,
+                        Button(
+                            enabled = !tooMany && !tooLittle,
                             modifier = Modifier.padding(horizontal = 10.dp),
-                            onClick = {
-                                vm.unselectContract()
-                                controller.navigate(GameNavigation.Contracts)
-                                callbacks.onStartContract(currentContract,selectedMercs.value.map{x->x.id})
-                            }) {
-                            Text("Start contract (costs ${currentContract.startCost})", textAlign = TextAlign.Center,
+                            onClick = vm::startContract) {
+                            Text("Start contract (costs ${vm.contract.startCost})", textAlign = TextAlign.Center,
                                 modifier= Modifier.fillMaxWidth())
                         }
                     }
@@ -105,25 +96,20 @@ fun StartContractScreen(controller: NavHostController, repository: GameRepositor
             Column(
                 modifier = Modifier.padding(padding).verticalScroll(rememberScrollState())
             ){
-                if(doesNotExist){
-                    vm.unselectContract()
+                Column(modifier = Modifier.fillMaxWidth().padding(top=0.dp, bottom = 5.dp).background(color = MaterialTheme.colorScheme.surfaceContainer),
+                    horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text("Completion time:${vm.contract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
+                    Text("Chance of success:${vm.successChance()}%", fontSize = Typography.bodyLarge.fontSize)
+                    Text("Selected :${selectedMercs.size}/${vm.contract.maxMercenaries} mercenaries"
+                        , fontSize = Typography.bodyLarge.fontSize, color = if(tooMany) Color.Red else Color.Black)
                 }
-                else{
-                    Column(modifier = Modifier.fillMaxWidth().padding(top=0.dp, bottom = 5.dp).background(color = MaterialTheme.colorScheme.surfaceContainer),
-                        horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text("Completion time:${currentContract.requiredTime}", fontSize = Typography.bodyLarge.fontSize)
-                        Text("Chance of success:${successRate}%", fontSize = Typography.bodyLarge.fontSize)
-                        Text("Selected :${selectedMercs.value.size}/${currentContract.maxMercenaries} mercenaries"
-                            , fontSize = Typography.bodyLarge.fontSize, color = if(notTooMany) Color.Black else Color.Red)
-                    }
 
-                    //display mercenaries
-                    Spacer(modifier= Modifier.height(24.dp))
-                    RowDivider()
-                    for(merc in unassigned.value){
-                        val checkBoxSelectable = selectedMercs.value.any{x->x.id==merc.idEmployment} || selectedMercs.value.size<currentContract.maxMercenaries
-                        AssignableMercenary(merc,vm,checkBoxSelectable)
-                    }
+                //display mercenaries
+                Spacer(modifier= Modifier.height(24.dp))
+                RowDivider()
+                for(m in unassigned){
+                    val checkBoxSelectable = selectedMercs.contains(m) || selectedMercs.size < vm.contract.maxMercenaries
+                    AssignableMercenary(m,vm,checkBoxSelectable)
                 }
             }
         }

@@ -1,50 +1,68 @@
 package com.example.quickdraw.game.vm
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
+import com.example.quickdraw.game.GameNavigation
+import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.network.data.ActiveContract
+import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.network.data.EmployedMercenary
+import com.example.quickdraw.notifications.QDNotifManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 
-data class MercenaryOption(
-    val id:Int,
-    val power:Int
-)
+class ContractStartVM(
+    contractId: Int,
+    private val controller: NavHostController,
+    private val globalsVM: GlobalPartsVM,
+    private val repository: GameRepository,
+    private val context: Context
+): ViewModel() {
+    val contract = repository.contracts.available.value.firstOrNull { c -> c.id == contractId }
+        ?: AvailableContract(0, "", 0,0,0,0)
+    val availableMercenaries = repository.mercenaries.unAssigned
+    val selectedMercenaries = MutableStateFlow<List<EmployedMercenary>>(listOf())
 
-class ContractStartVM(): ViewModel() {
-    val selectedContractState = MutableStateFlow(-1)
-    val selectedMercenariesState = MutableStateFlow<List<MercenaryOption>>(listOf())
+    fun startContract(){
+        controller.navigate(GameNavigation.Contracts)
+        globalsVM.loadScreen.showLoading("Starting...")
+
+        val mercenaries = selectedMercenaries.value.map {x->x.idEmployment}
+
+        viewModelScope.launch { repository.contracts.start(contract, mercenaries) }
+        QDNotifManager.scheduleContractNotification(context, ActiveContract(
+            contract.id,
+            contract.name,
+            contract.requiredTime,
+            0,
+            listOf()
+        ))
+        globalsVM.loadScreen.hideLoading()
+    }
 
     fun selectMercenary(m: EmployedMercenary){
-        if(!isMercenarySelected(m)){
-            selectedMercenariesState.update { x->x+MercenaryOption(m.idEmployment,m.power) }
+        if(!selectedMercenaries.value.contains(m)){
+            selectedMercenaries.update { it + m }
         }
     }
 
-    fun unselectMercenary(id:Int){
-        selectedMercenariesState.update { it.filter { merc->merc.id!=id } }
+    fun unselectMercenary(m: EmployedMercenary){
+        if(selectedMercenaries.value.contains(m)){
+            selectedMercenaries.update { it - m }
+        }
     }
 
-    fun isMercenarySelected(m: EmployedMercenary):Boolean{
-        return selectedMercenariesState.value.any{x->x.id==m.idEmployment}
-    }
-
-    fun successChance(required:Int): Float{
+    fun successChance(): Float{
         var successRate = 100.0f
-        if(required>0){
+        if(contract.requiredPower > 0){
             successRate =
-                kotlin.math.round((selectedMercenariesState.value.sumOf { x -> x.power }
-                    .toDouble() / (required).toDouble()) * 100).toFloat()
+                kotlin.math.round((selectedMercenaries.value.sumOf { x -> x.power }
+                    .toDouble() / (contract.requiredPower).toDouble()) * 100).toFloat()
                     .coerceAtMost(100.0f)
         }
         return successRate
-    }
-
-    fun unselectContract(){
-        selectedContractState.update { -1 }
-        selectedMercenariesState.update { listOf() }
-    }
-
-    fun selectContract(contract:Int){
-        selectedContractState.update { if(contract>=0) contract else -1 }
     }
 }

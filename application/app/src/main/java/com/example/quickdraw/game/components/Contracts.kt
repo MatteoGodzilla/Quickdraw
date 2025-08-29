@@ -1,6 +1,5 @@
 package com.example.quickdraw.game.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +23,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
@@ -155,8 +153,8 @@ fun EmployedMercenaryPost(mercenary: EmployedMercenary,available: Boolean = true
 
 @Composable
 fun AssignableMercenary(mercenary: EmployedMercenary,vm: ContractStartVM,isCheckable: Boolean=true){
-    val mercs by vm.selectedMercenariesState.collectAsState()
-    var checked = mercs.any{x->x.id==mercenary.idEmployment}
+    val assigned = vm.selectedMercenaries.collectAsState().value
+
     Row (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -166,17 +164,17 @@ fun AssignableMercenary(mercenary: EmployedMercenary,vm: ContractStartVM,isCheck
             Text(mercenary.name, fontSize = Typography.titleLarge.fontSize)
             Text("Power: ${mercenary.power}")
         }
-        Checkbox(enabled=isCheckable,onCheckedChange =
-            {
-                checked = it
-                if(!checked){
-                    vm.unselectMercenary(mercenary.idEmployment)
-                }
-                else{
+        Checkbox(
+            enabled=isCheckable,
+            checked=assigned.contains(mercenary),
+            onCheckedChange = {
+                if(it){
                     vm.selectMercenary(mercenary)
                 }
+                else{
+                    vm.unselectMercenary(mercenary)
+                }
             }
-            , checked = checked
         )
     }
     RowDivider()

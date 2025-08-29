@@ -1,0 +1,34 @@
+package com.example.quickdraw.notifications
+
+import android.app.Activity
+import android.app.AlarmManager
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
+import android.content.Context
+import android.content.Intent
+import android.util.Log
+import com.example.quickdraw.TAG
+import com.example.quickdraw.network.data.ActiveContract
+
+object QDNotifManager{
+    const val CONTRACTS_NOTIF_CHANNEL = "contracts"
+    const val CONTRACTS_GROUP = "contractsGroup"
+    const val INTENT_CONTRACT_FINISHED = "com.example.quickdraw.CONTRACT_FINISHED"
+    const val INTENT_CONTRACT_NAME = "CONTRACT_NAME"
+    const val INTENT_CONTRACT_ID = "CONTRACT_ID"
+
+    fun scheduleContractNotification(context:Context, contract: ActiveContract){
+        Log.i(TAG, "Contract Scheduled: $contract")
+        val myChannel = NotificationChannel(CONTRACTS_NOTIF_CHANNEL, "Contracts", NotificationManager.IMPORTANCE_DEFAULT)
+        val notifService = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notifService.createNotificationChannel(myChannel)
+
+        val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        val intent = Intent(INTENT_CONTRACT_FINISHED)
+        intent.putExtra(INTENT_CONTRACT_NAME, contract.name)
+        intent.setPackage("com.example.quickdraw")
+        val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_IMMUTABLE)
+        alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + contract.requiredTime * 1000, pendingIntent)
+    }
+}
