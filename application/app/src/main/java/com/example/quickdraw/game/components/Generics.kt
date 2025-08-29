@@ -24,8 +24,6 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowDown
-import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -47,7 +45,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -64,12 +61,6 @@ import com.example.quickdraw.game.vm.PopupVM
 import com.example.quickdraw.network.data.LeaderboardEntry
 import com.example.quickdraw.ui.theme.Typography
 import kotlinx.coroutines.delay
-
-enum class PopupType{
-    SUCCESS,
-    FAILURE,
-    WARNING
-}
 
 @Composable
 fun RowDivider(){

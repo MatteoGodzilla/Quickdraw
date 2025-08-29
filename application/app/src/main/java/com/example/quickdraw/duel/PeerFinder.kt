@@ -9,8 +9,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.LocationManager
-import android.net.NetworkInfo
-import android.net.wifi.WifiManager
 import android.net.wifi.WpsInfo
 import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
@@ -44,7 +42,6 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.net.InetAddress
-import kotlin.math.max
 
 @Serializable
 data class Peer(

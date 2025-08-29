@@ -1,7 +1,5 @@
 package com.example.quickdraw.network.api
 
-import android.util.Log
-import com.example.quickdraw.TAG
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.data.ImageRequest
 import com.example.quickdraw.network.data.ImageResponse

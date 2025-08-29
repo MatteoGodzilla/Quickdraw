@@ -12,8 +12,6 @@ import com.example.quickdraw.game.components.BasicScreen
 import com.example.quickdraw.game.components.BountyEntry
 import com.example.quickdraw.game.components.ContentTab
 import com.example.quickdraw.game.vm.LeaderboardVM
-import com.example.quickdraw.network.data.LeaderboardEntry
-import kotlinx.coroutines.runBlocking
 
 @Composable
 fun LeaderBoardScreen ( viewModel: LeaderboardVM, controller: NavHostController ) {

@@ -64,7 +64,7 @@ class MainActivity : ComponentActivity() {
                         val intent = Intent(this@MainActivity, NoConnectionActivity::class.java)
                         intent.putExtra("invalidVersion", true)
                         startActivity(intent)
-                        return@launch;
+                        return@launch
                     }
 
                     val response = ConnectionManager.attempt(TokenRequest(tokenId).toRequestBody(),TOKEN_LOGIN_ENDPOINT)
@@ -74,7 +74,7 @@ class MainActivity : ComponentActivity() {
                         val intent = Intent(this@MainActivity, NoConnectionActivity::class.java)
                         intent.putExtra("invalidVersion", false)
                         startActivity(intent)
-                        return@launch;
+                        return@launch
                     }
                     else{
                         Log.i(TAG, "Token login returned with code ${response.code}")
@@ -92,7 +92,7 @@ class MainActivity : ComponentActivity() {
                             loadingScreenVM.hideLoading()
                             val intent = Intent(this@MainActivity, GameActivity::class.java)
                             startActivity(intent)
-                            return@launch;
+                            return@launch
                         }
                     }
 

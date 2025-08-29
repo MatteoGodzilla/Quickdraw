@@ -192,8 +192,7 @@ class GameActivity : ComponentActivity(){
 
                 //global composables
                 ScreenLoader(globalsVM.loadScreen)
-                Popup(3000,globalsVM.popup)
-                { }
+                Popup(3000,globalsVM.popup){}
             }
         }
     }

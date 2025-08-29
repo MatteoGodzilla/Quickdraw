@@ -60,7 +60,7 @@ class ManualConnectionVM(
                 messageError.update{"Host phone is not reachable,are you sure to be on the same wifi?"}
             }
             else{
-                messageError.update{"Some error occured,please try again"}
+                messageError.update{"Some error occurred,please try again"}
             }
         }
         scanning.update { false }
@@ -75,7 +75,7 @@ class ManualConnectionVM(
                 onConnection(true,"")
             }
             otherPeer.close()
-        } catch(e: IOException){
+        } catch(_: IOException){
             Log.i(TAG, "Listening server was forced close, because we started scanning")
         }
     }

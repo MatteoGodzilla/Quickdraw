@@ -1,15 +1,10 @@
 package com.example.quickdraw.duel.duelBandit
 
-import android.app.Activity
-import android.content.Context
-import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -24,7 +19,6 @@ import com.example.quickdraw.duel.components.PresentationScreen
 import com.example.quickdraw.duel.components.ResultsScreen
 import com.example.quickdraw.duel.components.WeaponSelectionScreen
 import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
-import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.launch
 
 class DuelBanditActivity: ComponentActivity() {

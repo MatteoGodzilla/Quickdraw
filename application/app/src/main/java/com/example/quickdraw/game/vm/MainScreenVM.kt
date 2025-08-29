@@ -11,19 +11,14 @@ import android.net.wifi.WifiManager
 import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.ACTION_WIFI_SETTINGS
-import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
-import com.example.quickdraw.TAG
-import com.example.quickdraw.duel.DuelActivity
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.PeerFinder
 import com.example.quickdraw.game.ManualConnectionActivity
 import com.example.quickdraw.game.PermissionBroadcastReceiver
 import com.example.quickdraw.game.repo.GameRepository
-import com.example.quickdraw.network.NoConnectionActivity
-import kotlinx.coroutines.flow.any
 
 class MainScreenVM(
     private val repository: GameRepository,
@@ -50,10 +45,10 @@ class MainScreenVM(
     fun checkValidScan(): Boolean {
         permFineLocation = ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PERMISSION_GRANTED
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            permNearbyDevices = ContextCompat.checkSelfPermission(context, Manifest.permission.NEARBY_WIFI_DEVICES) == PERMISSION_GRANTED
+        permNearbyDevices = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            ContextCompat.checkSelfPermission(context, Manifest.permission.NEARBY_WIFI_DEVICES) == PERMISSION_GRANTED
         } else {
-            permNearbyDevices = true
+            true
         }
 
         val wifiManager = context.getSystemService(Context.WIFI_SERVICE) as WifiManager
@@ -87,7 +82,7 @@ class MainScreenVM(
             }
             context.startActivity(i)
         }
-        catch(e: ActivityNotFoundException){
+        catch(_: ActivityNotFoundException){
             val i = Intent(ACTION_WIFI_SETTINGS)
             context.startActivity(i)
         }
@@ -105,6 +100,8 @@ class MainScreenVM(
     }
 
     fun startMatchWithPeer(peer:Peer) = peerFinder.startMatchWithPeer(peer)
+    fun checkInventoryForWeapon() = repository.inventory.checkInventoryForWeapon()
+    fun checkInventoryForShoot() = repository.inventory.checkInventoryForShoot()
 
     fun levelProgress() = repository.player.getProgressToNextLevel()
 }

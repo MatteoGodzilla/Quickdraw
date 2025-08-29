@@ -3,10 +3,8 @@ package com.example.quickdraw.network.api
 import android.util.Log
 import com.example.quickdraw.TAG
 import com.example.quickdraw.network.ConnectionManager
-import com.example.quickdraw.network.data.Bandit
 import com.example.quickdraw.network.data.FightBanditRequest
 import com.example.quickdraw.network.data.GetBanditsResponse
-import com.example.quickdraw.network.data.LeaderboardEntry
 import com.example.quickdraw.network.data.Rewards
 import com.example.quickdraw.network.data.TokenRequest
 import kotlinx.serialization.json.Json

@@ -11,13 +11,6 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 
 class SensorTest : ComponentActivity(), SensorEventListener {
@@ -48,11 +41,11 @@ class SensorTest : ComponentActivity(), SensorEventListener {
             val x = event.values[0]
             val y = event.values[1]
             val z = event.values[2]
-            //Log.i(TAG, "SENSOR: $x $y $z")
+            Log.i(TAG, "SENSOR: $x $y $z")
         }
     }
 
     override fun onAccuracyChanged(sensor: Sensor?, accuracy: Int) {
-        //Log.i(TAG, "ACCURACY: $sensor $accuracy")
+        Log.i(TAG, "ACCURACY: $sensor $accuracy")
     }
 }

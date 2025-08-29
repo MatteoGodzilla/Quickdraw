@@ -1,7 +1,5 @@
 package com.example.quickdraw.game.screen
 
-import android.nfc.Tag
-import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -34,7 +32,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.quickdraw.TAG
 import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.game.components.AssignableMercenary
 import com.example.quickdraw.game.components.RowDivider
@@ -43,7 +40,6 @@ import com.example.quickdraw.game.vm.ContractStartVM
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -65,7 +61,7 @@ fun StartContractScreen(controller: NavHostController, repository: GameRepositor
 
     //go back both for arrow on top left and phone button
     val goBack:()->Unit = {
-        vm.unselectContract();
+        vm.unselectContract()
         controller.navigate(GameNavigation.Contracts)
     }
     BackHandler {

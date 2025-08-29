@@ -7,7 +7,6 @@ import com.example.quickdraw.network.data.DuelSubmit
 import com.example.quickdraw.network.data.RoundStatistics
 import com.example.quickdraw.network.data.TokenRequest
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonDecoder
 
 fun submitDuelAPI(data: DuelSubmit): Boolean {
     val requestBody = data.toRequestBody()

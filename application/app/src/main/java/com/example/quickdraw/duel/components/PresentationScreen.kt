@@ -59,12 +59,12 @@ fun PresentationScreen(controller: NavHostController, vm: DuelBanditLogic, playe
 }
 
 @Composable
-fun LoadMessage(message:String,align:Modifier){
+fun LoadMessage(message:String, modifier:Modifier){
         Text(message, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
         Icon(
             imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
             "",
             tint = Color.Black,
-            modifier = align.rotate(infiniteRotation()).size(72.dp)
+            modifier = modifier.rotate(infiniteRotation()).size(72.dp)
         )
 }

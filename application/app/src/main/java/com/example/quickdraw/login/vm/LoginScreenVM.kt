@@ -1,5 +1,7 @@
 package com.example.quickdraw.login.vm
 
+import android.content.Context
+import android.content.Intent
 import android.util.Log
 import androidx.compose.runtime.mutableStateOf
 import androidx.datastore.core.DataStore
@@ -12,6 +14,7 @@ import com.example.quickdraw.network.api.LOGIN_ENDPOINT
 import com.example.quickdraw.network.data.LoginRequest
 import com.example.quickdraw.network.data.LoginResponse
 import com.example.quickdraw.TAG
+import com.example.quickdraw.game.ManualConnectionActivity
 import com.example.quickdraw.network.ConnectionManager
 import com.example.quickdraw.network.api.toRequestBody
 import com.example.quickdraw.network.data.GenericError
@@ -23,6 +26,7 @@ import java.io.IOException
 
 class LoginScreenVM(
     private val dataStore: DataStore<Preferences>,
+    private val context: Context,
     private val onFailedLogin:()->Unit,
     private val onSuccessfulLogin: () -> Unit
 ) : ViewModel() {
@@ -41,7 +45,7 @@ class LoginScreenVM(
             val response=ConnectionManager.attempt(requestBody,LOGIN_ENDPOINT)
             if(response!=null){
                 if(response.code != 200){
-                    showInvalidCombo.value = true;
+                    showInvalidCombo.value = true
                 } else {
                     val body = response.body.string()
                     try{
@@ -53,7 +57,7 @@ class LoginScreenVM(
                         response.close()
                         onSuccessfulLogin()
                     }
-                    catch (e: SerializationException){
+                    catch (_: SerializationException){
                         val genericError: GenericError =Json.decodeFromString<GenericError>(body)
                         ConnectionManager.errorMessage = genericError.message
                         onFailedLogin()
@@ -67,6 +71,11 @@ class LoginScreenVM(
             Log.e("QUICKDRAW", "there was an exception with login")
             Log.e("QUICKDRAW", e.toString())
         }
+    }
+
+    fun playAsGuest(){
+        val intent = Intent(context, ManualConnectionActivity::class.java)
+        context.startActivity(intent)
     }
 
 }

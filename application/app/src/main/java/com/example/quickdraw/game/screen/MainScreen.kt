@@ -10,7 +10,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
@@ -29,7 +28,6 @@ import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -116,7 +114,9 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
             animation = tween(durationMillis = 1000, easing = LinearEasing)
         )
     )
-    val ok = viewModel.checkValidScan()
+    viewModel.checkValidScan()
+    val hasWeapon = viewModel.checkInventoryForWeapon()
+    val hasEnoughBullets = viewModel.checkInventoryForShoot()
     val showPermissionDialog = remember { mutableStateOf(false) }
     Column (
         modifier = Modifier.fillMaxSize()
@@ -131,7 +131,7 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
                         Text("${p.username} (Level: ${p.level})")
-                        Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = true) {
+                        Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = hasWeapon && hasEnoughBullets) {
                             Text("Duel")
                         }
                     }
@@ -139,8 +139,14 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
             }
         } else {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)){
+                var str = "Press Start scouting in order to find other players nearby!"
+                if(!hasWeapon){
+                    str = "You don't have a weapon yet!\nPick up the Colt Navy Revolver from the Shop!"
+                } else if(!hasEnoughBullets){
+                    str = "You don't have enough bullets for a match! Refill yourself from the Shop!"
+                }
                 Text(
-                    "Press Start scouting in order to find other players nearby!",
+                    str,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -245,7 +251,8 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
             Button(
                 onClick = {callbacks.onScan()},
                 colors = primaryButtonColors,
-                modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer)
+                modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer),
+                enabled = hasWeapon && hasEnoughBullets
             ) {
                 Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
                     "Scout",
@@ -261,7 +268,8 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
             Button(
                 onClick = viewModel::goToManualMatch,
                 colors = secondaryButtonColors,
-                modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.surfaceContainer)
+                modifier = Modifier.fillMaxWidth().background(color = MaterialTheme.colorScheme.surfaceContainer),
+                enabled = hasWeapon && hasEnoughBullets
             ) {
                 Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),"Scout")
                 Text("Manual match")
@@ -276,6 +284,8 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
 @Composable
 fun PveSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
     val bandits = viewModel.bandits.collectAsState()
+    val hasWeapon = viewModel.checkInventoryForWeapon()
+    val hasEnoughBullets = viewModel.checkInventoryForShoot()
     Column (
         modifier = Modifier.fillMaxSize()
     ){
@@ -288,14 +298,7 @@ fun PveSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
                         Text("${entry.value.name} (Hp: ${entry.value.hp})")
-                        Button( onClick = {callbacks.onDuelBandit(entry.key)}, enabled = true,
-                            colors = ButtonColors(
-                                containerColor = MaterialTheme.colorScheme.secondary,
-                                contentColor = MaterialTheme.colorScheme.onSurface,
-                                disabledContainerColor = MaterialTheme.colorScheme.primary,
-                                disabledContentColor = MaterialTheme.colorScheme.onSurface
-                            ))
-                        {
+                        Button( onClick = {callbacks.onDuelBandit(entry.key)}, enabled = true, colors = secondaryButtonColors) {
                             Text("Duel")
                         }
                     }
@@ -303,8 +306,14 @@ fun PveSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
             }
         } else {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)){
+                var str = "Press Locate bandits in order to look for bandits to fight!"
+                if(!hasWeapon){
+                    str = "You don't have a weapon yet!\nPick up the Colt Navy Revolver from the Shop!"
+                } else if(!hasEnoughBullets){
+                    str = "You don't have enough bullets for a match! Refill yourself from the Shop!"
+                }
                 Text(
-                    "Press Locate bandits in order to look for bandits to fight!",
+                    str,
                     textAlign = TextAlign.Center,
                     modifier = Modifier.fillMaxWidth()
                 )
@@ -313,7 +322,8 @@ fun PveSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
         Button(
             onClick = {callbacks.onScanBandits()},
             colors = primaryButtonColors,
-            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer)
+            modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surfaceContainer),
+            enabled = hasWeapon && hasEnoughBullets
         ) {
             Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
                 "Scout"

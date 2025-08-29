@@ -24,7 +24,7 @@ data class Song(val name:String, val resource:Int)
 
 object AudioManager: DefaultLifecycleObserver {
 
-    private var mappedSongs = mapOf<Int,Song>(
+    private var mappedSongs = mapOf(
         Pair(SONGS.BACKGROUND_1.ordinal,Song("Theme 1",R.raw.background_theme)),
         Pair(SONGS.BACKGROUND_2.ordinal,Song("Theme 2",R.raw.background_theme2)),
         Pair(SONGS.BACKGROUND_3.ordinal,Song("Theme 3",R.raw.background_theme3)),

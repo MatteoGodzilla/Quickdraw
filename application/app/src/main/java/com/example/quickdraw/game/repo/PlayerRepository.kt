@@ -9,7 +9,6 @@ import com.example.quickdraw.network.api.getLevelsAPI
 import com.example.quickdraw.network.api.getStatusAPI
 import com.example.quickdraw.network.data.BaseStats
 import com.example.quickdraw.network.data.PlayerInfo
-import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.runIfAuthenticated
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

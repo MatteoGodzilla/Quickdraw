@@ -8,10 +8,9 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
 enum class UpgradeIds{
-    UNKOWN,
+    UNKNOWN,
     MAX_HEALTH,
     MAX_CONTRACTS,
     MONEY_BOOST,

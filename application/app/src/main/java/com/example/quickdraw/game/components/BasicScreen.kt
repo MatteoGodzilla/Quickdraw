@@ -14,7 +14,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
@@ -24,14 +23,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.toRoute
-import com.example.quickdraw.R
 import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.selects.select
 
 data class ContentTab(val tabName: String,val fixed:Boolean=true, val content: @Composable ()->Unit)
 

@@ -6,8 +6,6 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.location.LocationManager
 import android.net.wifi.WifiManager
-import android.util.Log
-import com.example.quickdraw.TAG
 import kotlinx.coroutines.flow.MutableStateFlow
 
 
@@ -25,7 +23,6 @@ class PermissionBroadcastReceiver(context: Context) : BroadcastReceiver() {
             if (action == WifiManager.NETWORK_STATE_CHANGED_ACTION) {
                 wifiActive.value = wifiManager.isWifiEnabled
             } else if(action == LocationManager.PROVIDERS_CHANGED_ACTION){
-                Log.i(TAG, "ASDFASDF AUBCAWTCBUOTCWOBUCWTBUOCATWNOVYUNTLMCFNUTE%J")
                 gpsActive.value = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
             }
         }

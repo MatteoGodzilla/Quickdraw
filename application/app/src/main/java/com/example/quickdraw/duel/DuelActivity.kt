@@ -1,6 +1,5 @@
 package com.example.quickdraw.duel
 
-import android.app.Activity
 import android.content.pm.ActivityInfo
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -8,7 +7,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -18,12 +16,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.QuickdrawApplication
 import com.example.quickdraw.dataStore
-import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.duel.components.PlayScreen
 import com.example.quickdraw.duel.components.PresentationScreen
 import com.example.quickdraw.duel.components.ResultsScreen
 import com.example.quickdraw.duel.components.WeaponSelectionScreen
-import com.example.quickdraw.ui.theme.QuickdrawTheme
+import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.net.InetAddress
@@ -65,7 +62,7 @@ class DuelActivity : ComponentActivity() {
 
         enableEdgeToEdge()
         setContent{
-            //force portait
+            //force portrait
             this.requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_UNSPECIFIED
 
             LaunchedEffect(true) {
@@ -94,7 +91,7 @@ class DuelActivity : ComponentActivity() {
                             duelGameLogic.setFavourite(this@DuelActivity.dataStore,vm)
                         }
                     }
-                    WeaponSelectionScreen(controller,selfAsPeer, otherAsPeer, duelGameLogic, repository,vm)
+                    WeaponSelectionScreen(selfAsPeer, otherAsPeer, duelGameLogic, repository,vm)
                 }
                 composable<DuelNavigation.Play>{
                     PlayScreen(controller, duelGameLogic)

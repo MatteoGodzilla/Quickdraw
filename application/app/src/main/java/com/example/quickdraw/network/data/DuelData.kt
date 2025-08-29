@@ -1,6 +1,5 @@
 package com.example.quickdraw.network.data
 
-import androidx.resourceinspection.annotation.Attribute
 import kotlinx.serialization.Serializable
 
 @Serializable

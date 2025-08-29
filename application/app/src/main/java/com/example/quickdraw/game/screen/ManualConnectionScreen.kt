@@ -29,8 +29,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import com.example.quickdraw.game.GameNavigation
 import com.example.quickdraw.game.components.QrCodeImage
 import com.example.quickdraw.game.components.QrScanner
 import com.example.quickdraw.game.vm.ManualConnectionVM

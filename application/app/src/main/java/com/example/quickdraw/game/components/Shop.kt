@@ -1,22 +1,12 @@
 package com.example.quickdraw.game.components
 
-import android.media.Image
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ImageBitmap
@@ -29,9 +19,6 @@ import androidx.compose.ui.unit.dp
 import androidx.core.graphics.createBitmap
 import coil3.compose.AsyncImage
 import com.example.quickdraw.R
-import com.example.quickdraw.game.components.LockedContainer
-import com.example.quickdraw.game.components.ShoppingContainer
-import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.network.data.ShopBullet
 import com.example.quickdraw.network.data.ShopMedikit
@@ -136,15 +123,16 @@ fun MercenaryShopEntry(mercenary: HireableMercenary, onBuy: ()->Unit, icon: Byte
 /**
 @Preview
 @Composable
-fun previewBasic(){
-BasicShopEntry("69000", true, action = {}, createBitmap(10,10).asImageBitmap()) {
-Text("Winchester", fontSize = Typography.titleLarge.fontSize)
-Text("200 damage per hit")
-Text("200 damage per hit")
-Text("200 damage per hit")
-Text("200 damage per hit")
-Text("200 damage per hit")
-Text("200 damage per hit   g  sg  gl js lh sghl gshlgshlgshlgshlsglhsglh")
+fun PreviewBasic(){
+    BasicShopEntry("69000", true, action = {}, createBitmap(10,10).asImageBitmap()) {
+        Text("Winchester", fontSize = Typography.titleLarge.fontSize)
+        Text("200 damage per hit")
+        Text("200 damage per hit")
+        Text("200 damage per hit")
+        Text("200 damage per hit")
+        Text("200 damage per hit")
+        Text("200 damage per hit   g  sg  gl js lh sghl gshlgshlgshlgshlsglhsglh")
+    }
 }
 }
  *

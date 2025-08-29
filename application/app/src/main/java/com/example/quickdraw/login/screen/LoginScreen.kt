@@ -28,10 +28,9 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
-import com.example.quickdraw.login.LoginNavigation
 import com.example.quickdraw.R
-import com.example.quickdraw.game.components.ScreenLoader
 import com.example.quickdraw.game.vm.GlobalPartsVM
+import com.example.quickdraw.login.LoginNavigation
 import com.example.quickdraw.login.vm.LoginScreenVM
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.primaryButtonColors
@@ -40,7 +39,7 @@ import com.example.quickdraw.ui.theme.primaryButtonColors
 fun LoginScreen(
     loginScreenVM: LoginScreenVM,
     navHost: NavHostController,
-    globalsVM: GlobalPartsVM
+    globalsVM: GlobalPartsVM,
 ){
     QuickdrawTheme {
         Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
@@ -113,6 +112,13 @@ fun LoginScreen(
                     Text("Login")
                 }
 
+                Button(
+                    onClick = { loginScreenVM.playAsGuest() },
+                    colors = primaryButtonColors,
+                    enabled = true
+                ) {
+                    Text("Play as guest")
+                }
                 Spacer(modifier = Modifier.height(32.dp))
                 val clickableString = "Register"
                 Text(text = buildAnnotatedString {

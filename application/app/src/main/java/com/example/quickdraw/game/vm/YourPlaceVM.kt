@@ -140,7 +140,7 @@ class YourPlaceVM(
         viewModelScope.launch {
             favouriteSong.update { choice }
             context.dataStore.edit { pref->pref[PrefKeys.favouriteTheme] = choice }
-            AudioManager.changeBgmTheme(context,choice,musicVolumeSlider.value)
+            AudioManager.changeBgmTheme(context,choice,musicVolumeSlider.floatValue)
         }
     }
 

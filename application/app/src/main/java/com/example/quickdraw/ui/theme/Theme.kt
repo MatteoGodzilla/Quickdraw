@@ -52,8 +52,8 @@ val secondaryButtonColors = ButtonColors(
     disabledContentColor = LightColorScheme.onSurface
 )
 
-val bottomBarButtonColors = { enabled:Boolean ->
-    ButtonColors(
+fun bottomBarButtonColors(enabled: Boolean): ButtonColors {
+    return ButtonColors(
         containerColor = LightColorScheme.surfaceContainer,
         contentColor = if(enabled) LightColorScheme.secondary else LightColorScheme.onSurface,
         disabledContainerColor = LightColorScheme.onErrorContainer,

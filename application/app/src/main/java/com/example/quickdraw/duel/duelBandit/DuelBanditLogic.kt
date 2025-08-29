@@ -4,19 +4,9 @@ import android.content.Context
 import android.content.Intent
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.util.Log
-import androidx.core.text.util.LocalePreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.lifecycle.ViewModel
 import com.example.quickdraw.PrefKeys
-import com.example.quickdraw.TAG
-import com.example.quickdraw.duel.DuelState
-import com.example.quickdraw.duel.MAX_DELAY
-import com.example.quickdraw.duel.MIN_DELAY
-import com.example.quickdraw.duel.Message
-import com.example.quickdraw.duel.MessageType
-import com.example.quickdraw.duel.PeerState
 import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.repo.GameRepository
@@ -31,9 +21,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlin.math.round
 import kotlin.random.Random
-import kotlin.random.nextLong
 
 enum class DuelBanditState{
     SELECT,STEADY,BANG
@@ -71,8 +59,7 @@ class DuelBanditLogic(
     }
 
     private fun prepareSteady(){
-        val rand = kotlin.random.Random
-        banditTimer.update { rand.nextLong(banditInfo.minSpeed.toLong(),banditInfo.maxSpeed.toLong()) }
+        banditTimer.update { Random.nextLong(banditInfo.minSpeed.toLong(),banditInfo.maxSpeed.toLong()) }
         shootTimer.update { Random.nextLong(5000L,10000L) }
     }
 
@@ -103,8 +90,7 @@ class DuelBanditLogic(
             duelHistory.update { x->x+ FightAttempt(true,selectedWeapon.value!!.id,0) }
         }
         else{
-            val rand = kotlin.random.Random
-            val damage = rand.nextInt(banditInfo.minDamage,banditInfo.maxDamage+1)
+            val damage = Random.nextInt(banditInfo.minDamage,banditInfo.maxDamage+1)
             repo.player.player.update { x->x.copy(health = x.health-damage) }
             duelHistory.update { x->x+ FightAttempt(false,selectedWeapon.value!!.id,damage) }
         }

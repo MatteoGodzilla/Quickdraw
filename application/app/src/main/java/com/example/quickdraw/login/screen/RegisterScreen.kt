@@ -34,7 +34,6 @@ import com.example.quickdraw.ui.theme.primaryButtonColors
 @Composable
 fun RegisterScreen(
     registerScreenVM: RegisterScreenVM,
-    navHostController: NavHostController,
     globalsVM: GlobalPartsVM
 ){
     QuickdrawTheme {

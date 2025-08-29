@@ -137,7 +137,7 @@ class DuelGameLogic(
                         val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                         vibrator.vibrate(VibrationEffect.createOneShot(1500, VibrationEffect.DEFAULT_AMPLITUDE))
                     } else {
-                        Log.i(TAG, "There is DEFINETLY SOMETHING WRONG")
+                        Log.i(TAG, "There is DEFINITELY SOMETHING WRONG")
                     }
                 }
             }
@@ -229,7 +229,7 @@ class DuelGameLogic(
                 val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
                 vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
                 shouldShoot.value = true
-                break;
+                break
             }
         }
     }

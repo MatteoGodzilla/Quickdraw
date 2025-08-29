@@ -5,16 +5,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,7 +29,6 @@ import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.repo.GameRepository
-import com.example.quickdraw.game.screen.StatsDisplayer
 import com.example.quickdraw.network.data.InventoryBullet
 import com.example.quickdraw.network.data.InventoryWeapon
 import com.example.quickdraw.ui.theme.Typography
@@ -41,7 +36,7 @@ import com.example.quickdraw.ui.theme.primaryButtonColors
 import com.example.quickdraw.ui.theme.secondaryButtonColors
 
 @Composable
-fun WeaponSelectionScreen(controller: NavHostController, self: Peer, other: Peer, gameLogic: DuelGameLogic, repo: GameRepository, vm: WeaponSelectionViewModel){
+fun WeaponSelectionScreen(self: Peer, other: Peer, gameLogic: DuelGameLogic, repo: GameRepository, vm: WeaponSelectionViewModel){
     val canDoRound = canSelfDoRound(repo)
     DuelContainer(self, other){
         if(gameLogic.selfState.collectAsState().value == PeerState.READY && gameLogic.otherState.collectAsState().value == PeerState.CAN_PLAY){

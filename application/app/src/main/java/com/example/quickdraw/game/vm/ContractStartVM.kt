@@ -1,11 +1,7 @@
 package com.example.quickdraw.game.vm
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
-import com.example.quickdraw.TAG
-import com.example.quickdraw.network.data.EmployMercenary
 import com.example.quickdraw.network.data.EmployedMercenary
-import com.example.quickdraw.network.data.MercenaryEmployed
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 

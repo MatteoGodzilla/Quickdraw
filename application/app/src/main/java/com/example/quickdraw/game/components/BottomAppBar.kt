@@ -31,7 +31,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.quickdraw.R
 import com.example.quickdraw.game.GameNavigation
-import com.example.quickdraw.game.GameNavigation.*
 import com.example.quickdraw.ui.theme.bottomBarButtonColors
 
 @Composable
@@ -50,9 +49,9 @@ fun BottomNavBar(navigation: NavHostController, height: Dp = 96.dp){
         ) {
             item {
                 BottomBarTextButton(
-                    function = { navigation.navigate(YourPlace) },
+                    function = { navigation.navigate(GameNavigation.YourPlace) },
                     height = height,
-                    color = bottomBarButtonColors(currentDestination?.hasRoute<YourPlace>() == true),
+                    color = bottomBarButtonColors(currentDestination?.hasRoute<GameNavigation.YourPlace>() == true),
                     content = {
                         BarIcon(
                             icon=R.drawable.home_24px,
@@ -63,9 +62,9 @@ fun BottomNavBar(navigation: NavHostController, height: Dp = 96.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {navigation.navigate(BountyBoard)},
+                    function = {navigation.navigate(GameNavigation.BountyBoard)},
                     height = height,
-                    color = bottomBarButtonColors(currentDestination?.hasRoute<BountyBoard>() == true),
+                    color = bottomBarButtonColors(currentDestination?.hasRoute<GameNavigation.BountyBoard>() == true),
                     content = {
                         BarIcon(
                             icon=R.drawable.leaderboard_24px,
@@ -76,7 +75,7 @@ fun BottomNavBar(navigation: NavHostController, height: Dp = 96.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {navigation.navigate(Map)},
+                    function = {navigation.navigate(GameNavigation.Map)},
                     height = height,
                     color = bottomBarButtonColors(currentDestination?.hasRoute<GameNavigation.Map>() == true),
                     content = {
@@ -89,9 +88,9 @@ fun BottomNavBar(navigation: NavHostController, height: Dp = 96.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {navigation.navigate(Shop)},
+                    function = {navigation.navigate(GameNavigation.Shop)},
                     height = height,
-                    color = bottomBarButtonColors(currentDestination?.hasRoute<Shop>() == true),
+                    color = bottomBarButtonColors(currentDestination?.hasRoute<GameNavigation.Shop>() == true),
                     content = {
                         BarIcon(
                             icon=R.drawable.shopping_bag_24px,
@@ -102,9 +101,9 @@ fun BottomNavBar(navigation: NavHostController, height: Dp = 96.dp){
             }
             item {
                 BottomBarTextButton(
-                    function = {navigation.navigate(Contracts)},
+                    function = {navigation.navigate(GameNavigation.Contracts)},
                     height = height,
-                    color = bottomBarButtonColors(currentDestination?.hasRoute<Contracts>() == true),
+                    color = bottomBarButtonColors(currentDestination?.hasRoute<GameNavigation.Contracts>() == true),
                     content = {
                         BarIcon(
                             icon=R.drawable.contract_24px,

@@ -21,7 +21,7 @@ fun getHirableAPI(authToken: String): MercenaryHireableResponse {
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<MercenaryHireableResponse>(result)
         }
@@ -36,7 +36,7 @@ fun getUnassignedMercenariesAPI(authToken: String): UnassignedMercenaryResponse 
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<UnassignedMercenaryResponse>(result)
         }
@@ -51,7 +51,7 @@ fun employMercenaryAPI(authToken: String,mercenary: HireableMercenary) : EmployM
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<EmployMercenaryResponse>(result)
         }
@@ -66,7 +66,7 @@ fun getNextUnlockableMercenariesAPI(authToken: String) : NextToUnlockMercenaryRe
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<NextToUnlockMercenaryResponse>(result)
         }
@@ -81,7 +81,7 @@ fun getAllPlayerMercenariesAPI(authToken: String) : MercenaryEmployedResponse {
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<MercenaryEmployedResponse>(result)
         }

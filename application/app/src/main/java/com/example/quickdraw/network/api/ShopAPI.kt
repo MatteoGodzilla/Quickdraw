@@ -19,7 +19,7 @@ fun getShopWeaponsAPI(authToken: String): List<ShopWeapon> {
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<List<ShopWeapon>>(result)
         }
@@ -33,7 +33,7 @@ fun getShopBulletsAPI(authToken: String): List<ShopBullet> {
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<List<ShopBullet>>(result)
         }
@@ -47,7 +47,7 @@ fun getShopMedikitsAPI(authToken: String): List<ShopMedikit> {
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<List<ShopMedikit>>(result)
         }
@@ -61,7 +61,7 @@ fun getShopUpgradesAPI(authToken: String): List<ShopUpgrade> {
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<List<ShopUpgrade>>(result)
         }
@@ -75,7 +75,7 @@ fun buyBulletsAPI(buy: BuyRequest): ShopBullet?{
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<ShopBullet>(result)
         }
@@ -89,7 +89,7 @@ fun buyMedikitAPI(buy: BuyRequest): ShopMedikit?{
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<ShopMedikit>(result)
         }
@@ -103,7 +103,7 @@ fun buyWeaponAPI(buy: BuyRequest): ShopWeapon?{
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<ShopWeapon>(result)
         }
@@ -117,7 +117,7 @@ fun buyUpgradeAPI(buy: BuyRequest): BuyUpgradeResponse?{
     if(response!=null){
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
-            val result = response.body!!.string()
+            val result = response.body.string()
             Log.i(TAG, result)
             return Json.decodeFromString<BuyUpgradeResponse>(result)
         }

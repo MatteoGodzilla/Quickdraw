@@ -30,16 +30,7 @@ data class LockedMercenary(
 /* --- REQUEST --- */
 
 @Serializable
-data class MercenaryHireable(val authToken: String)
-
-@Serializable
-data class MercenaryEmployed(val authToken: String)
-
-@Serializable
 data class EmployMercenary(val authToken: String,val idMercenary: Int)
-
-@Serializable
-data class MercenaryUnassigned(val authToken: String)
 
 
 /* --- RESPONSE --- */

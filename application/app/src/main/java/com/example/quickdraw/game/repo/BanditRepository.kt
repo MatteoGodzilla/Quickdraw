@@ -6,7 +6,6 @@ import androidx.datastore.preferences.core.Preferences
 import com.example.quickdraw.TAG
 import com.example.quickdraw.network.api.fightAPI
 import com.example.quickdraw.network.api.getBanditsAPI
-import com.example.quickdraw.network.api.getInventoryAPI
 import com.example.quickdraw.network.data.Bandit
 import com.example.quickdraw.network.data.FightAttempt
 import com.example.quickdraw.network.data.FightBanditRequest
@@ -15,10 +14,6 @@ import com.example.quickdraw.runIfAuthenticated
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 import java.time.LocalDateTime
-import java.time.ZonedDateTime
-import java.util.Date
-import java.util.TimeZone
-import kotlin.time.Clock
 
 class BanditRepository(
     private val dataStore: DataStore<Preferences>,

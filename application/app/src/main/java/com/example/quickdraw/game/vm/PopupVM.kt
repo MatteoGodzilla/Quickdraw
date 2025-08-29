@@ -5,10 +5,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.update
 
 class PopupVM: ViewModel() {
-    val message: MutableStateFlow<String> = MutableStateFlow<String>("test")
-    val isShowing: MutableStateFlow<Boolean> = MutableStateFlow<Boolean>(false)
+    val message = MutableStateFlow("test")
+    val isShowing = MutableStateFlow(false)
 
-    val isPositive: MutableStateFlow<Boolean> = MutableStateFlow<Boolean>(false)
+    val isPositive = MutableStateFlow(false)
 
     fun showLoading(msg:String,positive:Boolean=true) {
         message.update { msg }

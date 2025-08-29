@@ -19,7 +19,6 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.MatchResult
-import com.example.quickdraw.duel.Message
 import com.example.quickdraw.duel.duelBandit.DuelBanditLogic
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.PeerState
