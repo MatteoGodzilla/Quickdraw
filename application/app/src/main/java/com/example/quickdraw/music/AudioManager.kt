@@ -22,7 +22,36 @@ enum class SONGS{
 
 data class Song(val name:String, val resource:Int)
 
-object AudioManager: DefaultLifecycleObserver {
+object AudioManagerLifecycleObserver: DefaultLifecycleObserver {
+    //Lifecycle observer
+    private var lifecycleRef: Lifecycle? = null
+    fun init(cycle: Lifecycle){
+        lifecycleRef = cycle
+    }
+
+    fun attach() {
+        lifecycleRef?.addObserver(this)
+    }
+
+    fun detach(){
+        lifecycleRef?.removeObserver(this)
+    }
+
+    override fun onStart(owner: LifecycleOwner) {
+        Log.i(TAG, "Started bgm from Lifecycle Observer")
+        AudioManager.playBGM()
+    }
+
+    override fun onDestroy(owner: LifecycleOwner) {
+        AudioManager.stopBGM()
+    }
+
+    override fun onStop(owner: LifecycleOwner) {
+        AudioManager.pauseBGM()
+    }
+}
+
+object AudioManager {
 
     private var mappedSongs = mapOf(
         Pair(SONGS.BACKGROUND_1.ordinal,Song("Theme 1",R.raw.background_theme)),
@@ -36,8 +65,7 @@ object AudioManager: DefaultLifecycleObserver {
     private var currTheme = SONGS.BACKGROUND_1.ordinal
 
 
-    fun init(context: Context,cycle: Lifecycle, initialVolume: Float) {
-        cycle.addObserver(this)
+    fun init(context: Context, initialVolume: Float) {
         if (bgm == null) {
             bgm = MediaPlayer.create(context, mappedSongs[currTheme]!!.resource)
             bgm!!.isLooping = true
@@ -68,18 +96,26 @@ object AudioManager: DefaultLifecycleObserver {
     }
 
     private fun replaySong(context:Context,volume:Float){
+        stopBGM()
         Log.i(TAG,"Volume:${volume.toString()}")
-        bgm?.stop()
-        bgm?.release()
-        bgm=null
-        bgm= MediaPlayer.create(context,mappedSongs[currTheme]!!.resource)
+        bgm = MediaPlayer.create(context,mappedSongs[currTheme]!!.resource)
         bgm?.isLooping = true
         bgm?.setVolume(volume,volume)
+        playBGM()
+    }
+
+    fun playBGM(){
         bgm?.start()
     }
 
-    fun changeBgmTheme(context: Context, choice:SONGS, volume:Float){
-        changeBgmTheme(context,choice.ordinal,volume)
+    fun pauseBGM() {
+        bgm?.pause()
+    }
+
+    fun stopBGM(){
+        bgm?.stop()
+        bgm?.release()
+        bgm = null
     }
 
     fun startSFX(){
@@ -88,7 +124,7 @@ object AudioManager: DefaultLifecycleObserver {
 
     //Set volume
 
-    fun setMusicVolume(vol: Float){
+    fun setBGMVolume(vol: Float){
         bgm?.setVolume(vol, vol)
     }
 
@@ -96,19 +132,4 @@ object AudioManager: DefaultLifecycleObserver {
         sfx?.setVolume(vol, vol)
     }
 
-    //Lifecycle observer
-
-    override fun onStart(owner: LifecycleOwner) {
-        Log.i(TAG, "Started bgm $bgm")
-        bgm?.start()
-    }
-
-    override fun onDestroy(owner: LifecycleOwner) {
-        bgm?.stop()
-        bgm?.release()
-    }
-
-    override fun onStop(owner: LifecycleOwner) {
-        bgm?.pause()
-    }
 }

@@ -1,9 +1,9 @@
 package com.example.quickdraw.game.screen
 
+import android.widget.Space
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -46,6 +47,7 @@ import com.example.quickdraw.game.components.DropDownMenuForSettings
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.music.AudioManager
+import com.example.quickdraw.music.AudioManagerLifecycleObserver
 import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.secondaryButtonColors
 import kotlin.math.floor
@@ -224,6 +226,14 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
         },
         ContentTab("Settings") {
             SmallHeader("Audio")
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(8.dp)
+            ) {
+                Text("Mute audio")
+                Checkbox(viewModel.muteAudio.collectAsState().value, onCheckedChange = viewModel::onMuteToggle)
+            }
             StatsDisplayer("Music", "${floor(viewModel.musicVolumeSlider.floatValue * 100).toInt()}%")
             Slider(
                 value = viewModel.musicVolumeSlider.floatValue,
@@ -239,17 +249,18 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
 
             Row(modifier = Modifier.fillMaxWidth()){
                 val options = AudioManager.getSettingsSongs()
-                Row(modifier = Modifier.fillMaxWidth(0.9f)){
-                    StatsDisplayer("Current song:",options[viewModel.favouriteSong.collectAsState().value].name)
-                }
-                DropDownMenuForSettings(modifier = Modifier.align(Alignment.CenterVertically).fillMaxWidth( )){
-                    for(i in 0 .. options.size-1){
-                        val song = options[i]
-                        DropdownMenuItem(
-                            modifier = Modifier.fillMaxWidth(),
-                            text = {Text(song.name)},
-                            onClick = {viewModel.changeAudioManagerSong(i)}
-                        )
+                Row(modifier = Modifier.fillMaxWidth().padding(8.dp), horizontalArrangement = Arrangement.SpaceBetween){
+                    Text("Current song")
+                    val selected = options[viewModel.favouriteSong.collectAsState().value].name
+                    DropDownMenuForSettings(selected, modifier = Modifier.align(Alignment.CenterVertically).fillMaxWidth( )){
+                        for(i in 0 .. options.size-1){
+                            val song = options[i]
+                            DropdownMenuItem(
+                                modifier = Modifier.fillMaxWidth(),
+                                text = {Text(song.name)},
+                                onClick = {viewModel.changeAudioManagerSong(i)}
+                            )
+                        }
                     }
                 }
             }

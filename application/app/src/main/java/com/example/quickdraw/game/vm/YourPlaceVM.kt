@@ -1,13 +1,10 @@
 package com.example.quickdraw.game.vm
 
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.net.Uri
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.compose.runtime.mutableFloatStateOf
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.datastore.preferences.core.edit
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -19,6 +16,7 @@ import com.example.quickdraw.dataStore
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.login.LoginActivity
 import com.example.quickdraw.music.AudioManager
+import com.example.quickdraw.music.AudioManagerLifecycleObserver
 import com.example.quickdraw.network.api.updateProfilePicAPI
 import com.example.quickdraw.network.api.useMedikitAPI
 import com.example.quickdraw.runIfAuthenticated
@@ -48,6 +46,7 @@ class YourPlaceVM(
     val otherStatistics = repository.statistics
     var playerImage: MutableStateFlow<ByteArray> = imageLoader.getPlayerFlow(repository.player.player.value.id)
 
+    val muteAudio = MutableStateFlow(false)
     val musicVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)
     val sfxVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)
 
@@ -57,6 +56,7 @@ class YourPlaceVM(
             sfxVolumeSlider.floatValue = context.dataStore.data.map { pref -> pref[PrefKeys.sfxVolume] }.first() ?: DEFAULT_VOLUME
             favouriteWeapon.value = context.dataStore.data.map { pref -> pref[PrefKeys.favouriteWeapon] }.first() ?: -1
             favouriteSong.value = context.dataStore.data.map { pref -> pref[PrefKeys.favouriteTheme] }.first() ?: 0
+            muteAudio.value = context.dataStore.data.map { pref -> pref[PrefKeys.musicMute] }.first() ?: false
         }
     }
 
@@ -106,7 +106,7 @@ class YourPlaceVM(
     fun setMusicVolume(value: Float) = viewModelScope.launch {
         context.dataStore.edit { pref->pref[PrefKeys.musicVolume] = value }
         musicVolumeSlider.floatValue = value
-        AudioManager.setMusicVolume(value)
+        AudioManager.setBGMVolume(value)
     }
     fun setSFXVolume(value: Float) = viewModelScope.launch {
         context.dataStore.edit { pref->pref[PrefKeys.sfxVolume] = value }
@@ -141,6 +141,18 @@ class YourPlaceVM(
             favouriteSong.update { choice }
             context.dataStore.edit { pref->pref[PrefKeys.favouriteTheme] = choice }
             AudioManager.changeBgmTheme(context,choice,musicVolumeSlider.floatValue)
+        }
+    }
+
+    fun onMuteToggle(selected: Boolean) = viewModelScope.launch{
+        muteAudio.value = selected
+        context.dataStore.edit { pref -> pref[PrefKeys.musicMute] = selected }
+        if(selected){
+            AudioManager.pauseBGM()
+            AudioManagerLifecycleObserver.detach()
+        } else {
+            AudioManager.playBGM()
+            AudioManagerLifecycleObserver.attach()
         }
     }
 

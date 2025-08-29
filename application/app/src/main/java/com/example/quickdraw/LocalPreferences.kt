@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
@@ -27,6 +28,7 @@ class PrefKeys{
         val username = stringPreferencesKey("username")
         val level = stringPreferencesKey("level")
         val server = stringPreferencesKey("server")
+        val musicMute = booleanPreferencesKey("musicMute")
         val musicVolume = floatPreferencesKey("music")
         val sfxVolume = floatPreferencesKey("sfx")
         val favouriteTheme = intPreferencesKey("theme")

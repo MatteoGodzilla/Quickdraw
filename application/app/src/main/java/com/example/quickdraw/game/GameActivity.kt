@@ -43,6 +43,7 @@ import com.example.quickdraw.game.vm.MainScreenVM
 import com.example.quickdraw.game.vm.ShopScreenVM
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.music.AudioManager
+import com.example.quickdraw.music.AudioManagerLifecycleObserver
 import com.example.quickdraw.network.data.HireableMercenary
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.flow.first
@@ -88,9 +89,17 @@ class GameActivity : ComponentActivity(){
         }
 
         runBlocking {
+            val mute = dataStore.data.map { pref -> pref[PrefKeys.musicMute] }.first() ?: false
             val volume = dataStore.data.map { pref -> pref[PrefKeys.musicVolume] }.first() ?: DEFAULT_VOLUME
             Log.i(TAG, "Initial volume: $volume")
-            AudioManager.init(this@GameActivity, this@GameActivity.lifecycle, volume)
+            //Creating the audio streams
+            AudioManager.init(this@GameActivity, volume)
+            //Attaching the audio manager lifecycle to game activity lifecycle
+            AudioManagerLifecycleObserver.init(this@GameActivity.lifecycle)
+            if(!mute){
+                //actually starting the audio
+                AudioManagerLifecycleObserver.attach()
+            }
         }
 
         //For when another peer is connecting through wifi-p2p

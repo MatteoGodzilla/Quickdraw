@@ -1,6 +1,5 @@
 package com.example.quickdraw.game.components
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
@@ -9,14 +8,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.core.graphics.createBitmap
 import coil3.compose.AsyncImage
 import com.example.quickdraw.R
 import com.example.quickdraw.network.data.HireableMercenary
@@ -95,7 +90,7 @@ fun WeaponEntryShop(weapon: ShopWeapon, onBuy: ()->Unit, icon: ByteArray, purcha
 
 @Composable
 fun LockedWeapon(weapon:ShopWeapon, icon: ByteArray){
-    LockedContainer(){
+    LockedContainer{
         AsyncImage(icon, "Icon", modifier = Modifier.size(48.dp))
         Column {
             Text(weapon.name, fontSize = Typography.titleLarge.fontSize)
@@ -119,26 +114,3 @@ fun MercenaryShopEntry(mercenary: HireableMercenary, onBuy: ()->Unit, icon: Byte
         Text("Power:${mercenary.power}")
     }
 }
-
-/**
-@Preview
-@Composable
-fun PreviewBasic(){
-    BasicShopEntry("69000", true, action = {}, createBitmap(10,10).asImageBitmap()) {
-        Text("Winchester", fontSize = Typography.titleLarge.fontSize)
-        Text("200 damage per hit")
-        Text("200 damage per hit")
-        Text("200 damage per hit")
-        Text("200 damage per hit")
-        Text("200 damage per hit")
-        Text("200 damage per hit   g  sg  gl js lh sghl gshlgshlgshlgshlsglhsglh")
-    }
-}
-}
- *
- */
-
-
-
-
-
