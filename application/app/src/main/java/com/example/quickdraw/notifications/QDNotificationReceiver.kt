@@ -1,6 +1,7 @@
 package com.example.quickdraw.notifications
 
 import android.Manifest
+import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
@@ -24,6 +25,8 @@ class QDNotificationReceiver : BroadcastReceiver() {
             val contractId = intent.getIntExtra(INTENT_CONTRACT_ID, 0)
             val contractName = intent.getStringExtra(INTENT_CONTRACT_NAME)
 
+            val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
             val notifIntent = Intent(context, MainActivity::class.java)
             val pendingIntent = PendingIntent.getActivity(context, 0, notifIntent, PendingIntent.FLAG_IMMUTABLE)
             val builder = NotificationCompat.Builder(context, CONTRACTS_NOTIF_CHANNEL)
@@ -35,21 +38,21 @@ class QDNotificationReceiver : BroadcastReceiver() {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
 
-            /*
-            val summaryBuilder = NotificationCompat.Builder(context, CONTRACTS_NOTIF_CHANNEL)
-                .setSmallIcon(R.mipmap.ic_launcher_foreground)
-                .setContentTitle("Summary Notification")
-                .setContentText("BLA BLA BLA")
-                .setGroup(CONTRACTS_GROUP)
-                .setGroupSummary(true)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-                .setContentIntent(pendingIntent)
-                .setAutoCancel(true)
-
-             */
+            if(notificationManager.activeNotifications.size > 1){
+               //build summary
+                val summaryBuilder = NotificationCompat.Builder(context, CONTRACTS_NOTIF_CHANNEL)
+                    .setSmallIcon(R.mipmap.ic_launcher_foreground)
+                    .setContentTitle("Contracts finished")
+                    .setContentText("${notificationManager.activeNotifications.size} Contracts to redeem!")
+                    .setGroup(CONTRACTS_GROUP)
+                    .setGroupSummary(true)
+                    .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                    .setContentIntent(pendingIntent)
+                    .setAutoCancel(true)
+                NotificationManagerCompat.from(context).notify(0, summaryBuilder.build())
+            }
 
             NotificationManagerCompat.from(context).notify(contractId, builder.build())
-            //NotificationManagerCompat.from(context).notify(0, summaryBuilder.build())
         }
     }
 }

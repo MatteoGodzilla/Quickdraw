@@ -42,7 +42,9 @@ import com.example.quickdraw.game.vm.ShopScreenVM
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.music.AudioManager
 import com.example.quickdraw.music.AudioManagerLifecycleObserver
+import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
+import com.example.quickdraw.notifications.QDNotifManager
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -85,6 +87,8 @@ class GameActivity : ComponentActivity(){
             repository.firstLoad()
             globalsVM.loadScreen.hideLoading()
         }
+
+        QDNotifManager.init(this)
 
         runBlocking {
             val mute = dataStore.data.map { pref -> pref[PrefKeys.musicMute] }.first() ?: false
