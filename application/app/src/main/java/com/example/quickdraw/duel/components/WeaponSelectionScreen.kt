@@ -142,7 +142,7 @@ fun WeaponSelectionScreen(controller: NavHostController, duelLogic: DuelBanditLo
 @Composable
 fun WeaponOption(weapon: InventoryWeapon, vm: WeaponSelectionViewModel, bullet: InventoryBullet, icon: ByteArray){
     val usable = bullet.amount >= weapon.bulletsShot
-    Column (modifier = Modifier.fillMaxWidth().clickable { vm.select(weapon) }){
+    Column (modifier = Modifier.fillMaxWidth().padding(8.dp).clickable { vm.select(weapon) }){
         Row (modifier = Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically){
             FadableAsyncImage(icon, weapon.name, modifier = Modifier.size(48.dp))
             Text(weapon.name, fontSize = Typography.titleLarge.fontSize, modifier = Modifier.weight(1f), textAlign = TextAlign.Center)
@@ -154,30 +154,6 @@ fun WeaponOption(weapon: InventoryWeapon, vm: WeaponSelectionViewModel, bullet: 
             Text("Bullets shot: ${weapon.bulletsShot}", modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Right)
         }
     }
-
-
-
-
-
-
-
-
-    /*
-
-    Row (
-        modifier = Modifier.fillMaxWidth().background(if(usable) Color.Transparent else Color.Red).padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ){
-        Column (modifier = Modifier.weight(1f)){
-            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-            }
-            Row (modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween){
-            }
-        }
-    }
-
-     */
     RowDivider()
 }
 

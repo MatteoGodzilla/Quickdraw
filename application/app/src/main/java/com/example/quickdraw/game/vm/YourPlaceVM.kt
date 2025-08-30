@@ -50,6 +50,7 @@ class YourPlaceVM(
     val musicVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)
     val sfxVolumeSlider = mutableFloatStateOf(DEFAULT_VOLUME)
     val enableVibration = MutableStateFlow(false)
+    val enableNotifications = MutableStateFlow(false)
 
     init{
         viewModelScope.launch {
@@ -59,6 +60,7 @@ class YourPlaceVM(
             favouriteSong.value = context.dataStore.data.map { pref -> pref[PrefKeys.favouriteTheme] }.first() ?: 0
             muteAudio.value = context.dataStore.data.map { pref -> pref[PrefKeys.musicMute] }.first() ?: false
             enableVibration.value = context.dataStore.data.map { pref -> pref[PrefKeys.enableVibration] }.first() ?: true
+            enableNotifications.value = context.dataStore.data.map { pref -> pref[PrefKeys.enableNotifications] }.first() ?: true
         }
     }
 
@@ -163,4 +165,8 @@ class YourPlaceVM(
         context.dataStore.edit { pref -> pref[PrefKeys.enableVibration] = selected }
     }
 
+    fun onEnableNotifications(selected: Boolean) = viewModelScope.launch{
+        enableNotifications.value = selected
+        context.dataStore.edit { pref -> pref[PrefKeys.enableNotifications] = selected }
+    }
 }

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -262,7 +263,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                     }
                 }
             }
-            SmallHeader("Vibration")
+            SmallHeader("Device")
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -271,12 +272,20 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 Text("Enable vibration")
                 Checkbox(viewModel.enableVibration.collectAsState().value, onCheckedChange = viewModel::onEnableVibration)
             }
-            SmallHeader("Account")
+            //SmallHeader("Notifications")
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(8.dp)
+            ) {
+                Text("Enable notifications")
+                Checkbox(viewModel.enableNotifications.collectAsState().value, onCheckedChange = viewModel::onEnableNotifications)
+            }
+            //SmallHeader("Account")
             Button(
                 onClick = viewModel::logout,
                 colors = secondaryButtonColors,
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier .fillMaxWidth().padding(8.dp)
             ) {
                 Icon(Icons.AutoMirrored.Default.ArrowBack,"go back")
                 Text("Logout", fontSize = Typography.titleLarge.fontSize)

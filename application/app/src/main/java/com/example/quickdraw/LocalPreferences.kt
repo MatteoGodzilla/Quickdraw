@@ -34,6 +34,7 @@ class PrefKeys{
         val favouriteTheme = intPreferencesKey("theme")
         val favouriteWeapon = intPreferencesKey("favWeapon")
         val enableVibration = booleanPreferencesKey("enableVibration")
+        val enableNotifications = booleanPreferencesKey("enableNotifs")
     }
 }
 
