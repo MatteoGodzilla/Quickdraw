@@ -38,7 +38,7 @@ class QDNotificationReceiver : BroadcastReceiver() {
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true)
 
-            if(notificationManager.activeNotifications.size > 1){
+            if(notificationManager.activeNotifications.size > 0){
                //build summary
                 val summaryBuilder = NotificationCompat.Builder(context, CONTRACTS_NOTIF_CHANNEL)
                     .setSmallIcon(R.mipmap.ic_launcher_foreground)

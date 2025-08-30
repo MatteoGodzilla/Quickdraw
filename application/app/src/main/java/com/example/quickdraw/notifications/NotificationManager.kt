@@ -34,7 +34,7 @@ object QDNotifManager{
         intent.putExtra(INTENT_CONTRACT_ID, contract.activeId)
         intent.putExtra(INTENT_CONTRACT_NAME, contract.name)
         intent.setPackage("com.example.quickdraw")
-        val pendingIntent = PendingIntent.getBroadcast(context, contract.activeId, intent,
+        val pendingIntent = PendingIntent.getBroadcast(context, System.currentTimeMillis().toInt(), intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
         alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + contract.requiredTime * 1000, pendingIntent)
     }
