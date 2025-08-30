@@ -139,7 +139,7 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
             }
         } else {
             Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)){
-                var str = "Press Start scouting in order to find other players nearby!"
+                var str = "Press Start scouting in order to find other players nearby!\n\n(Note: if you're already connected to a device using Wifi-Direct, that device will not show in the list)"
                 if(!hasWeapon){
                     str = "You don't have a weapon yet!\nPick up the Colt Navy Revolver from the Shop!"
                 } else if(!hasEnoughBullets){

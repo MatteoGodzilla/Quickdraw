@@ -1,6 +1,5 @@
 package com.example.quickdraw.game.screen
 
-import android.widget.Space
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -47,7 +46,6 @@ import com.example.quickdraw.game.components.DropDownMenuForSettings
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.vm.YourPlaceVM
 import com.example.quickdraw.music.AudioManager
-import com.example.quickdraw.music.AudioManagerLifecycleObserver
 import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.secondaryButtonColors
 import kotlin.math.floor
@@ -263,6 +261,15 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                         }
                     }
                 }
+            }
+            SmallHeader("Vibration")
+            Row(
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(8.dp)
+            ) {
+                Text("Enable vibration")
+                Checkbox(viewModel.enableVibration.collectAsState().value, onCheckedChange = viewModel::onEnableVibration)
             }
             SmallHeader("Account")
             Button(

@@ -33,6 +33,7 @@ class PrefKeys{
         val sfxVolume = floatPreferencesKey("sfx")
         val favouriteTheme = intPreferencesKey("theme")
         val favouriteWeapon = intPreferencesKey("favWeapon")
+        val enableVibration = booleanPreferencesKey("enableVibration")
     }
 }
 

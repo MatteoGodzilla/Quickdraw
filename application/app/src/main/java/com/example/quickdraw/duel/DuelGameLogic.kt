@@ -30,7 +30,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.any
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
@@ -136,8 +135,12 @@ class DuelGameLogic(
                         val damageReceived = message.data.toInt()
                         Log.i(TAG, "Accepting damage: $damageReceived")
                         selfPeer.value = selfPeer.value.copy(health = selfPeer.value.health - damageReceived)
-                        val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                        vibrator.vibrate(VibrationEffect.createOneShot(1500, VibrationEffect.DEFAULT_AMPLITUDE))
+
+                        val enabledVibration = context.dataStore.data.map { preferences -> preferences[PrefKeys.enableVibration] }.firstOrNull() ?: true
+                        if(enabledVibration){
+                            val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                            vibrator.vibrate(VibrationEffect.createOneShot(1500, VibrationEffect.DEFAULT_AMPLITUDE))
+                        }
                     } else {
                         Log.i(TAG, "There is DEFINITELY SOMETHING WRONG")
                     }
@@ -231,8 +234,11 @@ class DuelGameLogic(
             val delta = System.currentTimeMillis() - referenceTimeMS - agreedBangDelay
             if(delta > 0){
                 //start vibrating
-                val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
-                vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
+                val enabledVibration = context.dataStore.data.map { preferences -> preferences[PrefKeys.enableVibration] }.first() ?: true
+                if(enabledVibration){
+                    val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
+                    vibrator.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE))
+                }
                 shouldShoot.value = true
                 break
             }
