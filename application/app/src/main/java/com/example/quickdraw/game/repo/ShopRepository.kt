@@ -2,6 +2,9 @@ package com.example.quickdraw.game.repo
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
+import com.example.quickdraw.PrefKeys
+import com.example.quickdraw.music.AudioManager
+import com.example.quickdraw.music.SFX
 import com.example.quickdraw.network.api.buyBulletsAPI
 import com.example.quickdraw.network.api.buyMedikitAPI
 import com.example.quickdraw.network.api.buyUpgradeAPI
@@ -20,8 +23,12 @@ import com.example.quickdraw.network.data.ShopMedikit
 import com.example.quickdraw.network.data.ShopUpgrade
 import com.example.quickdraw.network.data.ShopWeapon
 import com.example.quickdraw.runIfAuthenticated
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.runBlocking
 
 class ShopRepository(
     private val dataStore: DataStore<Preferences>,
@@ -88,6 +95,13 @@ class ShopRepository(
                 }
             }
             inventoryRepository.checkInventoryForShoot()
+            //FIXME: Repository should not start sfx, but something else
+            runBlocking {
+                val audioMute = dataStore.data.map { preferences -> preferences[PrefKeys.musicMute] }.first() ?: false
+                if(!audioMute){
+                    AudioManager.startSFX(SFX.SHOP_PURCHASE)
+                }
+            }
         }
     }
 
@@ -118,6 +132,13 @@ class ShopRepository(
                     )
                 }
             }
+            //FIXME: Repository should not start sfx, but something else
+            runBlocking {
+                val audioMute = dataStore.data.map { preferences -> preferences[PrefKeys.musicMute] }.first() ?: false
+                if(!audioMute){
+                    AudioManager.startSFX(SFX.SHOP_PURCHASE)
+                }
+            }
         }
     }
 
@@ -127,6 +148,13 @@ class ShopRepository(
             playerRepository.player.update { x -> x.copy(money = x.money - weapon.cost) }
             weapons.update { it.filter { w -> w.id != weapon.id } }
             inventoryRepository.weapons.update { x -> x + InventoryWeapon(weapon.id, weapon.name, weapon.damage, weapon.cost, weapon.bulletType, weapon.bulletsShot) }
+            //FIXME: Repository should not start sfx, but something else
+            runBlocking {
+                val audioMute = dataStore.data.map { preferences -> preferences[PrefKeys.musicMute] }.first() ?: false
+                if(!audioMute){
+                    AudioManager.startSFX(SFX.SHOP_PURCHASE)
+                }
+            }
         }
     }
 
@@ -140,6 +168,13 @@ class ShopRepository(
             upgrades.update { x-> if(response.nextUp.isNotEmpty()) x + response.nextUp.first() else x }
             upgrades.update{it.sortedBy { x->x.id }}
             updateOnSingle(upgrade)
+            //FIXME: Repository should not start sfx, but something else
+            runBlocking {
+                val audioMute = dataStore.data.map { preferences -> preferences[PrefKeys.musicMute] }.first() ?: false
+                if(!audioMute){
+                    AudioManager.startSFX(SFX.SHOP_PURCHASE)
+                }
+            }
         }
     }
 

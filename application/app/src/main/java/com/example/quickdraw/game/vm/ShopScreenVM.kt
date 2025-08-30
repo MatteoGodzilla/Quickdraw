@@ -25,14 +25,6 @@ class ShopScreenVM(
     val ownedBullets = repository.inventory.bullets
     val ownedMedikits = repository.inventory.medikits
 
-    /*
-    private val weaponIcons: MutableMap<Int, MutableStateFlow<ImageBitmap>> = mutableMapOf()
-    private val bulletIcons: MutableMap<Int, MutableStateFlow<ImageBitmap>> = mutableMapOf()
-    private val medikitIcons: MutableMap<Int, MutableStateFlow<ImageBitmap>> = mutableMapOf()
-    private val upgradeIcons: MutableMap<Int, MutableStateFlow<ImageBitmap>> = mutableMapOf()
-
-     */
-
     fun onBuyBullet(toBuy: ShopBullet) {
         viewModelScope.launch { repository.shop.buyBullet(toBuy) }
     }
@@ -56,47 +48,4 @@ class ShopScreenVM(
     fun getBulletIcon(id:Int) = imageLoader.getBulletFlow(id)
     fun getMedikitIcon(id:Int) = imageLoader.getMedikitFlow(id)
     fun getUpgradeIcon(id:Int) = imageLoader.getUpgradeFlow(id)
-    /*
-    fun getWeaponIcon(id: Int): MutableStateFlow<ImageBitmap> {
-        if(weaponIcons.containsKey(id)){
-            return weaponIcons[id]!!
-        }
-        val res = MutableStateFlow(imageLoader.imageNotFound.asImageBitmap())
-        weaponIcons[id] = res
-        viewModelScope.launch { res.value = imageLoader.getWeaponBitmap(id) }
-        return res
-    }
-
-    fun getBulletIcon(id: Int): MutableStateFlow<ImageBitmap> {
-        if(bulletIcons.containsKey(id)){
-            return bulletIcons[id]!!
-        }
-        val res = MutableStateFlow(imageLoader.imageNotFound.asImageBitmap())
-        bulletIcons[id] = res
-        viewModelScope.launch { res.value = imageLoader.getBulletBitmap(id) }
-        return res
-    }
-
-    fun getMedikitIcon(id: Int): MutableStateFlow<ImageBitmap> {
-        if(medikitIcons.containsKey(id)){
-            return medikitIcons[id]!!
-        }
-        val res = MutableStateFlow(imageLoader.imageNotFound.asImageBitmap())
-        medikitIcons[id] = res
-        viewModelScope.launch { res.value = imageLoader.getMedikitBitmap(id) }
-        return res
-    }
-
-    fun getUpgradeIcon(id: Int): MutableStateFlow<ImageBitmap> {
-        if(upgradeIcons.containsKey(id)){
-            return upgradeIcons[id]!!
-        }
-        val res = MutableStateFlow(imageLoader.imageNotFound.asImageBitmap())
-        upgradeIcons[id] = res
-        viewModelScope.launch { res.value = imageLoader.getUpgradeBitmap(id) }
-        return res
-    }
-
-     */
-
 }

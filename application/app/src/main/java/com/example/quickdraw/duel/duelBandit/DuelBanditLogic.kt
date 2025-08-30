@@ -12,6 +12,7 @@ import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.music.AudioManager
+import com.example.quickdraw.music.SFX
 import com.example.quickdraw.network.data.Bandit
 import com.example.quickdraw.network.data.FightAttempt
 import com.example.quickdraw.network.data.InventoryWeapon
@@ -84,7 +85,7 @@ class DuelBanditLogic(
             roundEnds.update { true }
             val mute = context.dataStore.data.map { preferences -> preferences[PrefKeys.musicMute] }.first() ?: false
             if(!mute) {
-                AudioManager.startSFX()
+                AudioManager.startSFX(SFX.BOOM)
             }
         }
     }

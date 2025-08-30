@@ -92,10 +92,11 @@ class GameActivity : ComponentActivity(){
 
         runBlocking {
             val mute = dataStore.data.map { pref -> pref[PrefKeys.musicMute] }.first() ?: false
-            val volume = dataStore.data.map { pref -> pref[PrefKeys.musicVolume] }.first() ?: DEFAULT_VOLUME
-            Log.i(TAG, "Initial volume: $volume")
+            val bgmVolume = dataStore.data.map { pref -> pref[PrefKeys.musicVolume] }.first() ?: DEFAULT_VOLUME
+            val sfxVolume = dataStore.data.map { pref -> pref[PrefKeys.sfxVolume] }.first() ?: DEFAULT_VOLUME
+            Log.i(TAG, "Initial volume: $bgmVolume $sfxVolume")
             //Creating the audio streams
-            AudioManager.init(this@GameActivity, volume)
+            AudioManager.init(this@GameActivity, bgmVolume, sfxVolume)
             //Attaching the audio manager lifecycle to game activity lifecycle
             AudioManagerLifecycleObserver.init(this@GameActivity.lifecycle)
             if(!mute){

@@ -36,6 +36,6 @@ object QDNotifManager{
         intent.setPackage("com.example.quickdraw")
         val pendingIntent = PendingIntent.getBroadcast(context, System.currentTimeMillis().toInt(), intent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE)
-        alarmManager.set(AlarmManager.RTC, System.currentTimeMillis() + contract.requiredTime * 1000, pendingIntent)
+        alarmManager.setAndAllowWhileIdle(AlarmManager.RTC, System.currentTimeMillis() + contract.requiredTime * 1000, pendingIntent)
     }
 }

@@ -19,6 +19,7 @@ import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.game.GameActivity
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.music.AudioManager
+import com.example.quickdraw.music.SFX
 import com.example.quickdraw.network.api.addFriendAPI
 import com.example.quickdraw.network.api.removeFriendAPI
 import com.example.quickdraw.network.api.submitDuelAPI
@@ -179,12 +180,12 @@ class DuelGameLogic(
                 if(b.type == chosenWeapon.bulletType) b.copy(amount = b.amount - chosenWeapon.bulletsShot)
                 else b
             }
-            Log.i(TAG, "VECTORS: ${beforeVec3.joinToString(",")} : ${afterVec3.joinToString(",")}")
-            val dot = beforeVec3[0] * afterVec3[0] + beforeVec3[1] * afterVec3[1] + beforeVec3[2] * afterVec3[2]
-            Log.i(TAG, "DOT: $dot")
             val mute = context.dataStore.data.map { preferences -> preferences[PrefKeys.musicMute] }.first() ?: false
             if(!mute) {
-                AudioManager.startSFX()
+                AudioManager.startSFX(SFX.BOOM)
+                if(selfGetsMovementBonus()){
+                    AudioManager.startSFX(SFX.STYLISH)
+                }
             }
             checkBang()
         }
