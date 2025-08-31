@@ -74,7 +74,10 @@ async def get_actives(request:BasicAuthTokenRequest):
         response.append(ActiveContractResponseElement(activeId=active.id,name=contract.name,
             requiredTime=contract.requiredTime,
             startTime=active.startTime,
-            mercenaries=[InUseMercenary(idEmployment=y.id,power=z.power,name=z.name) for x,y,z in inUseMercenaries if x.idActiveContract==active.id])
+            mercenaries=[
+                EmployedMercenaryInfo(idEmployment=y.id, power=z.power, name=z.name, idMercenary=z.id) 
+                for x,y,z in inUseMercenaries if x.idActiveContract==active.id
+            ])
         )
         
     return JSONResponse(

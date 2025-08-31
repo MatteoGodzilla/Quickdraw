@@ -129,23 +129,21 @@ fun LockedMercenaryPost(mercenary: LockedMercenary,icon: ByteArray){
 }
 
 @Composable
-fun EmployedMercenaryPost(mercenary: EmployedMercenary,available: Boolean = true){
+fun EmployedMercenaryPost(mercenary: EmployedMercenary, icon: ByteArray, available: Boolean = true){
     Row (
         modifier = Modifier.fillMaxWidth().padding(8.dp),
-        horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ){
-        Column {
+        FadableAsyncImage(icon, mercenary.name, Modifier.size(48.dp))
+        Column (modifier = Modifier.weight(1f)) {
             Text(mercenary.name, fontSize = Typography.titleLarge.fontSize)
             Text("Power: ${mercenary.power}")
         }
         if(available){
-            Text("Available", textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.width(110.dp).height(60.dp))
+            Text("Available", textAlign = TextAlign.Center, color = MaterialTheme.colorScheme.primary)
         }
         else{
-            Text("Occupied", textAlign = TextAlign.Center, color = Color.Gray,
-                modifier = Modifier.width(110.dp).height(60.dp))
+            Text("Occupied", textAlign = TextAlign.Center, color = Color.Gray)
         }
     }
     RowDivider()

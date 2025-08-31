@@ -54,7 +54,7 @@ object  ConnectionManager {
 
     fun attempt(bodyRequest: RequestBody, url: String,isPost:Boolean=true,timeout:Int=1500): Response? {
         //attempt with main IP
-        Log.i(TAG, "Attempting server:$mainIP")
+        Log.i(TAG, "Attempting server:${mainIP+url}")
         var request = if(isPost) Request.Builder().url(mainIP+url).post(bodyRequest).build()
             else Request.Builder().url(mainIP+url).get().build()
         var response = query(request,timeout)

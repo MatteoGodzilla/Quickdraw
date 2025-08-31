@@ -64,7 +64,7 @@ class MercenaryRepository (
             //mercenary update data
             hireable.update { hireable.value.filter { merc -> merc.id != mercenary.id } }
             val newEmploy =
-                EmployedMercenary(response.idEmployment, mercenary.name, mercenary.power)
+                EmployedMercenary(response.idEmployment, mercenary.id,mercenary.name, mercenary.power)
             playerEmployed.update { it + newEmploy }
             unAssigned.update { it + newEmploy }
             //player balance update data

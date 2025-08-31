@@ -69,7 +69,7 @@ fun ContractsScreen (vm: ContractsVM, controller: NavHostController, repository:
         },
         ContentTab("Mercenary"){
             for(playerMercenary in employedAll){
-                EmployedMercenaryPost(playerMercenary,
+                EmployedMercenaryPost(playerMercenary,imageLoader.getMercenaryFlow(playerMercenary.idMercenary).collectAsState().value,
                     (unassigned.any{x->x.idEmployment == playerMercenary.idEmployment})
                 )
             }

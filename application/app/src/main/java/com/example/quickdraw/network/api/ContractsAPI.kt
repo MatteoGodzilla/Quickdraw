@@ -53,7 +53,6 @@ fun getActiveContractsAPI(authToken: String): List<ActiveContract>{
         if(response.code == 200){
             //it should always be 200, otherwise there is a problem with the auth token
             val result = response.body.string()
-            Log.i(TAG, result)
             return Json.decodeFromString<ActiveContractResponse>(result).contracts
         }
     }

@@ -159,7 +159,10 @@ async def get_available(request:BasicAuthTokenRequest):
     result = session.exec(employed_mercenaries)
     mercenaries = result.fetchall()
 
-    response = PlayerAllResponse(mercenaries=[EmployedMercenaryInfo(name=x.name,power=x.power,idEmployment=y.id) for x,y in mercenaries])
+    response = PlayerAllResponse(mercenaries=[
+        EmployedMercenaryInfo(name=x.name, power=x.power, idEmployment=y.id, idMercenary = x.id) 
+        for x,y in mercenaries
+    ])
 
     return JSONResponse(
          status_code= HTTP_200_OK,
@@ -204,7 +207,10 @@ async def get_available(request:BasicAuthTokenRequest):
     result = session.exec(unassigned_mercenaries)
     mercenaries = result.fetchall()
 
-    response = UnassignedResponse(mercenaries=[EmployedMercenaryInfo(name=x.name,power=x.power,idEmployment=y.id) for x,y in mercenaries])
+    response = UnassignedResponse(mercenaries=[
+        EmployedMercenaryInfo(name=x.name, power=x.power, idEmployment=y.id, idMercenary=x.id) 
+        for x,y in mercenaries
+    ])
 
     return JSONResponse(
          status_code= HTTP_200_OK,

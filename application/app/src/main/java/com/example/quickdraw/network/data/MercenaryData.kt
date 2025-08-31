@@ -7,6 +7,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class EmployedMercenary(
     val idEmployment: Int,
+    val idMercenary: Int,
     val name: String,
     val power: Int
 )

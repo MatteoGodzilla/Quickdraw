@@ -1,13 +1,9 @@
 from pydantic import BaseModel
 from typing import List
 from Models.commons import BasicAuthTokenRequest
+from Models.mercenaries import EmployedMercenaryInfo
 
 #objects
-class InUseMercenary(BaseModel):
-    idEmployment:int
-    power:int
-    name:str
-
 class AvailableContractResponseElement(BaseModel):
     id:int
     name:str
@@ -21,7 +17,7 @@ class ActiveContractResponseElement(BaseModel):
     name:str
     requiredTime:int
     startTime:int
-    mercenaries:List[InUseMercenary]
+    mercenaries:List[EmployedMercenaryInfo]
 
 class StartedContractResponse(BaseModel):
     startTime:int

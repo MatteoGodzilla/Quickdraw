@@ -21,6 +21,7 @@ class LockedMercenary(BaseMercenaryInfo):
 
 class EmployedMercenaryInfo(BaseMercenaryInfo):
     idEmployment:int
+    idMercenary:int
 
 #responses
 class EmployResponse(BaseModel):
