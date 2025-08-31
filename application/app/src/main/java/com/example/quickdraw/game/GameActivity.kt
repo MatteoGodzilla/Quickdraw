@@ -123,7 +123,7 @@ class GameActivity : ComponentActivity(){
                     ShopScreen(vm, controller)
                 }
                 composable<GameNavigation.Map> {
-                    val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity, pbr!!) }
+                    val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity,qdapp.imageLoader, pbr!!) }
                     MainScreen(vm, controller,object: DuelCallbacks{
                         override fun onScan() {
                             vm.onScan()

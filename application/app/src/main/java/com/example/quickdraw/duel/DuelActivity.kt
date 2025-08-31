@@ -50,7 +50,7 @@ class DuelActivity : ComponentActivity() {
         val player = repository.player.player.value
         val stats = repository.player.stats.value
         val duelGameLogic = DuelGameLogic(
-            Peer(player.id, player.username, player.level, player.health, stats.maxHealth),
+            Peer(player.id, player.username, player.level, player.health, stats.maxHealth,player.bounty),
             repository,
             this,
         )

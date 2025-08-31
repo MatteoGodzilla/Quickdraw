@@ -14,6 +14,7 @@ import android.provider.Settings.ACTION_WIFI_SETTINGS
 import androidx.compose.runtime.mutableStateOf
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
+import com.example.quickdraw.ImageLoader
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.PeerFinder
 import com.example.quickdraw.game.ManualConnectionActivity
@@ -24,6 +25,7 @@ class MainScreenVM(
     private val repository: GameRepository,
     private val peerFinder: PeerFinder,
     private val context: Activity,
+    val imageLoader: ImageLoader,
     pbr: PermissionBroadcastReceiver,
 ) : ViewModel() {
 
@@ -63,7 +65,7 @@ class MainScreenVM(
         } else {
             val self = repository.player.player.value
             val stats = repository.player.stats.value
-            peerFinder.startScanning(Peer(self.id, self.username, self.level, self.health, stats.maxHealth), context)
+            peerFinder.startScanning(Peer(self.id, self.username, self.level, self.health, stats.maxHealth,self.bounty), context)
         }
     }
 

@@ -57,6 +57,7 @@ class MainActivity : ComponentActivity() {
             if(tokenId != null){
                 try {
                     val versionResponse = ConnectionManager.attemptGet(VERSION_ENDPOINT)
+                    Log.i(TAG,versionResponse.toString())
                     if(versionResponse == null || versionResponse.body.string().toInt() != VERSION){
                         //no connection available,send to no connection activity
                         loadingScreenVM.hideLoading()

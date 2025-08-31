@@ -13,20 +13,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import coil3.compose.AsyncImage
-import coil3.request.CachePolicy
-import coil3.request.crossfade
-import com.example.quickdraw.network.data.ImageRequest
 import com.example.quickdraw.network.data.LeaderboardEntry
 import com.example.quickdraw.ui.theme.MedalColors
 import com.example.quickdraw.ui.theme.Typography
-import java.io.ByteArrayOutputStream
 
 @Composable
 fun PlacementText(placement: Int){
@@ -48,7 +40,6 @@ fun PlacementText(placement: Int){
 
 @Composable
 fun BountyEntry(entry: LeaderboardEntry, placement: Int, icon: ByteArray){
-
     val textModifier = Modifier.padding(5.dp)
     Row(modifier = Modifier.fillMaxWidth()){
         PlacementText(placement)

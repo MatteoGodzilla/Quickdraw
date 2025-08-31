@@ -89,7 +89,7 @@ class ManualConnectionVM(
     private fun getSelfAsPeer(): Peer {
         val player = repository.player.player.value
         val stats = repository.player.stats.value
-        return Peer(player.id, player.username, player.level, player.health, stats.maxHealth)
+        return Peer(player.id, player.username, player.level, player.health, stats.maxHealth,player.bounty)
     }
 
     companion object{

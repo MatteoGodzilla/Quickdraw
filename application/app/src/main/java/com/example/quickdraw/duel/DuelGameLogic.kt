@@ -50,7 +50,7 @@ class DuelGameLogic(
     val selfState = MutableStateFlow(PeerState.UNKNOWN)
     val otherState = MutableStateFlow(PeerState.UNKNOWN)
     val selfPeer = MutableStateFlow(peer)
-    val otherPeer = MutableStateFlow(Peer(0, "", 1, 100, 100))
+    val otherPeer = MutableStateFlow(Peer(0, "", 1, 100, 100,0))
 
     val duelState = MutableStateFlow(DuelState())
 

@@ -1,5 +1,6 @@
 package com.example.quickdraw.duel
 
+import android.os.Looper
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -34,6 +35,7 @@ import com.example.quickdraw.duel.PeerFinder.Companion.ID_KEY
 import com.example.quickdraw.duel.PeerFinder.Companion.LEVEL_KEY
 import com.example.quickdraw.duel.PeerFinder.Companion.MAX_HEALTH_KEY
 import com.example.quickdraw.duel.PeerFinder.Companion.USERNAME_KEY
+import com.example.quickdraw.duel.PeerFinder.Companion.BOUNTY_KEY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
@@ -42,6 +44,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 import java.net.InetAddress
+import java.util.logging.Handler
 
 @Serializable
 data class Peer(
@@ -49,7 +52,8 @@ data class Peer(
     val username: String,
     val level: Int,
     val health: Int,
-    val maxHealth: Int
+    val maxHealth: Int,
+    val bounty: Int
 ) {
     fun getValuesAsMap(): Map<String, String> {
        return mapOf(
@@ -57,7 +61,8 @@ data class Peer(
             USERNAME_KEY to username,
             LEVEL_KEY to level.toString(),
             HEALTH_KEY to health.toString(),
-            MAX_HEALTH_KEY to maxHealth.toString()
+            MAX_HEALTH_KEY to maxHealth.toString(),
+            BOUNTY_KEY to bounty.toString()
         )
     }
 }
@@ -77,6 +82,7 @@ class PeerFinder (
         const val LEVEL_KEY = "level"
         const val HEALTH_KEY = "health"
         const val MAX_HEALTH_KEY = "maxHealth"
+        const val BOUNTY_KEY = "bounty"
     }
 
     var scanning: MutableStateFlow<Boolean> = MutableStateFlow(false)
@@ -206,7 +212,6 @@ class PeerFinder (
         val config = WifiP2pConfig()
         config.deviceAddress = peerToDeviceAddress[peer]
         config.wps.setup = WpsInfo.PBC
-
         p2pManager.connect(channel, config, object: ActionListener {
             override fun onSuccess() {
                 Log.i(TAG, "[PeerFinder] Successfully started match with peer $peer")
@@ -265,7 +270,8 @@ class PeerFinder (
                 val level = dictionary?.get(LEVEL_KEY)?.toInt() ?: 0
                 val health = dictionary?.get(HEALTH_KEY)?.toInt() ?: 100
                 val maxHealth = dictionary?.get(MAX_HEALTH_KEY)?.toInt() ?: 100
-                val peer = Peer(id, username, level, health, maxHealth)
+                val bounty = dictionary?.get(BOUNTY_KEY)?.toInt() ?: 0
+                val peer = Peer(id, username, level, health, maxHealth,bounty)
                 list.add(peer)
                 peerToDeviceAddress[peer] = dev
             }

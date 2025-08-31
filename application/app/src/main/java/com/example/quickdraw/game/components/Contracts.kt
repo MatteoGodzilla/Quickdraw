@@ -44,12 +44,12 @@ fun secondsToString(seconds:Long):String{
     val minutes = seconds/60
     val leftSeconds = seconds%60
     //below a hour
-    if(minutes<3600){
+    if(minutes<60){
         return "${minutes}m${if(leftSeconds>0) " ${leftSeconds}s" else ""}"
     }
     val hours = minutes/60
     val leftMinutes = minutes%60
-    return "${hours}h${if(leftMinutes>0) " ${leftMinutes}m" else ""}${if(leftSeconds>0) " ${leftSeconds}m" else ""}"
+    return "${hours}h${if(leftMinutes>0) " ${leftMinutes}m" else ""}${if(leftSeconds>0) " ${leftSeconds}s" else ""}"
 }
 
 @Composable

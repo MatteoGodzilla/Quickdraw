@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
@@ -51,6 +52,7 @@ import androidx.navigation.NavHostController
 import com.example.quickdraw.R
 import com.example.quickdraw.game.components.BasicTabLayout
 import com.example.quickdraw.game.components.BottomNavBar
+import com.example.quickdraw.game.components.FadableAsyncImage
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.game.vm.MainScreenVM
 import com.example.quickdraw.ui.theme.QuickdrawTheme
@@ -130,6 +132,8 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ){
+                        val playerImage = viewModel.imageLoader.getPlayerFlow(p.id).collectAsState().value
+                        FadableAsyncImage(playerImage,"player icon",Modifier.size(48.dp))
                         Text("${p.username} (Level: ${p.level})")
                         Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = hasWeapon && hasEnoughBullets) {
                             Text("Duel")
