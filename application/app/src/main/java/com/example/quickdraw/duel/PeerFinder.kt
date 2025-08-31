@@ -1,231 +1,98 @@
 package com.example.quickdraw.duel
 
-import android.os.Looper
 import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Context.WIFI_P2P_SERVICE
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.LocationManager
+import android.net.NetworkInfo
 import android.net.wifi.WpsInfo
 import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
+import android.net.wifi.p2p.WifiP2pDeviceList
 import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
-import android.net.wifi.p2p.WifiP2pManager.ActionListener
-import android.net.wifi.p2p.WifiP2pManager.Channel
-import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener
-import android.net.wifi.p2p.WifiP2pManager.DnsSdServiceResponseListener
-import android.net.wifi.p2p.WifiP2pManager.DnsSdTxtRecordListener
-import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo
-import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceRequest
-import android.net.wifi.p2p.nsd.WifiP2pServiceInfo
-import android.net.wifi.p2p.nsd.WifiP2pServiceRequest
+import android.nfc.Tag
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
+import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.quickdraw.TAG
-import com.example.quickdraw.duel.PeerFinder.Companion.HEALTH_KEY
-import com.example.quickdraw.duel.PeerFinder.Companion.ID_KEY
-import com.example.quickdraw.duel.PeerFinder.Companion.LEVEL_KEY
-import com.example.quickdraw.duel.PeerFinder.Companion.MAX_HEALTH_KEY
-import com.example.quickdraw.duel.PeerFinder.Companion.USERNAME_KEY
-import com.example.quickdraw.duel.PeerFinder.Companion.BOUNTY_KEY
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.serialization.Serializable
 import java.net.InetAddress
-import java.util.logging.Handler
 
-@Serializable
-data class Peer(
-    val id: Int,
-    val username: String,
-    val level: Int,
-    val health: Int,
-    val maxHealth: Int,
-    val bounty: Int
-) {
-    fun getValuesAsMap(): Map<String, String> {
-       return mapOf(
-            ID_KEY to id.toString(),
-            USERNAME_KEY to username,
-            LEVEL_KEY to level.toString(),
-            HEALTH_KEY to health.toString(),
-            MAX_HEALTH_KEY to maxHealth.toString(),
-            BOUNTY_KEY to bounty.toString()
-        )
-    }
-}
+data class Peer2(val raw: WifiP2pDevice)
 
-//Class responsible for finding other players nearby
-@SuppressLint("MissingPermission")
-class PeerFinder (
-    private val context: Context,
-) : DnsSdTxtRecordListener, DnsSdServiceResponseListener, ConnectionInfoListener {
-
-    companion object {
-        const val QUICKDRAW_SERVICE_TYPE = "_quickdraw_tcp"
-        const val QUICKDRAW_INSTANCE_NAME = "Quickdraw"
-
-        const val ID_KEY = "id"
-        const val USERNAME_KEY = "username"
-        const val LEVEL_KEY = "level"
-        const val HEALTH_KEY = "health"
-        const val MAX_HEALTH_KEY = "maxHealth"
-        const val BOUNTY_KEY = "bounty"
-    }
-
+class PeerFinder(
+    private val context: Context
+): WifiP2pManager.PeerListListener, WifiP2pManager.ConnectionInfoListener {
     var scanning: MutableStateFlow<Boolean> = MutableStateFlow(false)
         private set
-    var peers: MutableStateFlow<List<Peer>> = MutableStateFlow(listOf())
+    var peers: MutableStateFlow<List<Peer2>> = MutableStateFlow(listOf())
         private set
+    private var onConnectionCallback: (Boolean, InetAddress) -> Unit = { b, address -> address}
 
-    private var isRegistered = MutableStateFlow(false)
-    private var p2pManager: WifiP2pManager = context.getSystemService(Context.WIFI_P2P_SERVICE) as WifiP2pManager
-    private var channel: Channel
-    //This is awful, i know
-    private var peerToDeviceAddress: MutableMap<Peer, String> = mutableMapOf()
-    private var deviceAddressToTxt: MutableMap<String, Pair<String,Map<String, String>>> = mutableMapOf()
-    private var deviceAddressToService: MutableMap<String, Pair<String,String>> = mutableMapOf()
-    private var peerFinderBroadcastReceiver : PeerFinderBroadcastReceiver
-
-    private var playerServiceInfo: WifiP2pServiceInfo? = null
-    private var localScope = CoroutineScope(Dispatchers.IO)
-    //listeners
-    private var onConnectionListeners : MutableList< (groupOwner: Boolean, groupOwnerAddress: InetAddress)->Unit > = mutableListOf()
+    private var p2pManager: WifiP2pManager = context.getSystemService(WIFI_P2P_SERVICE) as WifiP2pManager
+    private var channel = p2pManager.initialize(context, context.mainLooper, null)
 
     init {
-        Log.i(TAG, "manager: $p2pManager")
-        channel = p2pManager.initialize(context, context.mainLooper, null)
-        Log.i(TAG, "Channel: $channel")
-
-        peerFinderBroadcastReceiver = PeerFinderBroadcastReceiver(p2pManager, channel, this)
-
-        p2pManager.setDnsSdResponseListeners(channel, this, this)
-
-        val serviceRequest: WifiP2pServiceRequest = WifiP2pDnsSdServiceRequest.newInstance()
-        p2pManager.addServiceRequest(channel, serviceRequest, object: ActionListener {
-            override fun onSuccess() {
-                Log.i(TAG, "[PeerFinder] Successfully added Quickdraw request")
-            }
-
-            override fun onFailure(reason: Int) {
-                Log.i(TAG, "[PeerFinder] there was a problem adding Quickdraw request: $reason")
-            }
-        })
-    }
-
-    fun startScanning(self: Peer, helper: Activity){
-        if(scanning.value)
-            return
-        Log.i(TAG, "[PeerFinder] Started scanning")
-        requestScanPermissions(helper)
-        scanning.value = true
-        localScope.launch {
-            while(scanning.value) {
-                startScanningLoop(self)
-                delay(10000)
-                stopScanningLoop()
-            }
-        }
-    }
-
-    private fun startScanningLoop(self: Peer){
-        Log.i(TAG, "[PeerFinder] Start Scanning Loop")
-        if(!isRegistered.value){
-            ContextCompat.registerReceiver(
-                context,
-                peerFinderBroadcastReceiver,
-                PeerFinderBroadcastReceiver.getIntentFilter(),
-                ContextCompat.RECEIVER_NOT_EXPORTED
-            )
-            isRegistered.update { true }
-        }
-
-        playerServiceInfo = WifiP2pDnsSdServiceInfo.newInstance(
-            QUICKDRAW_INSTANCE_NAME,
-            QUICKDRAW_SERVICE_TYPE,
-            self.getValuesAsMap()
+        ContextCompat.registerReceiver(
+            context,
+            PeerFinderBroadcastReceiver(p2pManager, channel, this, this),
+            PeerFinderBroadcastReceiver.getIntentFilter(),
+            ContextCompat.RECEIVER_NOT_EXPORTED
         )
-        p2pManager.addLocalService(channel, playerServiceInfo, object: ActionListener {
-            override fun onSuccess() {
-                Log.i(TAG, "[PeerFinder] Successfully added Quickdraw service")
-            }
-            override fun onFailure(reason: Int) {
-                Log.i(TAG, "[PeerFinder] there was a problem adding Quickdraw service: $reason")
-            }
-        })
+        disconnectFromPeer()
+    }
 
-        p2pManager.discoverServices(channel, object : ActionListener {
+    @SuppressLint("MissingPermission")
+    fun startScanning(activity: Activity) {
+        Log.i(TAG, "[PeerFinder] Started Scanning")
+        requestScanPermissions(activity)
+        p2pManager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
-                Log.i(TAG, "[PeerFinder] Successfully started discovering peers")
+                Log.i(TAG, "Success discovering peers")
             }
-            override fun onFailure(reason: Int) {
-                Log.i(TAG, "[PeerFinder] There was an error discovering peers: $reason")
+            override fun onFailure(p0: Int) {
+                Log.i(TAG, "Failure discovering peers $p0")
             }
         })
     }
 
-    private fun stopScanningLoop(){
-        p2pManager.removeLocalService(channel, playerServiceInfo!!, object : ActionListener {
-            override fun onSuccess() {
-                Log.i(TAG, "[PeerFinder] Removed local service")
-            }
-            override fun onFailure(reason: Int) {
-                Log.i(TAG, "[PeerFinder] There was an error removing local service: $reason")
-            }
-        })
+    fun stopScanning() {
+        Log.i(TAG, "[PeerFinder] Stopped Scanning")
+    }
 
-        if(isRegistered.value){
-            isRegistered.update { false }
-            context.unregisterReceiver(peerFinderBroadcastReceiver)
+    @SuppressLint("MissingPermission")
+    fun startMatchWithPeer(peer: Peer2) {
+        Log.i(TAG, "[PeerFinder] Started match with peer")
+
+        val config = WifiP2pConfig().apply {
+            deviceAddress = peer.raw.deviceAddress
+            wps.setup = WpsInfo.PBC
         }
 
-        p2pManager.stopPeerDiscovery(channel, object: ActionListener {
+        p2pManager.connect(channel, config, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
-                Log.i(TAG, "[PeerFinder] Stopped scanning")
+                Log.i(TAG, "[PeerFinder] Successfully connected to device")
             }
+
             override fun onFailure(reason: Int) {
-                Log.i(TAG, "[PeerFinder] Failed to stop SCANNING: $reason")
+                Log.i(TAG, "[PeerFinder] Failed to connect to device $reason")
             }
         })
     }
 
-    fun stopScanning(){
-        if(!scanning.value)
-            return
-        scanning.value = false
-    }
-
-    fun startMatchWithPeer(peer: Peer) {
-        Log.i(TAG, "[PeerFinder] Started match with peer $peer")
-        val config = WifiP2pConfig()
-        config.deviceAddress = peerToDeviceAddress[peer]
-        config.wps.setup = WpsInfo.PBC
-        p2pManager.connect(channel, config, object: ActionListener {
-            override fun onSuccess() {
-                Log.i(TAG, "[PeerFinder] Successfully started match with peer $peer")
-            }
-            override fun onFailure(reason: Int) {
-                Log.i(TAG, "[PeerFinder] There was a problem connecting with peer: $reason")
-            }
-        })
-        stopScanning()
-    }
-
-    fun disconnectFromPeer(){
+    fun disconnectFromPeer() {
         Log.i(TAG, "[PeerFinder] Disconnecting from peer ")
-        p2pManager.removeGroup(channel, object: ActionListener {
+        p2pManager.removeGroup(channel, object: WifiP2pManager.ActionListener {
             override fun onSuccess() {
                 Log.i(TAG, "[PeerFinder] Successfully removed group")
             }
@@ -235,6 +102,7 @@ class PeerFinder (
         })
     }
 
+    //INTERNAL
     private fun requestScanPermissions(helper: Activity){
         val permsToAsk = mutableListOf<String>()
         if(ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PERMISSION_GRANTED){
@@ -259,79 +127,50 @@ class PeerFinder (
         }
     }
 
-    private fun updatePeers() {
-        val list: MutableList<Peer> = mutableListOf()
-        peerToDeviceAddress.clear()
-        for(dev in deviceAddressToService.keys) {
-            if(deviceAddressToTxt.containsKey(dev)){
-                val dictionary = deviceAddressToTxt[dev]?.second
-                val id: Int = dictionary?.get(ID_KEY)?.toInt() ?: 0
-                val username: String = dictionary?.get(USERNAME_KEY) ?: ""
-                val level = dictionary?.get(LEVEL_KEY)?.toInt() ?: 0
-                val health = dictionary?.get(HEALTH_KEY)?.toInt() ?: 100
-                val maxHealth = dictionary?.get(MAX_HEALTH_KEY)?.toInt() ?: 100
-                val bounty = dictionary?.get(BOUNTY_KEY)?.toInt() ?: 0
-                val peer = Peer(id, username, level, health, maxHealth,bounty)
-                list.add(peer)
-                peerToDeviceAddress[peer] = dev
-            }
+    override fun onPeersAvailable(newPeers: WifiP2pDeviceList?) {
+        if(newPeers != null) {
+            peers.value = newPeers.deviceList.map { d ->  Peer2(d) }
+            Log.i(TAG, peers.value.toString())
         }
-        peers.value = list
-        Log.i(TAG,"[PeerFinder] Updating Peers")
-        for(p in peers.value){
-            Log.i(TAG,p.toString())
+    }
+
+    override fun onConnectionInfoAvailable(info: WifiP2pInfo?) {
+        Log.i(TAG, "[PeerFinder] Connection info")
+        if(info != null && info.groupFormed && info.groupOwnerAddress != null){
+            onConnectionCallback.invoke(info.isGroupOwner, info.groupOwnerAddress)
         }
-        Log.i(TAG,"-----------")
     }
 
     //Add functions to callbacks
     fun onConnection(callback: (groupOwner: Boolean, groupOwnerAddress: InetAddress)->Unit){
-        onConnectionListeners.add(callback)
+        onConnectionCallback = callback
     }
+}
 
-    //Callbacks to receive data from android system
-    //Called while discovering
-    override fun onDnsSdTxtRecordAvailable(fullDomainName: String, txtRecordMap: MutableMap<String, String>, srcDevice: WifiP2pDevice) {
-        deviceAddressToTxt[srcDevice.deviceAddress] = Pair(fullDomainName, txtRecordMap)
-        Log.i(TAG, "[PeerServiceCallbacks] Txt: $fullDomainName $txtRecordMap $srcDevice")
-        updatePeers()
-    }
-
-    override fun onDnsSdServiceAvailable(instanceName: String, registrationType: String, srcDevice: WifiP2pDevice) {
-        deviceAddressToService[srcDevice.deviceAddress] = Pair(instanceName, registrationType)
-        Log.i(TAG, "[PeerServiceCallbacks] Service: $instanceName $registrationType $srcDevice")
-        updatePeers()
-    }
-
-    //Called while attempting to connect. Gets updated by the broadcast receiver
-    override fun onConnectionInfoAvailable(info: WifiP2pInfo?) {
-        Log.i(TAG, "[PeerServiceCallbacks] Connect info: $info")
-        if(info == null || !info.groupFormed)
-            return
-        for(callback in onConnectionListeners){
-            callback(info.isGroupOwner, info.groupOwnerAddress)
-        }
-    }
-
-    //--- BROADCAST RECEIVER ---
-    private class PeerFinderBroadcastReceiver(
-        private val p2pManager: WifiP2pManager,
-        private val channel: Channel,
-        private val receiver: ConnectionInfoListener
-    ) : BroadcastReceiver(){
-        override fun onReceive(context: Context, intent: Intent) {
-            when(intent.action) {
-                WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
-                    p2pManager.requestConnectionInfo(channel, receiver)
-                }
+class PeerFinderBroadcastReceiver(
+    private val p2pManager: WifiP2pManager,
+    private val channel: WifiP2pManager.Channel,
+    private val peerReceiver: WifiP2pManager.PeerListListener,
+    private val connectionListener: WifiP2pManager.ConnectionInfoListener
+) : BroadcastReceiver() {
+    @SuppressLint("MissingPermission")
+    override fun onReceive(context: Context?, intent: Intent?) {
+        when(intent?.action){
+            WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION -> {
+                p2pManager.requestPeers(channel, peerReceiver)
+            }
+            WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION -> {
+                p2pManager.requestConnectionInfo(channel, connectionListener)
             }
         }
+    }
 
-        companion object {
-            fun getIntentFilter(): IntentFilter {
-                return IntentFilter().apply {
-                    addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)
-                }
+
+    companion object {
+        fun getIntentFilter() : IntentFilter{
+            return IntentFilter().apply {
+                addAction(WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION)
+                addAction(WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION)
             }
         }
     }

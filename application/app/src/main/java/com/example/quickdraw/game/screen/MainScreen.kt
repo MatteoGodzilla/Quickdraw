@@ -48,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
 import com.example.quickdraw.duel.Peer
+import com.example.quickdraw.duel.Peer2
 import com.example.quickdraw.game.components.BasicTabLayout
 import com.example.quickdraw.game.components.BottomNavBar
 import com.example.quickdraw.game.components.FadableAsyncImage
@@ -338,8 +339,10 @@ fun FightableEntity(content:@Composable ()->Unit){
     RowDivider()
 }
 @Composable
-fun FightablePlayer(p:Peer,viewModel: MainScreenVM,canFight:Boolean){
+fun FightablePlayer(p: Peer2, viewModel: MainScreenVM, canFight:Boolean){
     FightableEntity {
+        Text(p.raw.deviceName)
+        /*
         val playerImage = viewModel.imageLoader.getPlayerFlow(p.id).collectAsState().value
         FadableAsyncImage(playerImage,"player icon",Modifier.size(48.dp).clip(CircleShape), contentScale = ContentScale.FillBounds)
         Column(){
@@ -347,7 +350,9 @@ fun FightablePlayer(p:Peer,viewModel: MainScreenVM,canFight:Boolean){
             Text(p.username,fontSize = Typography.titleLarge.fontSize,modifier = textModifier)
             Text("Level:${p.level}",modifier = textModifier)
             Text("Bounty:${p.bounty}",modifier = textModifier)
+
         }
+        */
         Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = canFight) {
             Text("Duel")
         }

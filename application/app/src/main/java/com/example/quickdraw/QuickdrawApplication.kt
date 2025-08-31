@@ -13,7 +13,7 @@ class QuickdrawApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
-        peerFinderSingleton = PeerFinder(applicationContext)
+        peerFinderSingleton = PeerFinder(this)
         imageLoader = ImageLoader(applicationContext)
         repository = GameRepository(this.dataStore)
     }

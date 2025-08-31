@@ -46,6 +46,7 @@ import com.example.quickdraw.network.data.ActiveContract
 import com.example.quickdraw.network.data.AvailableContract
 import com.example.quickdraw.notifications.QDNotifManager
 import com.example.quickdraw.ui.theme.QuickdrawTheme
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -107,7 +108,12 @@ class GameActivity : ComponentActivity(){
 
         //For when another peer is connecting through wifi-p2p
         qdapp.peerFinderSingleton.onConnection { groupOwner, groupOwnerAddress ->
-            qdapp.peerFinderSingleton.stopScanning()
+            if(qdapp.peerFinderSingleton.scanning.value){
+                qdapp.peerFinderSingleton.stopScanning()
+            }
+            if(!groupOwner){
+                runBlocking { delay(2000) }
+            }
             goToDuel(groupOwner, groupOwnerAddress.hostAddress!!)
         }
 

@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import com.example.quickdraw.ImageLoader
 import com.example.quickdraw.duel.Peer
+import com.example.quickdraw.duel.Peer2
 import com.example.quickdraw.duel.PeerFinder
 import com.example.quickdraw.game.ManualConnectionActivity
 import com.example.quickdraw.game.PermissionBroadcastReceiver
@@ -65,7 +66,8 @@ class MainScreenVM(
         } else {
             val self = repository.player.player.value
             val stats = repository.player.stats.value
-            peerFinder.startScanning(Peer(self.id, self.username, self.level, self.health, stats.maxHealth,self.bounty), context)
+            //peerFinder.startScanning(Peer(self.id, self.username, self.level, self.health, stats.maxHealth,self.bounty), context)
+            peerFinder.startScanning(context)
         }
     }
 
@@ -101,7 +103,7 @@ class MainScreenVM(
         context.startActivity(intent)
     }
 
-    fun startMatchWithPeer(peer:Peer) = peerFinder.startMatchWithPeer(peer)
+    fun startMatchWithPeer(peer: Peer2) = peerFinder.startMatchWithPeer(peer)
     fun checkInventoryForWeapon() = repository.inventory.checkInventoryForWeapon()
     fun checkInventoryForShoot() = repository.inventory.checkInventoryForShoot()
 
