@@ -11,6 +11,12 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerEventType
+import androidx.compose.ui.input.pointer.pointerInput
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 
 class SensorTest : ComponentActivity(), SensorEventListener {
@@ -31,7 +37,11 @@ class SensorTest : ComponentActivity(), SensorEventListener {
         enableEdgeToEdge()
         setContent {
             QuickdrawTheme {
-
+                Box(modifier = Modifier.fillMaxSize().pointerInput(Unit){
+                    detectTapGestures(onPress = {
+                        Log.i(TAG, ">>>>>>$it")
+                    })
+                })
             }
         }
     }
@@ -41,7 +51,7 @@ class SensorTest : ComponentActivity(), SensorEventListener {
             val x = event.values[0]
             val y = event.values[1]
             val z = event.values[2]
-            Log.i(TAG, "SENSOR: $x $y $z")
+            //Log.i(TAG, "SENSOR: $x $y $z")
         }
     }
 

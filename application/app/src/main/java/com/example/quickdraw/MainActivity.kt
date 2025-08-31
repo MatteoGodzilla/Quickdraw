@@ -42,7 +42,6 @@ class MainActivity : ComponentActivity() {
                 ScreenLoader(loadingScreenVM)
             }
         }
-
         lifecycleScope.launch(Dispatchers.IO) {
             loadFavourites(this@MainActivity.dataStore)
             val tokenId = this@MainActivity.dataStore.data.map { pref -> pref[PrefKeys.authToken] }
@@ -106,5 +105,11 @@ class MainActivity : ComponentActivity() {
             val intent = Intent(this@MainActivity, LoginActivity::class.java)
             startActivity(intent)
         }
+        /*
+        Intent(this, SensorTest::class.java).also {
+            startActivity(it)
+        }
+
+         */
     }
 }

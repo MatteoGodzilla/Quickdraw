@@ -73,8 +73,15 @@ async def pool(request: BasicAuthTokenRequest):
               return JSONResponse(
                    status_code=HTTP_200_OK,
                    content=jsonable_encoder([
-                        BanditRepsonse(expires=result.expireTime,idIstance=x.id,
-                            stats=BanditData(name=y.name,hp=y.hp,minDamage=y.minDamage,maxDamage=y.maxDamage,minSpeed=y.minSpeed,maxSpeed=y.maxSpeed)) for x,y in bandits
+                        BanditRepsonse(expires=result.expireTime, idIstance=x.id, stats=BanditData(
+                            id=y.id,
+                            name=y.name,
+                            hp=y.hp,
+                            minDamage=y.minDamage,
+                            maxDamage=y.maxDamage,
+                            minSpeed=y.minSpeed,
+                            maxSpeed=y.maxSpeed
+                        )) for x,y in bandits
                    ])
               )
         else:
@@ -107,17 +114,25 @@ async def pool(request: BasicAuthTokenRequest):
         spawn = rand.randint(pool.minSpawn,pool.maxSpawn)
         spawnNumber = rand.randint(1,100)
         if spawnNumber<=pool.spawnChance:
-             #successful spawn
-             getBandit = select(Bandit).where(Bandit.id==pool.banditId)
-             res = session.exec(getBandit).first()
-             for i in range(spawn):
-                  print(res.id)
-                  band = BanditIstance(idBandit=pool.banditId,idRequest=newPool.id,defeated=False,fronze=False)
-                  session.add(band)
-                  session.flush()
-                  responseBandit = BanditData(name=res.name,hp=res.hp,minDamage=res.minDamage,maxDamage=res.maxDamage,minSpeed=res.minSpeed,maxSpeed=res.maxSpeed)
-                  response.append(BanditRepsonse(expires=newPool.expireTime,idIstance=band.id,stats=responseBandit))
-                  session.flush()
+            #successful spawn
+            getBandit = select(Bandit).where(Bandit.id==pool.banditId)
+            res = session.exec(getBandit).first()
+            for i in range(spawn):
+                #print(res.id)
+                band = BanditIstance(idBandit=pool.banditId,idRequest=newPool.id,defeated=False,fronze=False)
+                session.add(band)
+                session.flush()
+                responseBandit = BanditData(
+                    id=res.id,
+                    name=res.name,
+                    hp=res.hp,
+                    minDamage=res.minDamage,
+                    maxDamage=res.maxDamage,
+                    minSpeed=res.minSpeed,
+                    maxSpeed=res.maxSpeed
+                )
+                response.append(BanditRepsonse(expires=newPool.expireTime,idIstance=band.id,stats=responseBandit))
+                session.flush()
 
     session.commit()
 

@@ -1,11 +1,13 @@
 package com.example.quickdraw.duel.components
 
+import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -20,8 +22,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
+import com.example.quickdraw.TAG
 import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.MatchResult
@@ -50,9 +54,9 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelGameLogic){
     QuickdrawTheme {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize().clickable(onClick = gameLogic::bang).background(
+            modifier = Modifier.fillMaxSize().background(
                 if(shouldShoot) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-            )
+            ).pointerInput(Unit) { detectTapGestures(onPress = { gameLogic.bang() }) }
         ){
             if(roundEnded && lostRound){
                 Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
@@ -100,9 +104,9 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelBanditLogic){
     QuickdrawTheme {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize().clickable(onClick = {gameLogic.bang(true)}).background(
+            modifier = Modifier.fillMaxSize().background(
                 if(shouldShoot.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-            )
+            ).pointerInput(Unit) { detectTapGestures(onPress = { gameLogic.bang(true) }) }
         ){
             if(roundEnded.value && lostRound){
                 Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )

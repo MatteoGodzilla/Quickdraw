@@ -6,6 +6,7 @@ from MySql.tables import Bandit
 from Models.commons import BasicAuthTokenRequest
 
 class BanditData(BaseModel):
+    id:int
     name:str
     hp:int
     minDamage:int
