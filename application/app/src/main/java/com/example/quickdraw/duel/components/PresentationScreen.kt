@@ -42,29 +42,13 @@ fun PresentationScreen(controller: NavHostController, self: Peer, other: Peer){
     }
 }
 
-//for bandits
-@Composable
-fun PresentationScreen(controller: NavHostController, vm: DuelBanditLogic, playerRepo:PlayerRepository){
-    LaunchedEffect(true) {
-        delay(3000)
-        controller.navigate(DuelNavigation.WeaponSelect)
-    }
-    DuelContainer(vm, playerRepo) {
-        Box(modifier=Modifier.padding(5.dp).fillMaxSize()){
-            Column(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.Center)) {
-                LoadMessage("Starting match...",Modifier.align(alignment = Alignment.CenterHorizontally))
-            }
-        }
-    }
-}
-
 @Composable
 fun LoadMessage(message:String, modifier:Modifier){
-        Text(message, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
-        Icon(
-            imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
-            "",
-            tint = Color.Black,
-            modifier = modifier.rotate(infiniteRotation()).size(72.dp)
-        )
+    Text(message, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
+    Icon(
+        imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
+        "",
+        tint = Color.Black,
+        modifier = modifier.rotate(infiniteRotation()).size(72.dp)
+    )
 }

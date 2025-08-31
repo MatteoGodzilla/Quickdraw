@@ -55,7 +55,7 @@ class DuelBanditLogic(
     }
 
     fun getEndGameMessage():String{
-        if(botHP.value<= 0)return "You defeated the bandit!"
+        if(botHP.value<= 0) return "You defeated the bandit!"
         if(repo.player.player.value.health <= 0) return "You were defeated"
         if(repo.inventory.bullets.value.sumOf { x->x.amount } == 0) return "You ran out of bullets"
         return "Unknown error"

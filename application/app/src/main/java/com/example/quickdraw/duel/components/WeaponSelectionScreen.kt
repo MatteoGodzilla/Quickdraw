@@ -43,9 +43,33 @@ import com.example.quickdraw.ui.theme.secondaryButtonColors
 
 @Composable
 fun WeaponSelectionScreen(self: Peer, other: Peer, gameLogic: DuelGameLogic, repo: GameRepository, vm: WeaponSelectionViewModel){
+    val waitingForOpponent = gameLogic.selfState.collectAsState().value == PeerState.READY && gameLogic.otherState.collectAsState().value == PeerState.CAN_PLAY
     val canDoRound = canSelfDoRound(repo)
+    WeaponSelectionUI(self, other, waitingForOpponent, canDoRound, repo, vm,
+        onSetWeapon = {
+            gameLogic.setReady( vm.selectedWeapon.value)
+        }, onForfeit = {
+            gameLogic.goodbye()
+        }
+    )
+}
+
+@Composable
+fun WeaponSelectionScreen(self: Peer, other: Peer, duelLogic: DuelBanditLogic, repo: GameRepository, vm: WeaponSelectionViewModel, controller: NavHostController){
+    val canDoRound = canSelfDoRound(repo)
+    WeaponSelectionUI(self, other, false, canDoRound, repo, vm,
+        onSetWeapon = {
+            controller.navigate(DuelNavigation.Play)
+            duelLogic.setWeaponAndStart( vm.selectedWeapon.value)
+        },
+        onForfeit = {}
+    )
+}
+
+@Composable
+fun WeaponSelectionUI(self: Peer, other: Peer, waitingForOpponent: Boolean, canDoRound: Boolean, repo: GameRepository, vm: WeaponSelectionViewModel, onSetWeapon: ()->Unit, onForfeit: () -> Unit){
     DuelContainer(self, other){
-        if(gameLogic.selfState.collectAsState().value == PeerState.READY && gameLogic.otherState.collectAsState().value == PeerState.CAN_PLAY){
+        if(waitingForOpponent){
             Box(modifier=Modifier.padding(5.dp).fillMaxSize()){
                 Column(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.Center)) {
                     LoadMessage("Waiting for opponent...",Modifier.align(alignment = Alignment.CenterHorizontally))
@@ -76,9 +100,7 @@ fun WeaponSelectionScreen(self: Peer, other: Peer, gameLogic: DuelGameLogic, rep
                             Text("Most Bullets")
                         }
                     }
-                    Button(onClick = {
-                        gameLogic.setReady( vm.selectedWeapon.value)
-                    }, modifier = Modifier.fillMaxWidth(),
+                    Button(onClick = onSetWeapon , modifier = Modifier.fillMaxWidth(),
                         colors = primaryButtonColors
                     ) {
                         Text("Start!")
@@ -88,52 +110,12 @@ fun WeaponSelectionScreen(self: Peer, other: Peer, gameLogic: DuelGameLogic, rep
                         fontSize = Typography.titleLarge.fontSize,
                         textAlign = TextAlign.Center
                     )
-                    Button(onClick = {
-                        gameLogic.goodbye()
-                    }, modifier = Modifier.fillMaxWidth(),
+                    Button(onClick = onForfeit, modifier = Modifier.fillMaxWidth(),
                         colors = primaryButtonColors
                     ) {
                         Text("Forfeit")
                     }
                 }
-            }
-        }
-
-    }
-}
-
-@Composable
-fun WeaponSelectionScreen(controller: NavHostController, duelLogic: DuelBanditLogic, repo: GameRepository, vm: WeaponSelectionViewModel){
-    DuelContainer(duelLogic,repo.player ){
-        val bullets = repo.inventory.bullets.collectAsState()
-        Column(modifier = Modifier.fillMaxWidth()){
-            Text("Select Weapon",modifier = Modifier.fillMaxWidth().padding(top=5.dp),
-                fontSize = Typography.titleLarge.fontSize,
-                textAlign = TextAlign.Center
-            )
-            Column(
-                modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())
-            ){
-                RowDivider()
-                for(w in repo.inventory.weapons.collectAsState().value){
-                    WeaponOption(w,vm,bullets.value.first{x->x.type==w.bulletType}, vm.getWeaponImage(w.id).collectAsState().value)
-                }
-            }
-            Row(modifier=Modifier.fillMaxWidth()){
-                Button(onClick = {vm.selectMostDamage()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
-                    Text("Most Damage")
-                }
-                Button(onClick = {vm.selectMostBullets()}, colors = secondaryButtonColors, modifier = Modifier.weight(1f)) {
-                    Text("Most Bullets")
-                }
-            }
-            Button(onClick = {
-                controller.navigate(DuelNavigation.Play)
-                duelLogic.setWeaponAndStart( vm.selectedWeapon.value)
-            }, modifier = Modifier.fillMaxWidth(),
-                colors = primaryButtonColors
-            ) {
-                Text("Start!")
             }
         }
     }

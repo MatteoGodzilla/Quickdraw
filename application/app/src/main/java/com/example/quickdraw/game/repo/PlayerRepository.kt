@@ -47,7 +47,7 @@ class PlayerRepository(
     private var status: PlayerInfo? = null
     private var baseStats: List<BaseStats> = listOf()
     private var statusStats: List<BaseStats> = listOf()
-    private var levels: List<Int> = listOf()
+    private var levels: List<Int> = listOf(0)
 
     suspend fun firstLoad(){
         getStatus()

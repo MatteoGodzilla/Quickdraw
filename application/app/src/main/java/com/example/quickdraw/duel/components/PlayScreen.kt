@@ -1,12 +1,10 @@
 package com.example.quickdraw.duel.components
 
-import android.util.Log
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -25,7 +23,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.style.TextAlign
 import androidx.navigation.NavHostController
-import com.example.quickdraw.TAG
 import com.example.quickdraw.duel.DuelGameLogic
 import com.example.quickdraw.duel.DuelNavigation
 import com.example.quickdraw.duel.MatchResult
@@ -41,33 +38,13 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelGameLogic){
     val roundEnded = (gameLogic.selfState.collectAsState().value == PeerState.BANG && gameLogic.otherState.collectAsState().value == PeerState.BANG)
     val lostRound = gameLogic.didSelfWin() == MatchResult.LOST
     val duration = 2000 //milliseconds
-    val bloodAnimation = animateFloatAsState(
-        targetValue = if(roundEnded && lostRound) 1.0f else 0.0f,
-        animationSpec = TweenSpec(duration, 0, LinearEasing)
-    )
     LaunchedEffect(roundEnded) {
         if(roundEnded){
             delay(duration.toLong())
             controller.navigate(DuelNavigation.Results)
         }
     }
-    QuickdrawTheme {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.fillMaxSize().background(
-                if(shouldShoot) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-            ).pointerInput(Unit) { detectTapGestures(onPress = { gameLogic.bang() }) }
-        ){
-            if(roundEnded && lostRound){
-                Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
-            }
-            Row(modifier=Modifier.fillMaxWidth().fillMaxHeight(0.03f).background(Color.Black)){
-                val message = if(shouldShoot) "SHOOT!" else "Steady..."
-                Text(message, fontSize = Typography.titleLarge.fontSize,
-                    modifier = Modifier.fillMaxWidth(expandFromCenter()).align(Alignment.CenterVertically),color = Color.White, textAlign = TextAlign.Center)
-            }
-        }
-    }
+    PlayScreenUI(shouldShoot, roundEnded, lostRound, duration) { gameLogic.bang() }
 }
 
 @Composable
@@ -78,10 +55,6 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelBanditLogic){
     val lostRound = !gameLogic.playerWon.collectAsState().value
     val banditTimer = gameLogic.banditTimer.collectAsState().value
     val duration = 2000 //milliseconds
-    val bloodAnimation = animateFloatAsState(
-        targetValue = if(roundEnded.value && lostRound) 1.0f else 0.0f,
-        animationSpec = TweenSpec(duration, 0, LinearEasing)
-    )
 
     LaunchedEffect(true) {
         delay(shootTime.value)
@@ -94,29 +67,36 @@ fun PlayScreen(controller: NavHostController, gameLogic: DuelBanditLogic){
             gameLogic.bang(false)
         }
     }
-
     LaunchedEffect(roundEnded.value) {
         if(roundEnded.value){
             delay(duration.toLong())
             controller.navigate(DuelNavigation.Results)
         }
     }
+    PlayScreenUI(shouldShoot.value, roundEnded.value, lostRound, duration) { gameLogic.bang(true)}
+}
+
+@Composable
+fun PlayScreenUI(shouldShoot: Boolean, roundEnded: Boolean, lostRound: Boolean, duration:Int, onBang:()->Unit){
+    val bloodAnimation = animateFloatAsState(
+        targetValue = if(roundEnded && lostRound) 1.0f else 0.0f,
+        animationSpec = TweenSpec(duration, 0, LinearEasing)
+    )
     QuickdrawTheme {
         Box(
             contentAlignment = Alignment.Center,
             modifier = Modifier.fillMaxSize().background(
-                if(shouldShoot.value) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-            ).pointerInput(Unit) { detectTapGestures(onPress = { gameLogic.bang(true) }) }
+                if(shouldShoot) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
+            ).pointerInput(Unit) { detectTapGestures(onPress = { onBang() }) }
         ){
-            if(roundEnded.value && lostRound){
+            if(roundEnded && lostRound){
                 Box(modifier = Modifier.animateContentSize().fillMaxSize().scale(1.0f, bloodAnimation.value).background(Color.Red) )
             }
             Row(modifier=Modifier.fillMaxWidth().fillMaxHeight(0.03f).background(Color.Black)){
-                val message = if(shouldShoot.value) "SHOOT!" else "Steady..."
+                val message = if(shouldShoot) "SHOOT!" else "Steady..."
                 Text(message, fontSize = Typography.titleLarge.fontSize,
                     modifier = Modifier.fillMaxWidth(expandFromCenter()).align(Alignment.CenterVertically),color = Color.White, textAlign = TextAlign.Center)
             }
         }
     }
 }
-

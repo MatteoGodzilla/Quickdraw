@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
@@ -14,6 +15,7 @@ import com.example.quickdraw.Game2Bandit
 import com.example.quickdraw.QuickdrawApplication
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelNavigation
+import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.components.PlayScreen
 import com.example.quickdraw.duel.components.PresentationScreen
 import com.example.quickdraw.duel.components.ResultsScreen
@@ -30,11 +32,16 @@ class DuelBanditActivity: ComponentActivity() {
         val gameRepo = qdapp.repository
         val duelState = DuelBanditLogic(id,gameRepo.bandits.bandits.value[id]!!, gameRepo,this)
 
+        val player = gameRepo.player.player.value
+        val stats = gameRepo.player.stats.value
+        val playerAsPeer = Peer(player.id, player.username, player.level, player.health, stats.maxHealth,player.bounty)
+
         setContent {
+            val banditAsPeer = Peer(duelState.banditInfo.id, duelState.banditInfo.name, 0, duelState.botHP.collectAsState().value, duelState.banditInfo.hp, 0)
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = DuelNavigation.Presentation){
                 composable<DuelNavigation.Presentation>{
-                    PresentationScreen(controller,duelState, gameRepo.player)
+                    PresentationScreen(controller,playerAsPeer, banditAsPeer)
                 }
                 composable<DuelNavigation.WeaponSelect>{
                     val vm = viewModel {
@@ -45,13 +52,13 @@ class DuelBanditActivity: ComponentActivity() {
                             duelState.setFavourite(this@DuelBanditActivity.dataStore,vm)
                         }
                     }
-                    WeaponSelectionScreen(controller,duelState, gameRepo, vm)
+                    WeaponSelectionScreen(playerAsPeer, banditAsPeer,duelState, gameRepo, vm, controller)
                 }
                 composable<DuelNavigation.Play>{
                     PlayScreen(controller, duelState)
                 }
                 composable<DuelNavigation.Results>{
-                    ResultsScreen(controller, duelState, gameRepo)
+                    ResultsScreen(controller, playerAsPeer, banditAsPeer, duelState, gameRepo)
                 }
             }
         }
