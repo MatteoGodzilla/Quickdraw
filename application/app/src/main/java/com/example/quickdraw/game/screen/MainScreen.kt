@@ -1,10 +1,5 @@
 package com.example.quickdraw.game.screen
 
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +16,7 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -36,25 +32,30 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
+import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.game.components.BasicTabLayout
 import com.example.quickdraw.game.components.BottomNavBar
 import com.example.quickdraw.game.components.FadableAsyncImage
+import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.components.TopBar
+import com.example.quickdraw.game.components.infiniteRotation
 import com.example.quickdraw.game.vm.MainScreenVM
+import com.example.quickdraw.network.data.Bandit
 import com.example.quickdraw.ui.theme.QuickdrawTheme
 import com.example.quickdraw.ui.theme.Typography
 import com.example.quickdraw.ui.theme.primaryButtonColors
@@ -84,7 +85,6 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,callbacks:
             )
             val pagerState = rememberPagerState (initialPage = 0){ content.size }
             val scrollScope = rememberCoroutineScope()
-
             Column (modifier = Modifier.padding(padding)){
                 HorizontalDivider(
                     modifier = Modifier.fillMaxWidth().padding(all=0.dp),
@@ -107,18 +107,9 @@ fun MainScreen(viewModel: MainScreenVM, controller: NavHostController,callbacks:
 
 @Composable
 fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
-    //rotation if scouting
-    val infiniteTransition = rememberInfiniteTransition()
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 1000, easing = LinearEasing)
-        )
-    )
-    viewModel.checkValidScan()
     val hasWeapon = viewModel.checkInventoryForWeapon()
     val hasEnoughBullets = viewModel.checkInventoryForShoot()
+    viewModel.checkValidScan()
     val showPermissionDialog = remember { mutableStateOf(false) }
     Column (
         modifier = Modifier.fillMaxSize()
@@ -127,18 +118,7 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
             Column (modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())){
                 //Test match
                 for (p in viewModel.peers.collectAsState().value) {
-                    Row (
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        val playerImage = viewModel.imageLoader.getPlayerFlow(p.id).collectAsState().value
-                        FadableAsyncImage(playerImage,"player icon",Modifier.size(48.dp))
-                        Text("${p.username} (Level: ${p.level})")
-                        Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = hasWeapon && hasEnoughBullets) {
-                            Text("Duel")
-                        }
-                    }
+                    FightablePlayer(p,viewModel,hasWeapon && hasEnoughBullets)
                 }
             }
         } else {
@@ -260,7 +240,7 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
             ) {
                 Icon(imageVector = ImageVector.vectorResource(R.drawable.radar_24px),
                     "Scout",
-                    modifier = Modifier.rotate( if(!viewModel.scanning.collectAsState().value) 0.0f else rotation )
+                    modifier = Modifier.rotate( if(!viewModel.scanning.collectAsState().value) 0.0f else infiniteRotation())
                 )
                 if(viewModel.scanning.collectAsState().value){
                     Text("Stop scouting", fontSize = Typography.titleLarge.fontSize)
@@ -296,16 +276,7 @@ fun PveSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
         if(bandits.value.isNotEmpty()){
             Column (modifier = Modifier.weight(1f).verticalScroll(rememberScrollState())){
                 for(entry in bandits.value){
-                    Row (
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ){
-                        Text("${entry.value.name} (Hp: ${entry.value.hp})")
-                        Button( onClick = {callbacks.onDuelBandit(entry.key)}, enabled = true, colors = secondaryButtonColors) {
-                            Text("Duel")
-                        }
-                    }
+                    FightableBandit(entry.value,viewModel,hasWeapon && hasEnoughBullets,{callbacks.onDuelBandit(entry.key)})
                 }
             }
         } else {
@@ -333,6 +304,69 @@ fun PveSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
                 "Scout"
             )
             Text("Locate bandits", fontSize = Typography.titleLarge.fontSize)
+        }
+    }
+}
+
+fun powerToHint(power:Int):String{
+    if(power<=20) return "Very Low"
+    if(power<=30) return "Low"
+    if(power<=40) return "Moderate"
+    if(power<=50) return "High"
+    if(power<=60) return "Very High"
+    return "Extreme"
+}
+
+fun speedToHint(speed:Int):String{
+    if(speed>=1000) return "Very Slow"
+    if(speed>=900) return "Slow"
+    if(speed>=800) return "Moderate"
+    if(speed>=700) return "Fast"
+    if(speed>=500) return "Very Fast"
+    return "Extreme"
+}
+
+@Composable
+fun FightableEntity(content:@Composable ()->Unit){
+    Row (
+         modifier = Modifier.fillMaxWidth().padding(horizontal = 10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+       horizontalArrangement = Arrangement.SpaceBetween
+    ){
+        content()
+    }
+    RowDivider()
+}
+@Composable
+fun FightablePlayer(p:Peer,viewModel: MainScreenVM,canFight:Boolean){
+    FightableEntity {
+        val playerImage = viewModel.imageLoader.getPlayerFlow(p.id).collectAsState().value
+        FadableAsyncImage(playerImage,"player icon",Modifier.size(48.dp).clip(CircleShape), contentScale = ContentScale.FillBounds)
+        Column(){
+            val textModifier = Modifier.fillMaxWidth(0.7f).padding(horizontal=8.dp).align(Alignment.Start)
+            Text(p.username,fontSize = Typography.titleLarge.fontSize,modifier = textModifier)
+            Text("Level:${p.level}",modifier = textModifier)
+            Text("Bounty:${p.bounty}",modifier = textModifier)
+        }
+        Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = canFight) {
+            Text("Duel")
+        }
+    }
+}
+
+@Composable
+fun FightableBandit(b: Bandit, viewModel: MainScreenVM, canFight:Boolean,onDuel:()->Unit){
+    FightableEntity {
+        val banditImage = viewModel.imageLoader.getBanditFlow(b.id).collectAsState().value
+        FadableAsyncImage(banditImage,"bandit icon",Modifier.size(48.dp).clip(CircleShape), contentScale = ContentScale.FillBounds)
+        Column(){
+            val textModifier = Modifier.fillMaxWidth(0.7f).padding(horizontal=8.dp).align(Alignment.Start)
+            Text(b.name,fontSize = Typography.titleLarge.fontSize,modifier = textModifier)
+            Text("Speed:${powerToHint(b.maxDamage)}",modifier = textModifier)
+            Text("Strength:${speedToHint(b.minSpeed)}",modifier = textModifier)
+        }
+        Button( onClick = { onDuel() }, enabled = canFight,colors = secondaryButtonColors) {
+            Text("Duel")
         }
     }
 }
