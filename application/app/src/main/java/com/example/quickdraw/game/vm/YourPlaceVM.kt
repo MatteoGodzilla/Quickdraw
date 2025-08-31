@@ -173,4 +173,15 @@ class YourPlaceVM(
     fun maxed():Boolean{
         return repository.player.isMaxLevel()
     }
+
+    fun getVersion():String{
+        try{
+            val pack = context.packageManager.getPackageInfo(context.packageName, 0)
+            return pack.versionName!!
+        }
+        catch (e: Exception){
+            Log.i(TAG,e.toString())
+            return "Unknown"
+        }
+    }
 }

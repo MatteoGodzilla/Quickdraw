@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.paddingFrom
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
@@ -37,6 +36,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import coil3.compose.AsyncImage
@@ -266,6 +266,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 }
             }
             SmallHeader("Device")
+            Text("App Version:${viewModel.getVersion()}",modifier = Modifier.padding(8.dp))
             Row(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
@@ -292,6 +293,12 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 Icon(Icons.AutoMirrored.Default.ArrowBack,"go back")
                 Text("Logout", fontSize = Typography.titleLarge.fontSize)
             }
+            SmallHeader("Credits")
+            Credit("A game made by MatteoGodzilla and Giak77",Typography.bodyLarge.fontSize)
+            Credit("All game icons present in the game belong to Flaticon.com")
+            Credit("Artists for the icons are Ehtisham Abid and SmashIcons")
+            Credit("All music used is from artists on Pixabay.com")
+
         }
     ), money = player.value.money)
 }
@@ -328,4 +335,9 @@ fun FavouriteButton(modifier: Modifier, selected: Boolean=false, onClick:()->Uni
     val color = if(selected) Color.Red else Color.Black
     Icon(imageVector = ImageVector.vectorResource(R.drawable.favorite_24px), "Favourite",tint = color,
         modifier = modifier.clickable(onClick=onClick))
+}
+
+@Composable
+fun Credit(credit:String,size: TextUnit =Typography.bodySmall.fontSize){
+    Text(credit, fontSize = size, modifier = Modifier.fillMaxWidth(), textAlign = TextAlign.Center)
 }
