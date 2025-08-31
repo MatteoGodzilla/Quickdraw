@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.example.quickdraw.TAG
+import com.example.quickdraw.duel.Peer
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
@@ -67,5 +68,16 @@ class GameRepository(
             }
         }
         Log.i(TAG,player.stats.value.toString())
+    }
+
+    fun getPlayerAsPeer(): Peer {
+        return Peer(
+            player.player.value.id,
+            player.player.value.username,
+            player.player.value.level,
+            player.player.value.health,
+            player.stats.value.maxHealth,
+            player.player.value.bounty
+        )
     }
 }

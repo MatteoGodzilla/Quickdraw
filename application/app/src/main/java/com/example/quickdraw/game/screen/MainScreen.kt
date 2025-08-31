@@ -31,6 +31,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -47,14 +48,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.quickdraw.R
-import com.example.quickdraw.duel.Peer
-import com.example.quickdraw.duel.Peer2
 import com.example.quickdraw.game.components.BasicTabLayout
 import com.example.quickdraw.game.components.BottomNavBar
 import com.example.quickdraw.game.components.FadableAsyncImage
 import com.example.quickdraw.game.components.RowDivider
 import com.example.quickdraw.game.components.TopBar
 import com.example.quickdraw.game.components.infiniteRotation
+import com.example.quickdraw.game.vm.FightablePeer
 import com.example.quickdraw.game.vm.MainScreenVM
 import com.example.quickdraw.network.data.Bandit
 import com.example.quickdraw.ui.theme.QuickdrawTheme
@@ -111,6 +111,12 @@ fun PvpSection(viewModel: MainScreenVM, callbacks: DuelCallbacks){
     val hasWeapon = viewModel.checkInventoryForWeapon()
     val hasEnoughBullets = viewModel.checkInventoryForShoot()
     viewModel.checkValidScan()
+    LaunchedEffect(
+        viewModel.peerFinder.rawDevices.collectAsState().value,
+        viewModel.serviceFinder.rawDeviceToPeer.collectAsState().value
+    ) {
+        viewModel.getPeers()
+    }
     val showPermissionDialog = remember { mutableStateOf(false) }
     Column (
         modifier = Modifier.fillMaxSize()
@@ -339,22 +345,28 @@ fun FightableEntity(content:@Composable ()->Unit){
     RowDivider()
 }
 @Composable
-fun FightablePlayer(p: Peer2, viewModel: MainScreenVM, canFight:Boolean){
-    FightableEntity {
-        Text(p.raw.deviceName)
-        /*
-        val playerImage = viewModel.imageLoader.getPlayerFlow(p.id).collectAsState().value
-        FadableAsyncImage(playerImage,"player icon",Modifier.size(48.dp).clip(CircleShape), contentScale = ContentScale.FillBounds)
-        Column(){
-            val textModifier = Modifier.fillMaxWidth(0.7f).padding(horizontal=8.dp).align(Alignment.Start)
-            Text(p.username,fontSize = Typography.titleLarge.fontSize,modifier = textModifier)
-            Text("Level:${p.level}",modifier = textModifier)
-            Text("Bounty:${p.bounty}",modifier = textModifier)
+fun FightablePlayer(p: FightablePeer, viewModel: MainScreenVM, canFight:Boolean){
+    if(p.playerInfo != null){
+        FightableEntity {
+            val playerImage = viewModel.imageLoader.getPlayerFlow(p.playerInfo.id).collectAsState().value
+            FadableAsyncImage(playerImage,"player icon",Modifier.size(48.dp).clip(CircleShape), contentScale = ContentScale.FillBounds)
+            Column(){
+                val textModifier = Modifier.fillMaxWidth(0.7f).padding(horizontal=8.dp).align(Alignment.Start)
+                Text(p.playerInfo.username,fontSize = Typography.titleLarge.fontSize,modifier = textModifier)
+                Text("Level:${p.playerInfo.level}",modifier = textModifier)
+                Text("Bounty:${p.playerInfo.bounty}",modifier = textModifier)
 
+            }
+            Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = canFight) {
+                Text("Duel")
+            }
         }
-        */
-        Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = canFight) {
-            Text("Duel")
+    } else {
+        FightableEntity {
+            Text(p.rawDevice.deviceName, fontSize = Typography.titleLarge.fontSize)
+            Button( onClick = { viewModel.startMatchWithPeer(p) }, enabled = canFight) {
+                Text("Duel")
+            }
         }
     }
 }

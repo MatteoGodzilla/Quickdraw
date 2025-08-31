@@ -10,25 +10,20 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.location.LocationManager
-import android.net.NetworkInfo
 import android.net.wifi.WpsInfo
 import android.net.wifi.p2p.WifiP2pConfig
 import android.net.wifi.p2p.WifiP2pDevice
 import android.net.wifi.p2p.WifiP2pDeviceList
 import android.net.wifi.p2p.WifiP2pInfo
 import android.net.wifi.p2p.WifiP2pManager
-import android.nfc.Tag
 import android.os.Build
 import android.provider.Settings
 import android.util.Log
-import androidx.annotation.RequiresPermission
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.quickdraw.TAG
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.net.InetAddress
-
-data class Peer2(val raw: WifiP2pDevice,val playerInfo:Peer?=null)
 
 class PeerFinder(
     private val context: Context
@@ -36,12 +31,12 @@ class PeerFinder(
 
     var scanning: MutableStateFlow<Boolean> = MutableStateFlow(false)
         private set
-    var peers: MutableStateFlow<List<Peer2>> = MutableStateFlow(listOf())
+    var rawDevices: MutableStateFlow<List<WifiP2pDevice>> = MutableStateFlow(listOf())
         private set
     private var onConnectionCallback: (Boolean, InetAddress) -> Unit = { b, address -> address}
 
     var p2pManager: WifiP2pManager = context.getSystemService(WIFI_P2P_SERVICE) as WifiP2pManager
-    var channel = p2pManager.initialize(context, context.mainLooper, null)
+    var channel = p2pManager.initialize(context, context.mainLooper, null)!!
 
     init {
         ContextCompat.registerReceiver(
@@ -72,11 +67,11 @@ class PeerFinder(
     }
 
     @SuppressLint("MissingPermission")
-    fun startMatchWithPeer(peer: Peer2) {
+    fun startMatchWithPeer(peer: WifiP2pDevice) {
         Log.i(TAG, "[PeerFinder] Started match with peer")
 
         val config = WifiP2pConfig().apply {
-            deviceAddress = peer.raw.deviceAddress
+            deviceAddress = peer.deviceAddress
             wps.setup = WpsInfo.PBC
         }
 
@@ -130,8 +125,8 @@ class PeerFinder(
 
     override fun onPeersAvailable(newPeers: WifiP2pDeviceList?) {
         if(newPeers != null) {
-            peers.value = newPeers.deviceList.map { d ->  Peer2(d) }
-            Log.i(TAG, peers.value.toString())
+            rawDevices.value = newPeers.deviceList.toList()
+            Log.i(TAG, rawDevices.value.toString())
         }
     }
 

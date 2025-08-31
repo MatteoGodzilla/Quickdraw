@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager.PERMISSION_GRANTED
 import android.net.wifi.WifiManager
+import android.net.wifi.p2p.WifiP2pDevice
 import android.os.Build
 import android.provider.Settings
 import android.provider.Settings.ACTION_WIFI_SETTINGS
@@ -16,30 +17,33 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import com.example.quickdraw.ImageLoader
 import com.example.quickdraw.duel.Peer
-import com.example.quickdraw.duel.Peer2
 import com.example.quickdraw.duel.PeerFinder
 import com.example.quickdraw.duel.ServiceFinder
 import com.example.quickdraw.game.ManualConnectionActivity
 import com.example.quickdraw.game.PermissionBroadcastReceiver
 import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.game.screen.FightableEntity
+import kotlinx.coroutines.flow.MutableStateFlow
+
+data class FightablePeer(val rawDevice: WifiP2pDevice, val playerInfo: Peer? = null)
 
 class MainScreenVM(
     private val repository: GameRepository,
-    private val peerFinder: PeerFinder,
+    val peerFinder: PeerFinder,
     private val context: Activity,
     val imageLoader: ImageLoader,
-    private val serviceFinder: ServiceFinder,
+    val serviceFinder: ServiceFinder,
     pbr: PermissionBroadcastReceiver,
 ) : ViewModel() {
 
     val player = repository.player.player
     val stats = repository.player.stats
     val bandits = repository.bandits.bandits
-    val peers = peerFinder.peers
+    val peers = MutableStateFlow<List<FightablePeer>>(listOf())
     val scanning = peerFinder.scanning
 
+    //Permission stuff
     val expandedChecks = mutableStateOf(false)
-
     var permFineLocation = false
     var permNearbyDevices = false
     var wifiP2PActive = false
@@ -67,11 +71,8 @@ class MainScreenVM(
             peerFinder.stopScanning()
             serviceFinder.stopDiscover()
         } else {
-            val self = repository.player.player.value
-            val stats = repository.player.stats.value
-            //peerFinder.startScanning(Peer(self.id, self.username, self.level, self.health, stats.maxHealth,self.bounty), context)
             peerFinder.startScanning(context)
-            serviceFinder.discover()
+            serviceFinder.startDiscover(repository.getPlayerAsPeer())
         }
     }
 
@@ -107,7 +108,13 @@ class MainScreenVM(
         context.startActivity(intent)
     }
 
-    fun startMatchWithPeer(peer: Peer2) = peerFinder.startMatchWithPeer(peer)
+    fun getPeers(){
+        peers.value = peerFinder.rawDevices.value.map { rawPeer ->
+            FightablePeer(rawPeer, serviceFinder.rawDeviceToPeer.value[rawPeer.deviceAddress])
+        }
+    }
+
+    fun startMatchWithPeer(peer: FightablePeer) = peerFinder.startMatchWithPeer(peer.rawDevice)
     fun checkInventoryForWeapon() = repository.inventory.checkInventoryForWeapon()
     fun checkInventoryForShoot() = repository.inventory.checkInventoryForShoot()
 

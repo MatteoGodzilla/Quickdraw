@@ -91,16 +91,7 @@ class GameActivity : ComponentActivity(){
         }
 
         QDNotifManager.init(this)
-        val player = repository.player.player.value
-        var selfPeer = Peer(
-            player.id,
-            player.username,
-            player.level,
-            player.health,
-            repository.player.stats.value.maxHealth,
-            bounty = player.bounty
-        )
-        val serviceFinder = ServiceFinder(this,qdapp.peerFinderSingleton.channel,qdapp.peerFinderSingleton.p2pManager,selfPeer)
+        val serviceFinder = ServiceFinder(qdapp.peerFinderSingleton.channel,qdapp.peerFinderSingleton.p2pManager)
 
         runBlocking {
             val mute = dataStore.data.map { pref -> pref[PrefKeys.musicMute] }.first() ?: false
