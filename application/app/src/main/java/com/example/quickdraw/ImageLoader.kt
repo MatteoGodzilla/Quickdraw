@@ -7,14 +7,15 @@ import android.util.Base64
 import android.util.Base64.DEFAULT
 import android.util.Log
 import androidx.appcompat.content.res.AppCompatResources
-import androidx.compose.ui.graphics.ImageBitmap
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.network.api.getBanditImage
-import com.example.quickdraw.network.api.getBulletImageAPI
-import com.example.quickdraw.network.api.getMedikitImageAPI
+import com.example.quickdraw.network.api.getBulletShopImageAPI2
+import com.example.quickdraw.network.api.getBulletTypeImageAPI
+import com.example.quickdraw.network.api.getMedikitShopImageAPI2
+import com.example.quickdraw.network.api.getMedikitTypeImageAPI
 import com.example.quickdraw.network.api.getMercenaryImage
 import com.example.quickdraw.network.api.getPlayerImageAPI
 import com.example.quickdraw.network.api.getUpgradeImageAPI
@@ -38,21 +39,23 @@ class ImageLoader(private val context: Context) {
 
     private val localScope = CoroutineScope(Dispatchers.IO)
 
-    /*
-    private val weaponCache: MutableMap<Int,Bitmap> = mutableMapOf()
-    private val bulletCache: MutableMap<Int,Bitmap> = mutableMapOf()
-    private val medikitCache: MutableMap<Int,Bitmap> = mutableMapOf()
-    private val upgradeCache: MutableMap<Int,Bitmap> = mutableMapOf()
-    private val playerCache: MutableMap<Int,Bitmap> = mutableMapOf()
-
-     */
     private val weaponCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
-    private val bulletCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
-    private val medikitCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
+    private val bulletShopCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
+    private val medikitShopCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
     private val upgradeCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
     private val playerCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
     private val banditCache: MutableMap<Int, MutableStateFlow<ByteArray>> = mutableMapOf()
     private val mercenaryCache: MutableMap<Int, MutableStateFlow<ByteArray>> = mutableMapOf()
+    private val bulletTypeCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
+    private val medikitTypeCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
+
+    private val weaponLoading: MutableMap<Int,Boolean> = mutableMapOf()
+    private val bulletLoading: MutableMap<Int,Boolean> = mutableMapOf()
+    private val medikitLoading: MutableMap<Int,Boolean> = mutableMapOf()
+    private val upgradeLoading: MutableMap<Int,Boolean> = mutableMapOf()
+    private val playerLoading: MutableMap<Int,Boolean> = mutableMapOf()
+    private val bulletTypeLoading: MutableMap<Int,Boolean> = mutableMapOf()
+    private val medikitTypeLoading: MutableMap<Int,Boolean> = mutableMapOf()
 
     fun getWeaponFlow(id: Int): MutableStateFlow<ByteArray> {
         if(!weaponCache.containsKey(id)) {
@@ -69,34 +72,34 @@ class ImageLoader(private val context: Context) {
         return weaponCache[id]!!
     }
 
-    fun getBulletFlow(id: Int): MutableStateFlow<ByteArray> {
-        if(!bulletCache.containsKey(id)) {
-            bulletCache[id] = MutableStateFlow(notFound)
+    fun getBulletShopFlow(id: Int): MutableStateFlow<ByteArray> {
+        if(!bulletShopCache.containsKey(id)) {
+            bulletShopCache[id] = MutableStateFlow(notFound)
             localScope.launch{
                 Log.i(TAG, "[ImageLoader] Bullet $id")
-                val response = getBulletImageAPI(id)
+                val response = getBulletShopImageAPI2(id)
                 if(response != null){
                     val bytes = Base64.decode(response.image, DEFAULT)
-                    bulletCache[id]!!.value = bytes
+                    bulletShopCache[id]!!.value = bytes
                 }
             }
         }
-        return bulletCache[id]!!
+        return bulletShopCache[id]!!
     }
 
-    fun getMedikitFlow(id: Int): MutableStateFlow<ByteArray> {
-        if(!medikitCache.containsKey(id)) {
-            medikitCache[id] = MutableStateFlow(notFound)
+    fun getMedikitShopFlow(id: Int): MutableStateFlow<ByteArray> {
+        if(!medikitShopCache.containsKey(id)) {
+            medikitShopCache[id] = MutableStateFlow(notFound)
             localScope.launch{
                 Log.i(TAG, "[ImageLoader] Medikit $id")
-                val response = getMedikitImageAPI(id)
+                val response = getMedikitShopImageAPI2(id)
                 if(response != null){
                     val bytes = Base64.decode(response.image, DEFAULT)
-                    medikitCache[id]!!.value = bytes
+                    medikitShopCache[id]!!.value = bytes
                 }
             }
         }
-        return medikitCache[id]!!
+        return medikitShopCache[id]!!
     }
 
     fun getUpgradeFlow(id: Int): MutableStateFlow<ByteArray> {
@@ -145,15 +148,15 @@ class ImageLoader(private val context: Context) {
         return banditCache[id]!!
     }
 
-    fun getMercenaryFlow(id: Int): MutableStateFlow<ByteArray>{
-        if(!mercenaryCache.containsKey(id)) {
+    fun getMercenaryFlow(id: Int): MutableStateFlow<ByteArray> {
+        if (!mercenaryCache.containsKey(id)) {
             mercenaryCache[id] = MutableStateFlow(notFound)
-            localScope.launch{
+            localScope.launch {
                 Log.i(TAG, "[ImageLoader] Mercenary $id")
                 val response = getMercenaryImage(id)
-                if(response != null){
+                if (response != null) {
                     val bytes = Base64.decode(response.image, DEFAULT)
-                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
+                    val result = BitmapFactory.decodeByteArray(bytes, 0, bytes.size)
                     mercenaryCache[id]!!.value = bytes
                 }
             }
@@ -161,15 +164,52 @@ class ImageLoader(private val context: Context) {
         return mercenaryCache[id]!!
     }
 
+    fun getBulletTypeFlow(id: Int): MutableStateFlow<ByteArray> {
+        if(!bulletTypeCache.containsKey(id)) {
+            bulletTypeCache[id] = MutableStateFlow(notFound)
+            localScope.launch{
+                bulletTypeLoading[id] = true
+                Log.i(TAG, "[ImageLoader] Player $id")
+                val response = getBulletTypeImageAPI(id)
+                if(response != null){
+                    val bytes = Base64.decode(response.image, DEFAULT)
+                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
+                    bulletTypeCache[id]!!.value = bytes
+                }
+                bulletTypeLoading[id] = false
+            }
+        }
+        return bulletTypeCache[id]!!
+    }
+
+    fun getMedikitTypeFlow(id: Int): MutableStateFlow<ByteArray> {
+        if(!medikitTypeCache.containsKey(id)) {
+            medikitTypeCache[id] = MutableStateFlow(notFound)
+            localScope.launch{
+                medikitTypeLoading[id] = true
+                Log.i(TAG, "[ImageLoader] Player $id")
+                val response = getMedikitTypeImageAPI(id)
+                if(response != null){
+                    val bytes = Base64.decode(response.image, DEFAULT)
+                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
+                    medikitTypeCache[id]!!.value = bytes
+                }
+                medikitTypeLoading[id] = false
+            }
+        }
+        return medikitTypeCache[id]!!
+    }
+
     fun invalidatePlayerImage(id: Int){
         playerCache.remove(id)
     }
 
+    /*
     suspend fun loadFrom(repo: GameRepository){
         getPlayerFlow(repo.player.player.value.id)
         //shop bullets
         for(bullet in repo.shop.bullets.value){
-            getBulletFlow(bullet.id)
+            getBulletShopFlow(bullet.id)
         }
         //shop weapons
         for(w in repo.shop.weapons.value){
@@ -177,7 +217,7 @@ class ImageLoader(private val context: Context) {
         }
         //shop medikits
         for(m in repo.shop.medikits.value){
-            getMedikitFlow(m.id)
+            getMedikitShopFlow(m.id)
         }
         //shop upgrades
         for(u in repo.shop.upgrades.value){
@@ -193,4 +233,6 @@ class ImageLoader(private val context: Context) {
             getMercenaryFlow(m.id)
         }
     }
+
+     */
 }

@@ -7,7 +7,7 @@ from routes import auth, contracts, inventory, status, shop, bountyboard,mercena
 from MySql import connection
 from pymysql.err import *
 
-VERSION = 2
+VERSION = 3
 
 #this is the file to run for starting the backend service,it will incorporate all the routes defined in the route folder
 app = FastAPI()

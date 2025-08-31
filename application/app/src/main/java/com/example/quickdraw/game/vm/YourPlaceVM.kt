@@ -119,8 +119,8 @@ class YourPlaceVM(
     }
 
     fun loadWeaponImage(id:Int) = imageLoader.getWeaponFlow(id)
-    fun loadBulletImage(id: Int) = imageLoader.getBulletFlow(id)
-    fun loadMedikitImage(id: Int) = imageLoader.getMedikitFlow(id)
+    fun loadBulletImage(id: Int) = imageLoader.getBulletTypeFlow(id)
+    fun loadMedikitImage(id: Int) = imageLoader.getMedikitTypeFlow(id)
     fun loadUpgradeImage(id: Int) = imageLoader.getUpgradeFlow(id)
 
     fun setOrUnsetFavourite(id:Int){

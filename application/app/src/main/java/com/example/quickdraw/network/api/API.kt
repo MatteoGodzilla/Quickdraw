@@ -5,7 +5,7 @@ import okhttp3.MediaType.Companion.toMediaType
 import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 
-const val VERSION = 2
+const val VERSION = 3
 const val VERSION_ENDPOINT = "/version"
 
 const val LOGIN_ENDPOINT = "/auth/login"
@@ -44,13 +44,15 @@ const val MERCENARY_PLAYER_UNASSIGNED = "/mercenaries/player/unassigned"
 const val MERCENARY_NEXT_UNLOCKABLE = "/mercenaries/nextUnlockables"
 
 const val IMAGE_WEAPON = "/image/weapon"
-const val IMAGE_BULLET = "/image/bullet"
-const val IMAGE_MEDIKIT = "/image/medikit"
+const val IMAGE_BULLET_SHOP = "/image/bullet"
+const val IMAGE_MEDIKIT_SHOP = "/image/medikit"
 const val IMAGE_UPGRADE = "/image/upgrade"
 const val IMAGE_PLAYER = "/image/player"
 const val IMAGE_MERCENARY = "/image/mercenary"
 const val IMAGE_BANDIT = "/image/bandit"
 const val IMAGE_UPDATE_PLAYER_PIC = "/image/updatePic"
+const val IMAGE_BULLET_TYPE = "/image/bulletType"
+const val IMAGE_MEDIKIT_TYPE = "/image/medikitType"
 
 const val USE_MEDIKIT = "/use/medikit"
 

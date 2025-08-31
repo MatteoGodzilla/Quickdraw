@@ -45,7 +45,7 @@ class ShopScreenVM(
 
     //Icon stuff
     fun getWeaponIcon(id:Int) = imageLoader.getWeaponFlow(id)
-    fun getBulletIcon(id:Int) = imageLoader.getBulletFlow(id)
-    fun getMedikitIcon(id:Int) = imageLoader.getMedikitFlow(id)
+    fun getBulletIcon(id:Int) = imageLoader.getBulletShopFlow(id)
+    fun getMedikitIcon(id:Int) = imageLoader.getMedikitShopFlow(id)
     fun getUpgradeIcon(id:Int) = imageLoader.getUpgradeFlow(id)
 }

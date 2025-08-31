@@ -7,13 +7,14 @@ import com.example.quickdraw.network.data.UpdateProfileRequest
 import kotlinx.serialization.json.Json
 
 fun getWeaponImageAPI(id:Int) = getImage(id, IMAGE_WEAPON)
-fun getBulletImageAPI(id:Int) = getImage(id, IMAGE_BULLET)
-fun getMedikitImageAPI(id:Int) = getImage(id, IMAGE_MEDIKIT)
+fun getBulletShopImageAPI2(id:Int) = getImage(id, IMAGE_BULLET_SHOP)
+fun getMedikitShopImageAPI2(id:Int) = getImage(id, IMAGE_MEDIKIT_SHOP)
 fun getUpgradeImageAPI(id:Int) = getImage(id, IMAGE_UPGRADE)
 fun getPlayerImageAPI(id:Int) = getImage(id, IMAGE_PLAYER)
 fun getMercenaryImage(id:Int) = getImage(id, IMAGE_MERCENARY)
 fun getBanditImage(id:Int) = getImage(id,IMAGE_BANDIT)
-
+fun getBulletTypeImageAPI(id:Int) = getImage(id, IMAGE_BULLET_TYPE)
+fun getMedikitTypeImageAPI(id:Int) = getImage(id, IMAGE_MEDIKIT_TYPE)
 
 private fun getImage(id:Int, url: String): ImageResponse?{
      val requestBody = ImageRequest(id).toRequestBody()
