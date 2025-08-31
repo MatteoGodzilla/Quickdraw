@@ -18,6 +18,7 @@ import com.example.quickdraw.ImageLoader
 import com.example.quickdraw.duel.Peer
 import com.example.quickdraw.duel.Peer2
 import com.example.quickdraw.duel.PeerFinder
+import com.example.quickdraw.duel.ServiceFinder
 import com.example.quickdraw.game.ManualConnectionActivity
 import com.example.quickdraw.game.PermissionBroadcastReceiver
 import com.example.quickdraw.game.repo.GameRepository
@@ -27,6 +28,7 @@ class MainScreenVM(
     private val peerFinder: PeerFinder,
     private val context: Activity,
     val imageLoader: ImageLoader,
+    private val serviceFinder: ServiceFinder,
     pbr: PermissionBroadcastReceiver,
 ) : ViewModel() {
 
@@ -63,11 +65,13 @@ class MainScreenVM(
     fun onScan() {
         if(peerFinder.scanning.value){
             peerFinder.stopScanning()
+            serviceFinder.stopDiscover()
         } else {
             val self = repository.player.player.value
             val stats = repository.player.stats.value
             //peerFinder.startScanning(Peer(self.id, self.username, self.level, self.health, stats.maxHealth,self.bounty), context)
             peerFinder.startScanning(context)
+            serviceFinder.discover()
         }
     }
 

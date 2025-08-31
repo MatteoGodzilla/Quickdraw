@@ -22,6 +22,8 @@ import com.example.quickdraw.QuickdrawApplication
 import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.DuelActivity
+import com.example.quickdraw.duel.Peer
+import com.example.quickdraw.duel.ServiceFinder
 import com.example.quickdraw.duel.duelBandit.DuelBanditActivity
 import com.example.quickdraw.game.components.Popup
 import com.example.quickdraw.game.components.ScreenLoader
@@ -82,7 +84,6 @@ class GameActivity : ComponentActivity(){
         qdapp.repository = GameRepository(dataStore)
         val repository = qdapp.repository
 
-        //TODO: run repository fetch when it changes screen, not just at start
         lifecycleScope.launch {
             globalsVM.loadScreen.showLoading("Obtaining game data...")
             repository.firstLoad()
@@ -90,6 +91,16 @@ class GameActivity : ComponentActivity(){
         }
 
         QDNotifManager.init(this)
+        val player = repository.player.player.value
+        var selfPeer = Peer(
+            player.id,
+            player.username,
+            player.level,
+            player.health,
+            repository.player.stats.value.maxHealth,
+            bounty = player.bounty
+        )
+        val serviceFinder = ServiceFinder(this,qdapp.peerFinderSingleton.channel,qdapp.peerFinderSingleton.p2pManager,selfPeer)
 
         runBlocking {
             val mute = dataStore.data.map { pref -> pref[PrefKeys.musicMute] }.first() ?: false
@@ -129,7 +140,7 @@ class GameActivity : ComponentActivity(){
                     ShopScreen(vm, controller)
                 }
                 composable<GameNavigation.Map> {
-                    val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity,qdapp.imageLoader, pbr!!) }
+                    val vm = viewModel { MainScreenVM(repository, qdapp.peerFinderSingleton, this@GameActivity,qdapp.imageLoader,serviceFinder, pbr!!) }
                     MainScreen(vm, controller,object: DuelCallbacks{
                         override fun onScan() {
                             vm.onScan()

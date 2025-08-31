@@ -28,19 +28,20 @@ import com.example.quickdraw.TAG
 import kotlinx.coroutines.flow.MutableStateFlow
 import java.net.InetAddress
 
-data class Peer2(val raw: WifiP2pDevice)
+data class Peer2(val raw: WifiP2pDevice,val playerInfo:Peer?=null)
 
 class PeerFinder(
     private val context: Context
 ): WifiP2pManager.PeerListListener, WifiP2pManager.ConnectionInfoListener {
+
     var scanning: MutableStateFlow<Boolean> = MutableStateFlow(false)
         private set
     var peers: MutableStateFlow<List<Peer2>> = MutableStateFlow(listOf())
         private set
     private var onConnectionCallback: (Boolean, InetAddress) -> Unit = { b, address -> address}
 
-    private var p2pManager: WifiP2pManager = context.getSystemService(WIFI_P2P_SERVICE) as WifiP2pManager
-    private var channel = p2pManager.initialize(context, context.mainLooper, null)
+    var p2pManager: WifiP2pManager = context.getSystemService(WIFI_P2P_SERVICE) as WifiP2pManager
+    var channel = p2pManager.initialize(context, context.mainLooper, null)
 
     init {
         ContextCompat.registerReceiver(
