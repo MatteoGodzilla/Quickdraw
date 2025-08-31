@@ -4,6 +4,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Bandit(
+    val id:Int,
     val name: String,
     val hp:Int,
     val minDamage:Int,
