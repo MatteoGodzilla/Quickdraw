@@ -47,6 +47,16 @@ def player(request: ImageRequest):
     p = Path(filesystem_root) / "player" / str(request.id)
     return _fetch_image(p)
 
+@router.post("/mercenary")
+def player(request: ImageRequest):
+    p = Path(filesystem_root) / "mercenary" / str(request.id)
+    return _fetch_image(p)
+
+@router.post("/bandit")
+def player(request: ImageRequest):
+    p = Path(filesystem_root) / "bandit" / str(request.id)
+    return _fetch_image(p)
+
 def _fetch_image(p: Path):
     if not p.exists():
         raise HTTPException(status_code=404)

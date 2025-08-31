@@ -76,7 +76,7 @@ fun ContractsScreen (vm: ContractsVM, controller: NavHostController, repository:
         },
         ContentTab("Employ"){
             for(mercenary in hireable){
-                MercenaryShopEntry(mercenary,{vm.onHireMercenary(mercenary)}, imageLoader.notFound, player.value.money >= mercenary.cost)
+                MercenaryShopEntry(mercenary,{vm.onHireMercenary(mercenary)}, imageLoader.getMercenaryFlow(mercenary.id).collectAsState().value, player.value.money >= mercenary.cost)
             }
             for(mercenary in unlockable){
                 LockedMercenaryPost(mercenary,imageLoader.notFound)

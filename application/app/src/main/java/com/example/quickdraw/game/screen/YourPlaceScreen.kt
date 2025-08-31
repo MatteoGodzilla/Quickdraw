@@ -174,7 +174,9 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                     CircularProgressIndicator(viewModel::getProgressToNextLevel, modifier = Modifier.fillMaxSize() )
                 }
             }
+
             //Player
+            val message = if(viewModel.maxed()) "MAX LEVEL" else "Level ${player.value.level} (${player.value.exp}/${viewModel.player.getExpForNextLevel()})"
             Text(
                 player.value.username,
                 fontSize = Typography.titleLarge.fontSize,
@@ -182,7 +184,7 @@ fun YourPlaceScreen(viewModel: YourPlaceVM, controller: NavHostController){
                 textAlign = TextAlign.Center
             )
             Text(
-                "Level ${player.value.level} (${player.value.exp}/${viewModel.player.getExpForNextLevel()})",
+                message ,
                 modifier = Modifier.fillMaxWidth(),
                 textAlign = TextAlign.Center
             )

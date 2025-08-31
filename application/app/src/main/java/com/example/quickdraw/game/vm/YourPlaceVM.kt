@@ -169,4 +169,8 @@ class YourPlaceVM(
         enableNotifications.value = selected
         context.dataStore.edit { pref -> pref[PrefKeys.enableNotifications] = selected }
     }
+
+    fun maxed():Boolean{
+        return repository.player.isMaxLevel()
+    }
 }

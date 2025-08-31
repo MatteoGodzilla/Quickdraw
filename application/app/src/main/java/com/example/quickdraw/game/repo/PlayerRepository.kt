@@ -65,10 +65,16 @@ class PlayerRepository(
         return -1
     }
 
+    fun isMaxLevel():Boolean{
+        return player.value.exp>=levels.max()
+    }
+
     fun getProgressToNextLevel(): Float {
         var progress = 0f
         if(levels.isNotEmpty()){
             val playerLevel = player.value.level
+            if(isMaxLevel()) return 1.0f
+
             val levelIndex = playerLevel - 1
             if(levelIndex < levels.size){
                 //playerLevel -1 is a valid index

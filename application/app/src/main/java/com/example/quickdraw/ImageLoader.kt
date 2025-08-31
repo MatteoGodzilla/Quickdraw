@@ -12,8 +12,10 @@ import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.core.graphics.drawable.toBitmap
 import com.example.quickdraw.game.repo.GameRepository
+import com.example.quickdraw.network.api.getBanditImage
 import com.example.quickdraw.network.api.getBulletImageAPI
 import com.example.quickdraw.network.api.getMedikitImageAPI
+import com.example.quickdraw.network.api.getMercenaryImage
 import com.example.quickdraw.network.api.getPlayerImageAPI
 import com.example.quickdraw.network.api.getUpgradeImageAPI
 import com.example.quickdraw.network.api.getWeaponImageAPI
@@ -49,25 +51,19 @@ class ImageLoader(private val context: Context) {
     private val medikitCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
     private val upgradeCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
     private val playerCache: MutableMap<Int,MutableStateFlow<ByteArray>> = mutableMapOf()
-
-    private val weaponLoading: MutableMap<Int,Boolean> = mutableMapOf()
-    private val bulletLoading: MutableMap<Int,Boolean> = mutableMapOf()
-    private val medikitLoading: MutableMap<Int,Boolean> = mutableMapOf()
-    private val upgradeLoading: MutableMap<Int,Boolean> = mutableMapOf()
-    private val playerLoading: MutableMap<Int,Boolean> = mutableMapOf()
+    private val banditCache: MutableMap<Int, MutableStateFlow<ByteArray>> = mutableMapOf()
+    private val mercenaryCache: MutableMap<Int, MutableStateFlow<ByteArray>> = mutableMapOf()
 
     fun getWeaponFlow(id: Int): MutableStateFlow<ByteArray> {
         if(!weaponCache.containsKey(id)) {
             weaponCache[id] = MutableStateFlow(notFound)
             localScope.launch{
-                weaponLoading[id] = true
                 Log.i(TAG, "[ImageLoader] Weapon $id")
                 val response = getWeaponImageAPI(id)
                 if(response != null){
                     val bytes = Base64.decode(response.image, DEFAULT)
                     weaponCache[id]!!.value = bytes
                 }
-                weaponLoading[id] = false
             }
         }
         return weaponCache[id]!!
@@ -77,14 +73,12 @@ class ImageLoader(private val context: Context) {
         if(!bulletCache.containsKey(id)) {
             bulletCache[id] = MutableStateFlow(notFound)
             localScope.launch{
-                bulletLoading[id] = true
                 Log.i(TAG, "[ImageLoader] Bullet $id")
                 val response = getBulletImageAPI(id)
                 if(response != null){
                     val bytes = Base64.decode(response.image, DEFAULT)
                     bulletCache[id]!!.value = bytes
                 }
-                bulletLoading[id] = false
             }
         }
         return bulletCache[id]!!
@@ -94,14 +88,12 @@ class ImageLoader(private val context: Context) {
         if(!medikitCache.containsKey(id)) {
             medikitCache[id] = MutableStateFlow(notFound)
             localScope.launch{
-                medikitLoading[id] = true
                 Log.i(TAG, "[ImageLoader] Medikit $id")
                 val response = getMedikitImageAPI(id)
                 if(response != null){
                     val bytes = Base64.decode(response.image, DEFAULT)
                     medikitCache[id]!!.value = bytes
                 }
-                medikitLoading[id] = false
             }
         }
         return medikitCache[id]!!
@@ -125,7 +117,6 @@ class ImageLoader(private val context: Context) {
         if(!playerCache.containsKey(id)) {
             playerCache[id] = MutableStateFlow(notFound)
             localScope.launch{
-                playerLoading[id] = true
                 Log.i(TAG, "[ImageLoader] Player $id")
                 val response = getPlayerImageAPI(id)
                 if(response != null){
@@ -133,10 +124,41 @@ class ImageLoader(private val context: Context) {
                     val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
                     playerCache[id]!!.value = bytes
                 }
-                playerLoading[id] = false
             }
         }
         return playerCache[id]!!
+    }
+
+    fun getBanditFlow(id: Int): MutableStateFlow<ByteArray>{
+        if(!banditCache.containsKey(id)) {
+            banditCache[id] = MutableStateFlow(notFound)
+            localScope.launch{
+                Log.i(TAG, "[ImageLoader] Mercenary $id")
+                val response = getBanditImage(id)
+                if(response != null){
+                    val bytes = Base64.decode(response.image, DEFAULT)
+                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
+                    banditCache[id]!!.value = bytes
+                }
+            }
+        }
+        return banditCache[id]!!
+    }
+
+    fun getMercenaryFlow(id: Int): MutableStateFlow<ByteArray>{
+        if(!mercenaryCache.containsKey(id)) {
+            mercenaryCache[id] = MutableStateFlow(notFound)
+            localScope.launch{
+                Log.i(TAG, "[ImageLoader] Mercenary $id")
+                val response = getMercenaryImage(id)
+                if(response != null){
+                    val bytes = Base64.decode(response.image, DEFAULT)
+                    val result = BitmapFactory.decodeByteArray(bytes,0,bytes.size)
+                    mercenaryCache[id]!!.value = bytes
+                }
+            }
+        }
+        return mercenaryCache[id]!!
     }
 
     fun invalidatePlayerImage(id: Int){
@@ -164,6 +186,11 @@ class ImageLoader(private val context: Context) {
         //bounty leaderboard
         for(p in repo.leaderboard.global.value){
             getPlayerFlow(p.id )
+        }
+
+        //mercenaries
+        for(m in repo.mercenaries.hireable.value){
+            getMercenaryFlow(m.id)
         }
     }
 }

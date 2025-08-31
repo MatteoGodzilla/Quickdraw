@@ -11,6 +11,9 @@ fun getBulletImageAPI(id:Int) = getImage(id, IMAGE_BULLET)
 fun getMedikitImageAPI(id:Int) = getImage(id, IMAGE_MEDIKIT)
 fun getUpgradeImageAPI(id:Int) = getImage(id, IMAGE_UPGRADE)
 fun getPlayerImageAPI(id:Int) = getImage(id, IMAGE_PLAYER)
+fun getMercenaryImage(id:Int) = getImage(id, IMAGE_MERCENARY)
+fun getBanditImage(id:Int) = getImage(id,IMAGE_BANDIT)
+
 
 private fun getImage(id:Int, url: String): ImageResponse?{
      val requestBody = ImageRequest(id).toRequestBody()
