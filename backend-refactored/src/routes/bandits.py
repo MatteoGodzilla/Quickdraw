@@ -301,7 +301,6 @@ async def tokenLogin(request: FightRequest):
          print(corrected_money,corrected_exp)
          playerInfo.money+= corrected_money
          playerInfo.exp+= corrected_exp
-         playerInfo.money+= corrected_money
          playerInfo.health-=damageToPlayer
          bandit[0].defeated = True
          session.commit()
