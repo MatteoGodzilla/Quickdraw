@@ -96,24 +96,30 @@ async def duel(request: DuelSubmitData):
         elif us.type == 5:
             expMult = expMult + us.modifier
 
+    #calculate new health for player 
+    new_health = max(player.health - total_damage, 0)
+    playerLost = (rounds_won < rounds_lost) or new_health == 0
+
     # give exp
     exp = 10
-    if rounds_won > rounds_lost:
+    if not playerLost:
         exp = exp + 2
     if player.bounty < opponent_bounty:
         exp = exp + 3
 
     # gib muny
     money = 0
-    if rounds_won > rounds_lost:
+    if not playerLost:
         money = 10 + opponent_bounty * 3 // 2
     # gib bounty
     bounty = 0
-    if rounds_won > rounds_lost:
+    if not playerLost:
         bounty = player.bounty + money * bountyMult / 100
 
+ 
+
     player_query = update(Player).where(Player.id == player.id).values(
-       health = max(player.health - total_damage, 0),
+       health = new_health if new_health>0 else 10,
        exp = player.exp + exp * expMult / 100,
        money = player.money + money * moneyMult / 100,
        bounty = bounty 

@@ -24,6 +24,7 @@ import com.example.quickdraw.game.PermissionBroadcastReceiver
 import com.example.quickdraw.game.repo.GameRepository
 import com.example.quickdraw.game.screen.FightableEntity
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.update
 
 data class FightablePeer(val rawDevice: WifiP2pDevice, val playerInfo: Peer? = null)
 
@@ -70,9 +71,11 @@ class MainScreenVM(
         if(peerFinder.scanning.value){
             peerFinder.stopScanning()
             serviceFinder.stopDiscover()
+            scanning.update { false }
         } else {
             peerFinder.startScanning(context)
             serviceFinder.startDiscover(repository.getPlayerAsPeer())
+            scanning.update { true }
         }
     }
 
@@ -112,6 +115,10 @@ class MainScreenVM(
         peers.value = peerFinder.rawDevices.value.map { rawPeer ->
             FightablePeer(rawPeer, serviceFinder.rawDeviceToPeer.value[rawPeer.deviceAddress])
         }
+    }
+
+    fun isScanning():Boolean{
+        return peerFinder.scanning.value
     }
 
     fun startMatchWithPeer(peer: FightablePeer) = peerFinder.startMatchWithPeer(peer.rawDevice)
