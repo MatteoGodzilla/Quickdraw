@@ -54,6 +54,7 @@ class PeerFinder(
         requestScanPermissions(activity)
         p2pManager.discoverPeers(channel, object : WifiP2pManager.ActionListener {
             override fun onSuccess() {
+                scanning.value = true
                 Log.i(TAG, "Success discovering peers")
             }
             override fun onFailure(p0: Int) {
@@ -64,6 +65,16 @@ class PeerFinder(
 
     fun stopScanning() {
         Log.i(TAG, "[PeerFinder] Stopped Scanning")
+        p2pManager.stopPeerDiscovery(channel, object: WifiP2pManager.ActionListener{
+            override fun onSuccess() {
+                scanning.value = false
+                Log.i(TAG, "[PeerFinder] Successfully stopped peer discovery")
+            }
+
+            override fun onFailure(reason: Int) {
+                Log.i(TAG, "[PeerFinder] There was a problem stopping peer discovery: $reason")
+            }
+        })
     }
 
     @SuppressLint("MissingPermission")
