@@ -34,12 +34,17 @@
             android:name=".SensorTest"
             android:exported="false"
             android:label="@string/title_activity_sensor_test"
-            android:theme="@style/Theme.Quickdraw" />
+            android:theme="@style/Theme.Quickdraw"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"/>
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/title_activity_main"
-            android:theme="@style/Theme.Quickdraw">
+            android:theme="@style/Theme.Quickdraw"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -48,26 +53,38 @@
         </activity>
         <activity
             android:name=".duel.DuelActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"/>
         <activity
             android:name=".game.ManualConnectionActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"/>
         <activity
             android:name=".duel.duelBandit.DuelBanditActivity"
-            android:exported="true" />
+            android:exported="true"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"/>
         <activity
             android:name=".game.GameActivity"
             android:exported="true"
             android:label="@string/title_activity_main"
-            android:theme="@style/Theme.Quickdraw" />
+            android:theme="@style/Theme.Quickdraw"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"/>
         <activity
             android:name=".network.NoConnectionActivity"
             android:exported="false"
-            android:theme="@style/Theme.Quickdraw" />
+            android:theme="@style/Theme.Quickdraw"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"/>
         <activity
             android:name=".login.LoginActivity"
             android:exported="false"
-            android:theme="@style/Theme.Quickdraw" />
+            android:theme="@style/Theme.Quickdraw"
+            android:screenOrientation="portrait"
+            tools:ignore="DiscouragedApi,LockedOrientationActivity"/>
 
         <receiver
             android:name="com.example.quickdraw.notifications.QDNotificationReceiver"
