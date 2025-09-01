@@ -379,8 +379,8 @@ fun FightableBandit(b: Bandit, viewModel: MainScreenVM, canFight:Boolean,onDuel:
         Column(){
             val textModifier = Modifier.fillMaxWidth(0.7f).padding(horizontal=8.dp).align(Alignment.Start)
             Text(b.name,fontSize = Typography.titleLarge.fontSize,modifier = textModifier)
-            Text("Speed:${powerToHint(b.maxDamage)}",modifier = textModifier)
-            Text("Strength:${speedToHint(b.minSpeed)}",modifier = textModifier)
+            Text("Strength:${powerToHint(b.maxDamage)}",modifier = textModifier)
+            Text("Speed:${speedToHint(b.minSpeed)}",modifier = textModifier)
         }
         Button( onClick = { onDuel() }, enabled = canFight,colors = secondaryButtonColors) {
             Text("Duel")
