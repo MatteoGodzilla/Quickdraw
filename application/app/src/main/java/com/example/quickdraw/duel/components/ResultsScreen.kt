@@ -139,6 +139,9 @@ fun ResultsScreen(controller: NavHostController, self:Peer, other:Peer, gameLogi
         if(rewards.value.money>0 || rewards.value.exp > 0){
             extraText.value = "You got ${rewards.value.money} coins and ${rewards.value.exp} exp "
         }
+        if(gameLogic.forfeit.collectAsState().value){
+            extraText.value = "You surrendered"
+        }
 
         ResultScreenDone(self, other, wonBySelf, wonByOther, gameLogic.getEndGameMessage(), extraText.value) {
            Button(onClick = {gameLogic.sendBackToMainGame()},

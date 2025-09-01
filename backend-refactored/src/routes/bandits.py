@@ -309,5 +309,6 @@ async def tokenLogin(request: FightRequest):
     
     #in this scenario fight was probably interrupted, player loses bullets 
     #TODO: if player has 0 bullets,then they actually have lost,save changes only in that case
+    playerInfo.health-=damageToPlayer
     session.commit()
     return JSONResponse(status_code=HTTP_200_OK,content=jsonable_encoder(FightRewards(money=0,exp=0)))

@@ -4,9 +4,11 @@ import android.content.Context
 import android.content.Intent
 import android.os.VibrationEffect
 import android.os.Vibrator
+import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.example.quickdraw.PrefKeys
+import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.vms.WeaponSelectionViewModel
 import com.example.quickdraw.game.GameActivity
@@ -49,9 +51,12 @@ class DuelBanditLogic(
     var duelHistory: MutableStateFlow<List<FightAttempt>> = MutableStateFlow(listOf())
     var isGameEnded = MutableStateFlow(false)
 
+    var forfeit  = MutableStateFlow(false)
+
+
     fun isDuelOver(): Boolean{
         // either someone is defeated or player is out of ammo
-        return botHP.value<= 0 || repo.player.player.value.health <= 0 || repo.inventory.bullets.value.sumOf { x->x.amount } == 0
+        return botHP.value<= 0 || repo.player.player.value.health <= 0 || forfeit.value
     }
 
     fun getEndGameMessage():String{
@@ -80,6 +85,7 @@ class DuelBanditLogic(
                 if(b.type == selectedWeapon.value!!.bulletType) b.copy(amount = b.amount - selectedWeapon.value!!.bulletsShot)
                 else b
             }
+            Log.i(TAG,"damage calc")
             damageCalc(playerWinner)
             playerWon.update { playerWinner}
             roundEnds.update { true }
@@ -91,14 +97,17 @@ class DuelBanditLogic(
     }
 
     fun damageCalc(playerWins: Boolean){
+        Log.i(TAG,playerWins.toString())
         if(playerWins){
             botHP.update { x->x-selectedWeapon.value!!.damage }
             duelHistory.update { x->x+ FightAttempt(true,selectedWeapon.value!!.id,0) }
         }
         else{
+            Log.i(TAG,"Player lost")
             val damage = Random.nextInt(banditInfo.minDamage,banditInfo.maxDamage+1)
             repo.player.player.update { x->x.copy(health = x.health-damage) }
             duelHistory.update { x->x+ FightAttempt(false,selectedWeapon.value!!.id,damage) }
+            Log.i(TAG,repo.player.player.value.health.toString())
         }
     }
 
@@ -141,5 +150,9 @@ class DuelBanditLogic(
                 }
             }
         }
+    }
+
+    fun forfeit(){
+        forfeit.update { true }
     }
 }

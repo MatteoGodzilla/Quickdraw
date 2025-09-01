@@ -62,7 +62,10 @@ fun WeaponSelectionScreen(self: Peer, other: Peer, duelLogic: DuelBanditLogic, r
             controller.navigate(DuelNavigation.Play)
             duelLogic.setWeaponAndStart( vm.selectedWeapon.value)
         },
-        onForfeit = {}
+        onForfeit = {
+            duelLogic.forfeit()
+            controller.navigate(DuelNavigation.Results)
+        }
     )
 }
 

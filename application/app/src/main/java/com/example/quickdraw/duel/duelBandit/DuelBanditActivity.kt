@@ -32,16 +32,13 @@ class DuelBanditActivity: ComponentActivity() {
         val gameRepo = qdapp.repository
         val duelState = DuelBanditLogic(id,gameRepo.bandits.bandits.value[id]!!, gameRepo,this)
 
-        val player = gameRepo.player.player.value
-        val stats = gameRepo.player.stats.value
-        val playerAsPeer = Peer(player.id, player.username, player.level, player.health, stats.maxHealth,player.bounty)
 
         setContent {
             val banditAsPeer = Peer(duelState.banditInfo.id, duelState.banditInfo.name, 0, duelState.botHP.collectAsState().value, duelState.banditInfo.hp, 0)
             val controller = rememberNavController()
             NavHost(navController = controller, startDestination = DuelNavigation.Presentation){
                 composable<DuelNavigation.Presentation>{
-                    PresentationScreen(controller,playerAsPeer, banditAsPeer)
+                    PresentationScreen(controller,gameRepo.getPlayerAsPeer(), banditAsPeer)
                 }
                 composable<DuelNavigation.WeaponSelect>{
                     val vm = viewModel {
@@ -52,13 +49,13 @@ class DuelBanditActivity: ComponentActivity() {
                             duelState.setFavourite(this@DuelBanditActivity.dataStore,vm)
                         }
                     }
-                    WeaponSelectionScreen(playerAsPeer, banditAsPeer,duelState, gameRepo, vm, controller)
+                    WeaponSelectionScreen(gameRepo.getPlayerAsPeer(), banditAsPeer,duelState, gameRepo, vm, controller)
                 }
                 composable<DuelNavigation.Play>{
                     PlayScreen(controller, duelState)
                 }
                 composable<DuelNavigation.Results>{
-                    ResultsScreen(controller, playerAsPeer, banditAsPeer, duelState, gameRepo)
+                    ResultsScreen(controller, gameRepo.getPlayerAsPeer(), banditAsPeer, duelState, gameRepo)
                 }
             }
         }
