@@ -17,23 +17,6 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `ActiveContract`
---
-
-DROP TABLE IF EXISTS `ActiveContract`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!40101 SET character_set_client = utf8mb4 */;
-CREATE TABLE `ActiveContract` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `idContract` int(11) NOT NULL,
-  `startTime` bigint(20) unsigned NOT NULL COMMENT 'UTC Unix timestamp in seconds',
-  PRIMARY KEY (`id`),
-  KEY `ActiveAdventure_Adventure_FK` (`idContract`),
-  CONSTRAINT `ActiveAdventure_Adventure_FK` FOREIGN KEY (`idContract`) REFERENCES `Contract` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
 -- Table structure for table `AssignedMercenary`
 --
 
@@ -45,9 +28,85 @@ CREATE TABLE `AssignedMercenary` (
   `idActiveContract` int(11) NOT NULL,
   PRIMARY KEY (`idEmployedMercenary`,`idActiveContract`),
   KEY `AssignedMercenary_ActiveAdventure_FK` (`idActiveContract`),
-  CONSTRAINT `AssignedMercenary_ActiveAdventure_FK` FOREIGN KEY (`idActiveContract`) REFERENCES `ActiveContract` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `AssignedMercenary_ActiveAdventure_FK` FOREIGN KEY (`idActiveContract`) REFERENCES `StartedContract` (`id`) ON DELETE CASCADE,
   CONSTRAINT `AssignedMercenary_EmployedMercenary_FK` FOREIGN KEY (`idEmployedMercenary`) REFERENCES `EmployedMercenary` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `Bandit`
+--
+
+DROP TABLE IF EXISTS `Bandit`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `Bandit` (
+  `id` int(11) NOT NULL,
+  `name` varchar(128) NOT NULL DEFAULT '"Bandit"',
+  `hp` int(11) NOT NULL DEFAULT 100,
+  `minDamage` int(11) NOT NULL DEFAULT 1,
+  `maxDamage` int(11) NOT NULL DEFAULT 10,
+  `minExp` int(11) NOT NULL DEFAULT 1,
+  `maxExp` int(11) NOT NULL DEFAULT 10,
+  `minSpeed` int(11) NOT NULL DEFAULT 500,
+  `maxSpeed` int(11) NOT NULL DEFAULT 1000,
+  `minMoney` int(11) NOT NULL DEFAULT 1,
+  `maxMoney` int(11) NOT NULL DEFAULT 100,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BanditIstance`
+--
+
+DROP TABLE IF EXISTS `BanditIstance`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BanditIstance` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `idBandit` int(11) NOT NULL,
+  `idRequest` int(11) NOT NULL,
+  `defeated` tinyint(1) NOT NULL DEFAULT 0,
+  `frozen` tinyint(1) DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `BanditIstance_Bandit_FK` (`idBandit`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=251 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BanditPool`
+--
+
+DROP TABLE IF EXISTS `BanditPool`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BanditPool` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `banditId` int(11) NOT NULL DEFAULT 1,
+  `spawnChance` int(11) NOT NULL DEFAULT 100,
+  `levelRequired` int(11) NOT NULL DEFAULT 1,
+  `minSpawn` int(11) NOT NULL DEFAULT 1,
+  `maxSpawn` int(11) NOT NULL DEFAULT 1,
+  PRIMARY KEY (`id`),
+  KEY `BanditPool_Bandit_FK` (`banditId`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `BaseStats`
+--
+
+DROP TABLE IF EXISTS `BaseStats`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `BaseStats` (
+  `upgradeType` int(11) NOT NULL,
+  `baseValue` int(11) NOT NULL DEFAULT 1,
+  `evaluation` enum('INCREMENT','MULTIPLIER') NOT NULL DEFAULT 'INCREMENT',
+  PRIMARY KEY (`upgradeType`),
+  CONSTRAINT `BaseStats_UpgradeTypes_FK` FOREIGN KEY (`upgradeType`) REFERENCES `UpgradeTypes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -61,8 +120,9 @@ CREATE TABLE `Bullet` (
   `type` int(11) NOT NULL AUTO_INCREMENT,
   `description` varchar(128) NOT NULL,
   `capacity` int(11) NOT NULL,
+  `requiredLevel` smallint(6) DEFAULT 1,
   PRIMARY KEY (`type`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -80,7 +140,7 @@ CREATE TABLE `BulletShop` (
   PRIMARY KEY (`id`),
   KEY `BulletShop_Bullet_FK` (`idBullet`),
   CONSTRAINT `BulletShop_Bullet_FK` FOREIGN KEY (`idBullet`) REFERENCES `Bullet` (`type`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -100,7 +160,7 @@ CREATE TABLE `Contract` (
   `maxReward` int(11) NOT NULL,
   `startCost` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -121,7 +181,7 @@ CREATE TABLE `Duel` (
   KEY `Duel_Player_FK_1` (`idPlayerB`),
   CONSTRAINT `Duel_Player_FK` FOREIGN KEY (`idPlayerA`) REFERENCES `Player` (`id`),
   CONSTRAINT `Duel_Player_FK_1` FOREIGN KEY (`idPlayerB`) REFERENCES `Player` (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -140,7 +200,7 @@ CREATE TABLE `EmployedMercenary` (
   KEY `EmployedMercenary_Mercenary_FK` (`idMercenary`),
   CONSTRAINT `EmployedMercenary_Mercenary_FK` FOREIGN KEY (`idMercenary`) REFERENCES `Mercenary` (`id`),
   CONSTRAINT `EmployedMercenary_Player_FK` FOREIGN KEY (`idPlayer`) REFERENCES `Player` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -152,11 +212,11 @@ DROP TABLE IF EXISTS `Friendship`;
 /*!40101 SET character_set_client = utf8mb4 */;
 CREATE TABLE `Friendship` (
   `idPlayerFrom` int(11) NOT NULL,
-  `idPlayerFriend` int(11) NOT NULL,
-  PRIMARY KEY (`idPlayerFrom`,`idPlayerFriend`),
-  KEY `Friendship_Player_FK_1` (`idPlayerFriend`),
+  `idPlayerTo` int(11) NOT NULL,
+  PRIMARY KEY (`idPlayerFrom`,`idPlayerTo`),
+  KEY `Friendship_Player_FK_1` (`idPlayerTo`),
   CONSTRAINT `Friendship_Player_FK` FOREIGN KEY (`idPlayerFrom`) REFERENCES `Player` (`id`),
-  CONSTRAINT `Friendship_Player_FK_1` FOREIGN KEY (`idPlayerFriend`) REFERENCES `Player` (`id`)
+  CONSTRAINT `Friendship_Player_FK_1` FOREIGN KEY (`idPlayerTo`) REFERENCES `Player` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -204,8 +264,9 @@ CREATE TABLE `Medikit` (
   `healthRecover` int(11) NOT NULL,
   `description` varchar(128) DEFAULT NULL,
   `capacity` int(11) NOT NULL,
+  `requiredLevel` smallint(6) DEFAULT 1,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -223,7 +284,7 @@ CREATE TABLE `MedikitShop` (
   PRIMARY KEY (`id`),
   KEY `MedikitShop_Medikit_FK` (`idMedikit`),
   CONSTRAINT `MedikitShop_Medikit_FK` FOREIGN KEY (`idMedikit`) REFERENCES `Medikit` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -240,7 +301,7 @@ CREATE TABLE `Mercenary` (
   `requiredLevel` int(11) NOT NULL,
   `employmentCost` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -253,13 +314,12 @@ DROP TABLE IF EXISTS `Player`;
 CREATE TABLE `Player` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `health` int(11) NOT NULL DEFAULT 100,
-  `maxHealth` int(11) NOT NULL DEFAULT 100,
   `exp` int(11) NOT NULL DEFAULT 0,
   `money` int(11) NOT NULL DEFAULT 0,
   `bounty` int(11) NOT NULL DEFAULT 0,
   `username` varchar(128) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -311,7 +371,7 @@ CREATE TABLE `PlayerUpgrade` (
   PRIMARY KEY (`idPlayer`,`idUpgrade`),
   KEY `PlayerUpgrade_UpgradeShop_FK` (`idUpgrade`),
   CONSTRAINT `PlayerUpgrade_Player_FK` FOREIGN KEY (`idPlayer`) REFERENCES `Player` (`id`),
-  CONSTRAINT `PlayerUpgrade_UpgradeShop_FK` FOREIGN KEY (`idUpgrade`) REFERENCES `UpgradeShop` (`idUpgrade`)
+  CONSTRAINT `PlayerUpgrade_UpgradeShop_FK` FOREIGN KEY (`idUpgrade`) REFERENCES `UpgradeShop` (`idUpgrade`) ON DELETE CASCADE ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -333,6 +393,22 @@ CREATE TABLE `PlayerWeapon` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `PoolRequest`
+--
+
+DROP TABLE IF EXISTS `PoolRequest`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `PoolRequest` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `idPlayer` int(11) NOT NULL,
+  `expireTime` timestamp NULL DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `PoolRequest_Player_FK` (`idPlayer`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `Round`
 --
 
@@ -343,13 +419,36 @@ CREATE TABLE `Round` (
   `idDuel` int(11) NOT NULL,
   `roundNumber` int(11) NOT NULL,
   `idPlayer` int(11) NOT NULL,
-  `won` tinyint(1) NOT NULL,
+  `won` int(11) NOT NULL COMMENT '0 = Won, 1 = Lost, 2 = Draw',
   `idWeaponUsed` int(11) NOT NULL,
   `bulletsUsed` int(11) NOT NULL DEFAULT 1,
   `damage` int(11) NOT NULL,
   PRIMARY KEY (`idDuel`,`roundNumber`,`idPlayer`),
   CONSTRAINT `Round_Duel_FK` FOREIGN KEY (`idDuel`) REFERENCES `Duel` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `StartedContract`
+--
+
+DROP TABLE IF EXISTS `StartedContract`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8mb4 */;
+CREATE TABLE `StartedContract` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `idContract` int(11) NOT NULL,
+  `idPlayer` int(11) NOT NULL,
+  `startTime` bigint(20) unsigned NOT NULL COMMENT 'UTC Unix timestamp in seconds',
+  `redeemed` tinyint(1) NOT NULL DEFAULT 0,
+  `successful` tinyint(1) NOT NULL DEFAULT 0,
+  `reward` int(11) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`),
+  KEY `ActiveAdventure_Adventure_FK` (`idContract`),
+  KEY `StartedContract_Player_FK` (`idPlayer`),
+  CONSTRAINT `ActiveAdventure_Adventure_FK` FOREIGN KEY (`idContract`) REFERENCES `Contract` (`id`),
+  CONSTRAINT `StartedContract_Player_FK` FOREIGN KEY (`idPlayer`) REFERENCES `Player` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=267 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -364,10 +463,11 @@ CREATE TABLE `UpgradeShop` (
   `type` int(11) NOT NULL,
   `level` int(11) NOT NULL,
   `cost` int(11) NOT NULL,
+  `modifier` int(11) DEFAULT 1,
   PRIMARY KEY (`idUpgrade`),
   KEY `UpgradeShop_UpgradeTypes_FK` (`type`),
-  CONSTRAINT `UpgradeShop_UpgradeTypes_FK` FOREIGN KEY (`type`) REFERENCES `UpgradeTypes` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+  CONSTRAINT `UpgradeShop_UpgradeTypes_FK` FOREIGN KEY (`type`) REFERENCES `UpgradeTypes` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=36 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -398,10 +498,11 @@ CREATE TABLE `Weapon` (
   `damage` int(11) NOT NULL,
   `cost` int(11) NOT NULL DEFAULT 0,
   `bulletsShot` int(11) NOT NULL DEFAULT 1,
+  `requiredLevel` smallint(6) DEFAULT 1,
   PRIMARY KEY (`id`),
   KEY `Weapon_Bullet_FK` (`bulletType`),
   CONSTRAINT `Weapon_Bullet_FK` FOREIGN KEY (`bulletType`) REFERENCES `Bullet` (`type`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf16 COLLATE=utf16_general_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -417,4 +518,4 @@ CREATE TABLE `Weapon` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-08-02 13:06:50
+-- Dump completed on 2025-09-01 11:18:50
