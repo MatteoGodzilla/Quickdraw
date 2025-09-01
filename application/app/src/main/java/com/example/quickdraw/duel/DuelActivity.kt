@@ -47,10 +47,8 @@ class DuelActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         val qdapp = application as QuickdrawApplication
         val repository = qdapp.repository
-        val player = repository.player.player.value
-        val stats = repository.player.stats.value
         val duelGameLogic = DuelGameLogic(
-            Peer(player.id, player.username, player.level, player.health, stats.maxHealth,player.bounty),
+            repository.getPlayerAsPeer(),
             repository,
             this,
         )

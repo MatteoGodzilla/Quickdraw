@@ -38,31 +38,36 @@ fun ResultsScreen(controller: NavHostController, self: Peer, other: Peer, gameLo
     val wonBySelf = roundResults.count { r -> r.didSelfWin == MatchResult.WON }
     val wonByOther = roundResults.count { r -> r.didSelfWin == MatchResult.LOST }
     val roundNumber = roundResults.size
-    val weapon = repo.inventory.weapons.collectAsState().value.firstOrNull { w -> w.id == roundResults.last().weaponId }
-    val bulletsRemaining = repo.inventory.bullets.collectAsState().value.firstOrNull { b -> b.type == weapon?.bulletType }
+    val weapon = repo.inventory.weapons.collectAsState().value.first { w -> w.id == roundResults.last().weaponId }
+    val bulletsRemaining = repo.inventory.bullets.collectAsState().value.first { b -> b.type == weapon.bulletType }
     val isOpponentFriendAlready = repo.leaderboard.friends.collectAsState().value.any { p -> p.id == self.id }
     val canGoToNextRound =  gameLogic.canGoToNextRound()
+    val canReuseWeapon = bulletsRemaining.amount >= weapon.bulletsShot
     val selfIsReady =  gameLogic.selfState.collectAsState().value == PeerState.READY
 
     if(canGoToNextRound) {
-        ResultScreenOngoing(self, other, roundNumber, wonBySelf, wonByOther, selfIsReady){
-            StatsDisplayer("Remaining bullets", bulletsRemaining?.amount.toString())
-            Button(onClick = {
-                controller.navigate(DuelNavigation.WeaponSelect)
-                gameLogic.nextRound()
-            },
+        ResultScreenOngoing(self, other, roundNumber, wonBySelf, wonByOther, selfIsReady) {
+            StatsDisplayer("Remaining bullets", bulletsRemaining.amount.toString())
+            Button(
+                onClick = {
+                    controller.navigate(DuelNavigation.WeaponSelect)
+                    gameLogic.nextRound()
+                },
                 colors = secondaryButtonColors,
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Text("Change weapon")
             }
-            Button(onClick = {
-                gameLogic.setReady(weapon!!)
-            },
-                colors = primaryButtonColors,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Next round", fontSize = Typography.titleLarge.fontSize)
+            if (canReuseWeapon) {
+                Button(
+                    onClick = {
+                        gameLogic.setReady(weapon)
+                    },
+                    colors = primaryButtonColors,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Next round", fontSize = Typography.titleLarge.fontSize)
+                }
             }
         }
     } else {
@@ -97,6 +102,7 @@ fun ResultsScreen(controller: NavHostController, self:Peer, other:Peer, gameLogi
     val roundNumber = roundResults.size
     val weapon = repo.inventory.weapons.collectAsState().value.first { w -> w.id == roundResults.last().idWeapon }
     val bulletsRemaining = repo.inventory.bullets.collectAsState().value.first { b -> b.type == weapon.bulletType }
+    val canReuseWeapon = bulletsRemaining.amount >= weapon.bulletsShot
 
     if(!gameLogic.isDuelOver()){
         ResultScreenOngoing(self, other,roundNumber, wonBySelf, wonByOther, false) {
@@ -110,15 +116,17 @@ fun ResultsScreen(controller: NavHostController, self:Peer, other:Peer, gameLogi
             ) {
                 Text("Change weapon")
             }
-            Button(onClick = {
-                gameLogic.resetToSelect()
-                gameLogic.setWeaponAndStart(weapon)
-                controller.navigate(DuelNavigation.Play)
-            },
-                colors = primaryButtonColors,
-                modifier = Modifier.fillMaxWidth(),
-            ) {
-                Text("Next round", fontSize = Typography.titleLarge.fontSize)
+            if(canReuseWeapon){
+                Button(onClick = {
+                    gameLogic.resetToSelect()
+                    gameLogic.setWeaponAndStart(weapon)
+                    controller.navigate(DuelNavigation.Play)
+                },
+                    colors = primaryButtonColors,
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text("Next round", fontSize = Typography.titleLarge.fontSize)
+                }
             }
         }
     } else {

@@ -371,5 +371,4 @@ class DuelGameLogic(
             }
         }
     }
-
 }
