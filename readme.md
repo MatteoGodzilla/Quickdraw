@@ -1,3 +1,5 @@
+This branch is for testing purposes
+
 # Quickdraw
 The application available in releases is set up to point to `quickdraw.matteogodzilla.net`. The instruction below is for someone who wants to host their own private server
 
