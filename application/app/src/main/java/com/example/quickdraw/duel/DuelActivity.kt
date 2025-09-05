@@ -58,6 +58,7 @@ class DuelActivity : ComponentActivity() {
 
         val isServer = intent.getBooleanExtra(Game2Duel.IS_SERVER_KEY, false)
         val serverAddress = intent.getStringExtra(Game2Duel.SERVER_ADDRESS_KEY)
+        val serverPort = intent.getIntExtra(Game2Duel.SERVER_PORT_KEY, DuelServer.PORT)
         usingWifiP2P = intent.getBooleanExtra(Game2Duel.USING_WIFI_P2P, false)
 
         Log.i(TAG, "Started duel activity $isServer $serverAddress")
@@ -69,9 +70,9 @@ class DuelActivity : ComponentActivity() {
 
             LaunchedEffect(true) {
                 if(isServer){
-                    duelServer.startAsServer()
+                    duelServer.startAsServer(serverPort)
                 } else {
-                    duelServer.startAsClient(InetAddress.getByName(serverAddress))
+                    duelServer.startAsClient(InetAddress.getByName(serverAddress), serverPort)
                 }
             }
             val controller = rememberNavController()
