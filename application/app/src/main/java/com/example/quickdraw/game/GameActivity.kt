@@ -72,6 +72,8 @@ class GameNavigation {
 
 class GameActivity : ComponentActivity(){
 
+    private var alreadySentToDuel = false
+
     private var pbr : PermissionBroadcastReceiver? = null
     @SuppressLint("SourceLockedOrientationActivity")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -181,12 +183,15 @@ class GameActivity : ComponentActivity(){
     }
 
     private fun goToDuel(isServer: Boolean, address: String){
+        if(alreadySentToDuel)
+            return
         val intent = Intent(this, DuelActivity::class.java)
         intent.putExtra(Game2Duel.IS_SERVER_KEY, isServer)
         intent.putExtra(Game2Duel.SERVER_ADDRESS_KEY, address)
         intent.putExtra(Game2Duel.USING_WIFI_P2P, true)
         startActivity(intent)
         finish()
+        alreadySentToDuel = true
     }
 
     private fun goToBanditDuel(id:Int){

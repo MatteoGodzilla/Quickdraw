@@ -17,13 +17,14 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import okio.IOException
 import java.net.Inet4Address
+import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
 
 class ManualConnectionVM(
     private val repository: GameRepository,
     private val context: Context,
-    private val onConnection: (isServer:Boolean, serverAddress:String)->Unit
+    private val onConnection: (isServer:Boolean, serverAddress:String, serverPort: Int)->Unit
 ) : ViewModel() {
     val scanning = MutableStateFlow(false)
     val messageError = MutableStateFlow("")
@@ -48,10 +49,12 @@ class ManualConnectionVM(
             return@launch
         alreadyStarted = true
         try {
+            Log.i(TAG, value)
             val data = Json.decodeFromString<ManualClientConnection>(value)
-            val otherSocket = Socket(data.address, DISCOVER_PORT)
+            Log.i(TAG, data.toString())
+            val otherSocket = Socket(data.address, data.port)
             if(otherSocket.isConnected && scanning.value){
-                onConnection(false, data.address)
+                onConnection(false, data.address, data.port)
             }
             otherSocket.close()
         } catch (e: Exception){
@@ -68,13 +71,16 @@ class ManualConnectionVM(
 
     private fun listenAsServer() : Job = viewModelScope.launch(Dispatchers.IO) {
         try{
-            server = ServerSocket(DISCOVER_PORT)
-            Log.i(TAG, "Started listening for a manual match")
+            server = ServerSocket()
+            server!!.reuseAddress = true
+            server!!.bind(null) //localhost to available port
+            Log.i(TAG, "Started listening for a manual match at port ${server!!.localPort}")
             val otherPeer = server!!.accept()
             if(otherPeer.isConnected && !scanning.value){
-                onConnection(true,"")
+                onConnection(true,"", server!!.localPort)
             }
             otherPeer.close()
+            server!!.close()
         } catch(_: IOException){
             Log.i(TAG, "Listening server was forced close, because we started scanning")
         }
@@ -83,7 +89,7 @@ class ManualConnectionVM(
     fun getQRData(): String{
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         val address = connectivityManager.getLinkProperties(connectivityManager.activeNetwork)?.linkAddresses!!.first { x->x.address is Inet4Address }.toString().split("/")[0]
-        return Json.encodeToString(ManualClientConnection(address, getSelfAsPeer()))
+        return Json.encodeToString(ManualClientConnection(address, server!!.localPort, getSelfAsPeer()))
     }
 
     private fun getSelfAsPeer(): Peer {
@@ -92,13 +98,10 @@ class ManualConnectionVM(
         return Peer(player.id, player.username, player.level, player.health, stats.maxHealth,player.bounty)
     }
 
-    companion object{
-        const val DISCOVER_PORT = 54320
-    }
-
     @Serializable
     data class ManualClientConnection(
         val address: String,
+        val port: Int,
         val self: Peer
     )
 }

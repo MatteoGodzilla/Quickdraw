@@ -21,8 +21,8 @@ class ManualConnectionActivity: ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             val vm = viewModel {
-                ManualConnectionVM(qdapp.repository, this@ManualConnectionActivity ) { isServer, serverAddress ->
-                    goToDuel(isServer, serverAddress)
+                ManualConnectionVM(qdapp.repository, this@ManualConnectionActivity ) { isServer, serverAddress, serverPort ->
+                    goToDuel(isServer, serverAddress, serverPort)
                 }
             }
             ManualConnectionScreen(vm){
@@ -32,10 +32,11 @@ class ManualConnectionActivity: ComponentActivity() {
          }
     }
 
-    private fun goToDuel(isServer: Boolean, address: String){
+    private fun goToDuel(isServer: Boolean, address: String, port:Int){
         val intent = Intent(this, DuelActivity::class.java)
         intent.putExtra(Game2Duel.IS_SERVER_KEY, isServer)
         intent.putExtra(Game2Duel.SERVER_ADDRESS_KEY, address)
+        intent.putExtra(Game2Duel.SERVER_PORT_KEY, port)
         intent.putExtra(Game2Duel.USING_WIFI_P2P, false)
         startActivity(intent)
         this.finish()

@@ -72,6 +72,7 @@ suspend fun signOff(dataStore: DataStore<Preferences>){
 object Game2Duel{
     const val IS_SERVER_KEY = "groupOwner"
     const val SERVER_ADDRESS_KEY = "groupOwnerAddress"
+    const val SERVER_PORT_KEY = "serverPort"
     const val USING_WIFI_P2P = "wifi-direct?"
 }
 

@@ -8,6 +8,7 @@ import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.io.PrintWriter
 import java.net.InetAddress
+import java.net.InetSocketAddress
 import java.net.ServerSocket
 import java.net.Socket
 
@@ -18,11 +19,13 @@ class DuelServer(private val receiver: MessageHandler) {
     private var clientSocket : Socket? = null
     private var doneReceiving = false
 
-    suspend fun startAsServer() = withContext(Dispatchers.IO){
+    suspend fun startAsServer(port: Int) = withContext(Dispatchers.IO){
         if(serverSocket != null)
             return@withContext
         Log.i(TAG, "[DuelServer] Starting as server")
-        serverSocket = ServerSocket(PORT)
+        serverSocket = ServerSocket()
+        serverSocket!!.reuseAddress = true
+        serverSocket!!.bind(InetSocketAddress(port))
         val client = serverSocket!!.accept()
         Log.i(TAG, "[DuelServer] Accepted socket: $client")
         peerLoop(client)
@@ -31,11 +34,11 @@ class DuelServer(private val receiver: MessageHandler) {
         serverSocket!!.close()
     }
 
-    suspend fun startAsClient(address: InetAddress) = withContext(Dispatchers.IO){
+    suspend fun startAsClient(address: InetAddress, port: Int) = withContext(Dispatchers.IO){
         if(clientSocket != null)
             return@withContext
         Log.i(TAG, "[DuelServer] Starting as client")
-        clientSocket = Socket(address,PORT)
+        clientSocket = Socket(address, port)
         Log.i(TAG, "[DuelServer] Connected to server")
         peerLoop(clientSocket!!)
         Log.i(TAG, "[DuelServer] Closing socket: $clientSocket")
@@ -74,6 +77,6 @@ class DuelServer(private val receiver: MessageHandler) {
     }
 
     companion object{
-        private const val PORT = 54321
+        const val PORT = 54321
     }
 }

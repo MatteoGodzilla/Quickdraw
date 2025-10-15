@@ -2,6 +2,7 @@ package com.example.quickdraw.duel
 
 import android.content.pm.ActivityInfo
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -15,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.quickdraw.Game2Duel
 import com.example.quickdraw.QuickdrawApplication
+import com.example.quickdraw.TAG
 import com.example.quickdraw.dataStore
 import com.example.quickdraw.duel.components.PlayScreen
 import com.example.quickdraw.duel.components.PresentationScreen
@@ -56,7 +58,10 @@ class DuelActivity : ComponentActivity() {
 
         val isServer = intent.getBooleanExtra(Game2Duel.IS_SERVER_KEY, false)
         val serverAddress = intent.getStringExtra(Game2Duel.SERVER_ADDRESS_KEY)
+        val serverPort = intent.getIntExtra(Game2Duel.SERVER_PORT_KEY, DuelServer.PORT)
         usingWifiP2P = intent.getBooleanExtra(Game2Duel.USING_WIFI_P2P, false)
+
+        Log.i(TAG, "Started duel activity $isServer $serverAddress")
 
         enableEdgeToEdge()
         setContent{
@@ -65,9 +70,9 @@ class DuelActivity : ComponentActivity() {
 
             LaunchedEffect(true) {
                 if(isServer){
-                    duelServer.startAsServer()
+                    duelServer.startAsServer(serverPort)
                 } else {
-                    duelServer.startAsClient(InetAddress.getByName(serverAddress))
+                    duelServer.startAsClient(InetAddress.getByName(serverAddress), serverPort)
                 }
             }
             val controller = rememberNavController()
@@ -102,6 +107,10 @@ class DuelActivity : ComponentActivity() {
     }
 
     fun switchNavigation(selfState: PeerState, peerState: PeerState, controller: NavHostController) {
+        if(selfState == PeerState.CAN_PLAY && peerState == PeerState.CAN_PLAY){
+            //initial
+            controller.navigate(DuelNavigation.WeaponSelect)
+        }
         if(selfState == PeerState.STEADY && peerState == PeerState.STEADY) {
             controller.navigate(DuelNavigation.Play)
         } else if (selfState == PeerState.DONE || peerState == PeerState.DONE){
