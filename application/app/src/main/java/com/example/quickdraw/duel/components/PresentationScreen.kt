@@ -29,12 +29,10 @@ import kotlinx.coroutines.delay
 
 @Composable
 fun PresentationScreen(controller: NavHostController, self: Peer, other: Peer){
-    /*
     LaunchedEffect(true) {
         delay(3000)
         controller.navigate(DuelNavigation.WeaponSelect)
     }
-     */
     DuelContainer(self, other) {
         Box(modifier=Modifier.padding(5.dp).fillMaxSize()){
             Column(modifier = Modifier.fillMaxWidth().align(alignment = Alignment.Center)) {
